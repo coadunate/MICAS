@@ -1,8 +1,8 @@
 import React, { Component} from "react";
 import {Grid, Row, Col } from 'react-bootstrap'
 
-import Header from './components/HeaderView';
-import DatabaseSelector from './components/DatabaseSelectorView';
+import HeaderView from './components/HeaderView';
+import DatabaseSelectorView from './components/DatabaseSelectorView';
 
 import '../css/App.css';
 
@@ -16,8 +16,8 @@ class App extends Component {
                 <Col md={12}>
                   <Col md={2}></Col>
                   <Col md={8}>
-                    <Header name={this.props.name}/>
-                    <DatabaseSelector />
+                    <HeaderView name={this.props.name}/>
+                    <DatabaseSelectorView />
                   </Col>
                   <Col md={2}></Col>
                 </Col>

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Col, FormGroup, Radio, Button } from 'react-bootstrap'
-//import shell from 'shelljs';
 
 import PreExistingDatabase from './DatabaseView/PreExistingDatabaseView';
 import CustomDatabase from './DatabaseView/CustomDatabaseView';
@@ -9,20 +8,39 @@ import '../../css/DatabaseSelector.css';
 
 var $ = require('jquery');
 
-
-class DatabaseSelector extends Component {
+/**
+* DatabaseSelectorView class contains the functiaonlity and the U.I for the
+* two database creation methods.
+*/
+class DatabaseSelectorView extends Component {
 
   constructor(props){
     super(props)
 
-    this.state = { selectedDB: 'preDB', preDB: { bacteria: true, archaea: false, virus: false } }
+    this.state = {
+      selectedDB: 'preDB',
+      preDB: {
+        bacteria: true,
+        archaea: false,
+        virus: false
+      }
+    }
+
+    // Function Binding to preserve `this` keyword.
     this.updatePreDatabases.bind(this);
+    this.createDatabase.bind(this);
   }
 
-  updatePreDatabases(dbState){
-    this.setState({ preDB: dbState });
-  }
+  /**
+  * updatePreDatabases -- Updates the selected pre-exisiting databases from the
+  * checkbox.
+  */
+  updatePreDatabases = (dbState) => this.setState({ preDB: dbState });
 
+  /**
+  * createDatabase -- Creates a new database from the configuration
+  * user has provided through the form.
+  */
   createDatabase(e){
     e.preventDefault();
     if(this.state.selectedDB === 'preDB'){
@@ -33,19 +51,21 @@ class DatabaseSelector extends Component {
     }
   }
 
+  /**
+  * render -- renders the U.I for DatabaseSelectorView
+  */
   render(){
-    let allPreDBFalse  = this.state.preDB.bacteria == false && this.state.preDB.archaea == false && this.state.preDB.virus == false;
-    // let shell = require('shelljs');
-    // // let string = shell.cat('/Users/tayabsoomro/shell.txt');
-    // // console.log(string);
-    // shell.exec(`node --version`, () => {
-    //     console.log("Created react app")
-    //     resolve(true)
-    //   })
+
+    // Logic statement to determine whether or not the "Next" button should be
+    // disabled.
+    let disableNext  = this.state.preDB.bacteria == false &&
+                       this.state.preDB.archaea == false &&
+                       this.state.preDB.virus == false
+
     return(
       <Col md={12}>
 
-          <form onSubmit={this.createDatabase.bind(this)}>
+          <form onSubmit={this.createDatabase}>
             <FormGroup className="go-left">
               <Radio name="radioGroup" value="preDB" checked={this.state.selectedDB === 'preDB'} onChange={(e) => { this.setState({ selectedDB: 'preDB' }) }}>
                 Pre-Existing Databases
@@ -57,7 +77,7 @@ class DatabaseSelector extends Component {
                 Custom Database
               </Radio>
               <CustomDatabase/>
-              <Button bsStyle="primary" type="submit" className="pull-right" disabled={allPreDBFalse}>Next</Button>
+              <Button bsStyle="primary" type="submit" className="pull-right" disabled={disableNext}>Next</Button>
             </FormGroup>
           </form>
 
@@ -66,4 +86,4 @@ class DatabaseSelector extends Component {
   }
 }
 
-export default DatabaseSelector;
+export default DatabaseSelectorView;
