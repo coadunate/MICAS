@@ -16,7 +16,7 @@ class App extends Component {
                 <Col md={12}>
                   <Col md={2}></Col>
                   <Col md={8}>
-                    <Header />
+                    <Header name={this.props.name}/>
                     <DatabaseSelector />
                   </Col>
                   <Col md={2}></Col>
