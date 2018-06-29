@@ -1,0 +1,18 @@
+
+.App {
+  text-align: center;
+}
+
+.walk{
+  height: 50px;
+}
+
+.go-left{
+  text-align: left;
+}
+@import url(https://fonts.googleapis.com/css?family=ABeeZee);.heading-text {
+  font-family: 'ABeeZee', sans-serif;
+  font-size: 24px;
+  color: #000;
+  text-transform: uppercase;
+}
