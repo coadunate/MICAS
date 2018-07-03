@@ -4,12 +4,12 @@ import {Grid, Row, Col } from 'react-bootstrap'
 import HeaderView from './components/HeaderView';
 import DatabaseSelectorView from './components/DatabaseSelectorView';
 
-import '../css/App.css';
+import '../css/SetupPage.css';
 
-class App extends Component {
+class SetupPage extends Component {
     render () {
         return (
-          <div className="App">
+          <div className="SetupPage">
             <Grid fluid={true}>
               <div className="walk"></div>
               <Row className="show-grid">
@@ -28,4 +28,4 @@ class App extends Component {
     }
 }
 
-export default App;
+export default SetupPage;

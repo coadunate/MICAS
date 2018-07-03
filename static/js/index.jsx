@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
+import SetupPage from "./SetupPage";
 
 
 if(document.getElementById("content") != null)
-  ReactDOM.render(<App name="xWIMP" />, document.getElementById("content"));
+  ReactDOM.render(<SetupPage name="xWIMP" />, document.getElementById("content"));
 else if(document.getElementById("analysis") != null)
-  ReactDOM.render(<App name="xWIMP" />, document.getElementById("analysis"));
+  ReactDOM.render(<SetupPage name="xWIMP" />, document.getElementById("analysis"));
