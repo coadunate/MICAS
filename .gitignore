@@ -1,3 +1,5 @@
 __init__.py
 static/node_modules
 static/dist
+.listing
+server/.listing
