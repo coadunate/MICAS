@@ -8,6 +8,11 @@ app = Flask(__name__, static_folder='../static/dist', template_folder='../static
 def index():
     return render_template('index.html')
 
+
+@app.route('/analysis')
+def analysis():
+    return render_template('analysis.html')
+
 @app.route('/download_database', methods=['POST','GET'])
 def download_database():
     if( request.method == 'POST' ):
