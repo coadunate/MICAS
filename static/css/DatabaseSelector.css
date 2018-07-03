@@ -1,0 +1,6 @@
+.loadingIcon{
+  background-image: url('../images/ajax-loader.gif');
+  background-repeat: no-repeat;
+  width: 65px;
+  height: 65px;
+}
