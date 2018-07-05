@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import AnalysisPage from "./AnalysisPage";
+import SetupPage from "./Setuppage";
 
 
 if(document.getElementById("content") != null)

@@ -1,0 +1,11 @@
+.AnalysisPage {
+  text-align: center;
+}
+
+.SankeyPlotArea {
+  background: url(http://visualizingrights.org/kit/img/sankey.png) no-repeat;
+  background-color: #F5F5F5;
+  background-size: 100% 100%;
+  height: 10%;
+  min-height: 50vh;
+}

@@ -1,5 +1,5 @@
 import React, { Component} from 'react';
-import { Well, Col, Row, Form, FormGroup, FormControl, Button } from 'react-bootstrap';
+import { Well, Col, Row, FormGroup, FormControl, Button } from 'react-bootstrap';
 
 
 class CustomDatabase extends Component {
@@ -8,7 +8,7 @@ class CustomDatabase extends Component {
       <Well style={{height: 500 + 'px', padding: 0 + 'px', textAlign: 'center'}}>
           <Col md={12}>
             <Row style={{borderBottom: 1 + 'px solid #CCC'}}>
-              <Form inline>
+              <div className='d-inline'>
                 <Col md={2} style={{padding: 10 + 'px'}}>
                   <span>Choose a FASTA Record</span>
                 </Col>
@@ -27,7 +27,7 @@ class CustomDatabase extends Component {
                     <FormControl type="number" placeholder="tax_id" />
                   </FormGroup>
                 </Col>
-              </Form>
+              </div>
             </Row>
             <br />
             <Button bsStyle="primary" className="pull-right">Add</Button>

@@ -92,22 +92,20 @@ class DatabaseSelectorView extends Component {
     e.preventDefault();
     if(this.state.selectedDB === 'preDB'){
       // if user has selected pre-exisiting database
-      $.get(window.location.href + 'create_pre_db', (data) => {
-        if(this.validateLocations()){
+      if(this.validateLocations()){
 
-          var predb = {
-            minion: this.state.minion_read_location,
-            xwimp: this.state.xWIMP_location,
-            bacteria: this.state.preDB.bacteria,
-            archaea: this.state.preDB.archaea,
-            virus: this.state.preDB.virus
-          };
+        var predb = {
+          minion: this.state.minion_read_location,
+          xwimp: this.state.xWIMP_location,
+          bacteria: this.state.preDB.bacteria,
+          archaea: this.state.preDB.archaea,
+          virus: this.state.preDB.virus
+        };
 
-          $.post(window.location.href + 'download_database', predb, (data) => {
-            console.log(JSON.parse(data))
-          });
-        }
-      });
+        $.post(window.location.href + 'download_database', predb, (data) => {
+
+        });
+      }
     }
   }
 
