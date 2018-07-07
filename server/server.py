@@ -43,18 +43,20 @@ class FASQFileHandler(FileSystemEventHandler):
             # paths for final output file and final report file
             final_output = self.ximp_loc + 'centrifuge/final.out.centrifuge'
             final_report = self.ximp_loc + 'centrifuge/final.report.tsv'
+            final_kreport = open(self.ximp_loc + 'centrifuge/final.out.kraken','w')
 
             # path to centrifuge binary
             centrifuge = '/Volumes/Courscant/Agriculture_Research/bin/centrifuge'
+            centrifuge_kreport = '/Volumes/Courscant/Agriculture_Research/bin/centrifuge-kreport'
 
             # run centrifuge classification
             run_cent = subprocess.call([ \
-                centrifuge,
-                '-x',self.ximp_loc + 'database/lambda-reference',
-                '-U',event.src_path,
-                '-f',
-                '-S', centrifuge_output,
-                '--report-file', centrifuge_report,
+                centrifuge, \
+                '-x',self.ximp_loc + 'database/lambda-reference', \
+                '-U',event.src_path, \
+                '-f', \
+                '-S', centrifuge_output, \
+                '--report-file', centrifuge_report, \
                 ],stderr=subprocess.DEVNULL)
 
             # if running centrifuge was successful
@@ -76,6 +78,13 @@ class FASQFileHandler(FileSystemEventHandler):
                 else:
                     subprocess.call(['mv',centrifuge_output,final_output])
                     subprocess.call(['mv',centrifuge_report,final_report])
+
+                # Re-create the centrifuge kraken-style report
+                run_kreport = subprocess.call([ \
+                    centrifuge_kreport,
+                    '-x',self.ximp_loc + 'database/lambda-reference', \
+                    final_output,
+                ],stdout=final_kreport,stderr=subprocess.DEVNULL)
 
 
 
@@ -202,5 +211,5 @@ def create_pre_db():
     return "ERROR: Database creation is not implemented."
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, debug=True)
     # app.run(debug=True, threaded=True)

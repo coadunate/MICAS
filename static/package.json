@@ -47,6 +47,7 @@
     "webpack": "^3.0.0"
   },
   "dependencies": {
+    "react-vis": "^1.10.1",
     "socket.io-client": "^2.1.1"
   }
 }
