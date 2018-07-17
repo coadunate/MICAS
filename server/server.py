@@ -6,21 +6,29 @@ from flask_socketio import SocketIO, emit
 from random import random
 from time import sleep
 from threading import Thread, Event
+# from parse import krakenParse
 
 
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+from tasks import int_download_database
+
+
 app = Flask(__name__, static_folder='../static/dist', template_folder='../static')
 app.config['SECRET_KEY'] = 'secret!'
 app.config['DEBUG'] = True
+# app.config['CELERY_BROKER_URL'] = 'redis://localhost'
+# app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost'
+#
+# celery = Celery('server', broker=app.config['CELERY_BROKER_URL'])
+# celery.conf.update(app.config)
 
 #turn the flask app into a socketio app
 socketio = SocketIO(app)
 
-
-thread = Thread()
+fileListenerThread = Thread()
 thread_stop_event = Event()
 
 
@@ -34,7 +42,9 @@ class FASQFileHandler(FileSystemEventHandler):
         # if fastq file is created
         if event.src_path.endswith(".fasta"):
             socketio.emit('created_fastq', {'path': event.src_path}, namespace='/analysis')
+
             print('event type:', event.event_type , 'path :', event.src_path)
+
 
             # paths for centrifuge out file and centrifuge report file
             centrifuge_output = self.ximp_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.out.centrifuge'
@@ -86,6 +96,11 @@ class FASQFileHandler(FileSystemEventHandler):
                     final_output,
                 ],stdout=final_kreport,stderr=subprocess.DEVNULL)
 
+                # Generate Sankey JSON data
+                kraken_output = None
+                print("Kraken Output:")
+                print(kraken_output)
+
 
 
 
@@ -100,107 +115,89 @@ def run_fastq_watcher(ximp_loc):
     self.observer.join();
 
 
-
-
-@socketio.on('disconnect', namespace='/analysis')
-def test_disconnect():
-    print('Client disconnected')
-
-
 @app.route('/')
 def index():
+
     return render_template('index.html')
 
 
 @app.route('/analysis')
 def analysis():
-    XIMP_LOCATION = '/Volumes/Courscant/XIMP_201875/'
+    socketio.emit('fromanalysis',{'data': 'sample'},namespace="/analysis")
 
+    print("WE ARE IN ANALYSIS")
+    XIMP_LOCATION = '/Volumes/Courscant/XIMP_201875/'
+    socketio.emit('newresp',{'data': 'this'}, namespace="/analysis")
     @socketio.on('connect', namespace='/analysis')
     def test_connect():
         # need visibility of the global thread object
-        global thread
-        print('Client connected')
+        print("Client Connected")
+        global fileListenerThread
 
         #Start the random number generator thread only if the thread has not been started before.
-        if not thread.isAlive():
+        if not fileListenerThread.isAlive():
             print("Starting the FASTA file listener thread")
-            thread = Thread(target=run_fastq_watcher(XIMP_LOCATION))
-            thread.start()
-
+            fileListenerThread = Thread(target=run_fastq_watcher(XIMP_LOCATION))
+            fileListenerThread.start()
     return render_template('analysis.html')
 
-
-@app.route('/download_database', methods=['POST','GET'])
-def download_database():
-    if( request.method == 'POST' ):
-
-        minION_location = request.form['minion']
-        xWIMP_location = request.form['xwimp']
-        bacteria = request.form['bacteria']
-        archaea = request.form['archaea']
-        virus = request.form['virus']
-
-        # add trailing slashes if they don't exist
-        xWIMP_location = xWIMP_location if xWIMP_location.endswith('/') else xWIMP_location + '/'
-        minION_location = minION_location if minION_location.endswith('/') else minION_location + '/'
+@socketio.on('something',namespace="/analysis")
+def do_something(data):
+    print("DID SOMETHING ELSE")
+    emit('resp_something',{'data': 'data'}, namespace="/analysis")
 
 
-        centrifuge = '/Volumes/Courscant/Agriculture_Research/bin/centrifuge'
-        centrifuge_download = '/Volumes/Courscant/Agriculture_Research/bin/centrifuge-download'
-
-        # Download taxonomy
-        # download_taxonomy_output = subprocess.call([centrifuge_download,'-o',xWIMP_location + 'taxonomy','taxonomy'])
-        tax_folder_output = subprocess.call(['ls',xWIMP_location + 'taxonomy'])
-
-        # Construct db_string first
-        db_list = []
-        if bacteria == "true":
-            db_list.append('bacteria')
-        if archaea == "true":
-            db_list.append('archaea')
-        if virus == "true":
-            db_list.append('viral')
-
-        db_string = ",".join([str(x) for x in db_list])
-
-        # Download the database.
-        seqid2taxid = open(xWIMP_location + 'seqid2taxid.map',"w+")
-        std_err_file = open(xWIMP_location + 'download_error',"w+")
-        download_bacteria_output = \
-            subprocess.call([ \
-                centrifuge_download,'-o', xWIMP_location + 'library','-m','-d',db_string, \
-                'refseq'],stdout=seqid2taxid,stderr=std_err_file)
+@socketio.on('download_database', namespace="/")
+def download_database(dbinfo):
+    print("RUNING")
+    print(dbinfo)
+    res = int_download_database.delay(dbinfo)
+    print("WHILE IT RUNS")
+    emit('go_to_analysis',{'url': url_for('analysis')}, namespace="/")
 
 
-        return json.dumps({
-            "minION": minION_location,
-            "xWIMP": xWIMP_location,
-            "predb": {
-                "bacteria": bacteria,
-                "archaea": archaea,
-                "virus": virus
-            }
-        })
+@app.route('/upload_database',methods=['POST'])
+def upload_database():
+    if request.method == 'POST':
+        fields = [k for k in request]
+        values = [request.form[k] for k in request.form]
+        print(fields)
+        print(values)
+        return "SUCCESS"
     else:
-        return "N/a"
+        return "HMM! Something is fishy!"
+
+
+@app.route('/scientific_name/<string:name>',methods=['GET'])
+def scientific_name(name):
+    data = ""
+    found = []
+    with open('scientific_names.js') as f:
+        data = json.load(f)
+
+    print(data[0])
+    for item in data:
+        if item["label"].lower().find(name.lower()) != -1:
+            found.append(item)
+
+    return json.dumps({ "count": len(found), "results": found })
 
 @app.route('/validate_locations', methods=['POST','GET'])
 def validate_locations():
     if( request.method == 'POST'):
         minION_location = request.form['minION']
-        xWIMP_location = request.form['xWIMP']
+        app_location = request.form['App']
 
         minION_output = subprocess.call(['ls', minION_location])
-        xWIMP_output = subprocess.call(['ls', xWIMP_location])
+        app_output = subprocess.call(['ls', app_location])
 
-        if(minION_output == 0 and xWIMP_output == 0):
+        if(minION_output == 0 and app_output == 0):
             return json.dumps({ "code": 0, "message": "SUCCESS" })
         else:
             if minION_output == 1:
                 return json.dumps([{ "code": 1, "message": "Invalid minION location"}])
-            elif xWIMP_output == 1:
-                return json.dumps([{ "code": 1, "message": "Invalid xWIMP location" }])
+            elif app_output == 1:
+                return json.dumps([{ "code": 1, "message": "Invalid App location" }])
     else:
         return "N/a"
 
@@ -211,5 +208,6 @@ def create_pre_db():
     return "ERROR: Database creation is not implemented."
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    # socketio.init_app(app)
+    socketio.run(app,debug=True)
     # app.run(debug=True, threaded=True)

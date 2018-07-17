@@ -2,7 +2,7 @@ const webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const config = {
-    entry:  __dirname + '/js/index.jsx',
+    entry:  __dirname + '/js/index.js',
     devtool: 'inline-source-map',
     output: {
         path: __dirname + '/dist',

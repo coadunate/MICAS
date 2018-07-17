@@ -11,9 +11,8 @@ class HeaderView extends Component {
 
   render() {
     return (
-      <div>
-        <span className="heading-text">{ this.props.name }</span>
-        <hr />
+      <div className="HeaderView">
+        <div className="logo-background"><br /></div>
       </div>
     );
   }
