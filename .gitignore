@@ -3,3 +3,4 @@ static/node_modules
 static/dist
 .listing
 server/.listing
+server/__pycache__/
