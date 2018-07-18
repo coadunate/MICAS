@@ -11,8 +11,10 @@ class AdditionalDatabaseView extends Component {
   constructor(props) {
       super(props);
       this.state = {
-        queries: [{ name: '', file: '' }],
+        queries: [{ name: '', file: '', parent: '' }],
       };
+
+      this.updateChoice.bind(this);
     }
 
 
@@ -27,9 +29,9 @@ class AdditionalDatabaseView extends Component {
   }
 
   handleQueryFileChange = (idx) => (evt) => {
-    const newQuery = this.state.queries.map((query,sidx) => {
+    const newQuery = this.state.queries.map((query, sidx) => {
       if (idx !== sidx) return query;
-      return { ...query, file: evt.target.files[0] }
+      return { ...query, file: evt.target.value };
     });
 
     this.setState({ queries: newQuery });
@@ -48,6 +50,15 @@ class AdditionalDatabaseView extends Component {
     });
   }
 
+  updateChoice = (idx) => (choice) => {
+    const newQuery = this.state.queries.map((query, sidx) => {
+      if (idx !== sidx) return query;
+      return { ...query, parent: choice };
+    });
+    this.setState({ queries: newQuery });
+    this.props.changeQueryState(newQuery);
+  }
+
 
   render(){
     return(
@@ -62,9 +73,9 @@ class AdditionalDatabaseView extends Component {
                 <Row key={idx} style={{borderBottom: 1 + 'px solid #CCC'}}>
                   <div className='d-inline'>
                     <Col md={3} style={{padding: 10 + 'px'}}>
-                      <FormGroup controlId="formInlineFile">
-                        <FormControl key={idx} name="file" type="file" accept=".fasta" onChange={this.handleQueryFileChange(idx)} />
-                      </FormGroup>
+                    <FormGroup controlId="formInlineSName">
+                      <FormControl key={idx}  name="sci_file" value={query.file} onChange={this.handleQueryFileChange(idx)} type="text" placeholder="/path/to/file.fasta" />
+                    </FormGroup>
                     </Col>
                     <Col md={4} style={{padding: 10 + 'px'}}>
                       <FormGroup controlId="formInlineSName">
@@ -73,7 +84,7 @@ class AdditionalDatabaseView extends Component {
                     </Col>
                     <Col md={4} style={{padding: 10 + 'px'}}>
                       <FormGroup controlId="formInlineSName">
-                      { /* <AxiosAutocomplete/> */ }
+                      <AxiosAutocomplete key={idx} currentChoice={this.state.parent} changeChoice={this.updateChoice(idx)}/>
                       </FormGroup>
                     </Col>
                     <Col md={1} style={{padding: 10 + 'px'}}>

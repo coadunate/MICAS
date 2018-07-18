@@ -19,13 +19,26 @@ function debounce(fn, time) {
   }
 }
 
+let getTaxidFromName = (name) => {
+	var regExp = /\(([^)]+)\)/;
+
+    var result = regExp.exec(name)
+
+    var tax_data = result[result.length-1].split(":")
+
+    var tax_id = tax_data[tax_data.length-1]
+
+    return tax_id
+}
+
+
 const baseEndpoint = 'http://' + document.domain + ':' + location.port + '/scientific_name/'
 
 
 class AxiosAutocomplete extends Component {
   constructor(props) {
     super(props)
-    this.state = {items: []}
+    this.state = {items: [], choice: ''}
   }
 
   fetchRepository = debounce(value => {
@@ -36,6 +49,7 @@ class AxiosAutocomplete extends Component {
           item => `${item.label} (tax_id:${item.value.toString()})`,
         ) // Added ID to make it unique
         this.setState({items})
+
       })
       .catch(error => {
         console.log(error)
@@ -44,7 +58,9 @@ class AxiosAutocomplete extends Component {
 
   render() {
     return (
-      <Downshift>
+      <Downshift
+        onChange={selection => this.props.changeChoice(getTaxidFromName(selection)) }
+      >
         {({
           selectedItem,
           getInputProps,
@@ -65,7 +81,7 @@ class AxiosAutocomplete extends Component {
                     }
                     // call the debounce function
                     this.fetchRepository(value)
-                  },
+                  }
                 })}
                 />
               </FormGroup>

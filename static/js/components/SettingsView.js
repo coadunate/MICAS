@@ -84,9 +84,12 @@ class SettingsView extends Component {
   */
   validateLocations(){
     var validityCheck = false;
+    var queryFiles = ""
+    this.state.queries.map(query => {queryFiles += query.file + ';'})
     var location_data = {
         "minION": this.state.minion_read_location,
-        "App": this.state.app_location
+        "App": this.state.app_location,
+        "Queries": queryFiles
     }
     // $.post(window.location.href + 'validate_locations', location_data, (data) => {
     //   data = JSON.parse(data);
@@ -123,36 +126,12 @@ class SettingsView extends Component {
         virus: this.state.preDB.virus
       };
 
-      // var queries = {
-      //   "names": this.state.queries.map(query => query.name),
-      //   "files": this.state.queries.map(query => {
-      //       var myFormData = new FormData();
-      //       myFormData.append('file',fs.createReadStream(query.file))
-      //       myFormData.append('name',query.name)
-      //       return myFormData
-      //     })
-      // };
-      // // var queries = this.state.queries;
-      // console.log(queries)
-      var formData = new FormData(document.getElementsByName('file')[0]);
-      $.ajax({
-          url: window.location.href + 'upload_database',
-          data: formData,
-          cache: false,
-          enctype: 'multipart/form-data',
-          contentType: false,
-          processData: false,
-          type: 'POST',
-          success: function(data){
-            console.log(data);
-          }
-      });
+      console.log(this.state.queries)
 
-      // socket.emit('download_database',dbinfo)
-      // socket.on('go_to_analysis',function(data){
-      //     window.location = data.url
-      //     // $.get(window.location.href + 'analysis')
-      // });
+      socket.emit('download_database',dbinfo,this.state.queries)
+      socket.on('go_to_analysis',function(data){
+          window.location = data.url
+      });
 
       // $.post(window.location.href + 'download_database', predb, (data) => {
       //
@@ -166,16 +145,10 @@ class SettingsView extends Component {
   */
   render(){
 
-    // Logic statement to determine whether or not the "Next" button should be
-    // disabled.
-    let disableNext  = this.state.preDB.bacteria == false &&
-                       this.state.preDB.archaea == false &&
-                       this.state.preDB.virus == false
-
     return(
 
       <Col md={12}>
-        <form name="settingsForm" autocomplete="off" className="go-left" enctype="multipart/form-data" onSubmit={this.createDatabase.bind(this)}>
+        <form name="settingsForm" autoComplete="off" className="go-left" onSubmit={this.createDatabase.bind(this)}>
           <Row><h3>Database Selection</h3></Row>
           <Well>
             <Row>
@@ -199,7 +172,7 @@ class SettingsView extends Component {
             </Row>
           </Well>
           <Row>
-            <Button bsStyle="primary" type="submit" className="pull-right" disabled={disableNext} onClick={this.showLoading.bind(this)}><i className="fa fa-database"></i> Create Database</Button>
+            <Button bsStyle="primary" type="submit" className="pull-right" onClick={this.showLoading.bind(this)}><i className="fa fa-database"></i> Create Database</Button>
           </Row>
         </form>
       </Col>

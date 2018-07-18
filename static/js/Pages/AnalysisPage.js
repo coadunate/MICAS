@@ -42,6 +42,9 @@ class AnalysisPage extends Component {
       socket.on('my response',function(msg){
         console.log("MY RESP")
       })
+      socket.on('downloaded_taxonomy',function(){
+        console.log("DOWNLOADED_TAXONOMY")
+      })
     }
 
     TestSocket(e){
