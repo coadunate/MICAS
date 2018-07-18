@@ -1,5 +1,5 @@
-# xWIMP
-> Extended real-time data classification tool for minION sequencer.
+# MICAS (MinION Classification & Alerting System)
+> [Description]
 
 
 ## Prerequisites
@@ -10,14 +10,14 @@
 ## Installation
 
 ```sh
-$ git clone https://github.com/coadunate/xWIMP.git
+$ git clone https://github.com/coadunate/MICAS.git
 $ cd xWIMP
 $ cd static
 $ npm install
 ```
 ## Deployment
 
-- Inside the `xWIMP` directory, you need to go to `server` directory and run the
+- Inside the `MICAS` directory, you need to go to `server` directory and run the
   following command to deploy the application:
 
 ```sh
