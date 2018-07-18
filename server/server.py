@@ -1,4 +1,4 @@
-import random, os
+import random, os, shutil
 import subprocess, json
 from flask import Flask, render_template, request, url_for, copy_current_request_context, redirect
 
@@ -148,24 +148,38 @@ def do_something(data):
 
 
 @socketio.on('download_database', namespace="/")
-def download_database(dbinfo):
-    print("RUNING")
-    print(dbinfo)
-    res = int_download_database.delay(dbinfo)
-    print("WHILE IT RUNS")
+def download_database(dbinfo,queries):
+
+    # Location for the applicaiton data directory
+    app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
+
+
+    # Firstly, we need to remove any existing files that might exist inside
+    # our app data folder, as it is supposed to be empty to begin with.
+    for file in os.listdir(app_location):
+        file_path = os.path.join(app_location,file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+                print("DOWNLOAD_DATABASE: Deleting " + file + " file.")
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+                print("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
+        except Exception as e:
+            print(e)
+
+
+    # Create database directory.
+    print("DOWNLOAD_DATABADE: Creating database directory")
+    os.makedirs(app_location + 'database')
+
+    # Create centrifuge/runs directory
+    print("DOWNLOAD_DATABASE: Creating centrifuge/runs directory")
+    os.makedirs(app_location + 'centrifuge/runs')
+
+
+    res = int_download_database.delay(dbinfo,queries)
     emit('go_to_analysis',{'url': url_for('analysis')}, namespace="/")
-
-
-@app.route('/upload_database',methods=['POST'])
-def upload_database():
-    if request.method == 'POST':
-        fields = [k for k in request]
-        values = [request.form[k] for k in request.form]
-        print(fields)
-        print(values)
-        return "SUCCESS"
-    else:
-        return "HMM! Something is fishy!"
 
 
 @app.route('/scientific_name/<string:name>',methods=['GET'])
@@ -187,17 +201,25 @@ def validate_locations():
     if( request.method == 'POST'):
         minION_location = request.form['minION']
         app_location = request.form['App']
+        queries = request.form['Queries']
+
+        _queries = queries.split(';')[:-1]
+
+        query_output = -1
+        for query in _queries:
+            query_output = subprocess.call(['ls',query])
 
         minION_output = subprocess.call(['ls', minION_location])
         app_output = subprocess.call(['ls', app_location])
 
-        if(minION_output == 0 and app_output == 0):
+        if(minION_output == 0 and app_output == 0 and query_output == 0):
             return json.dumps({ "code": 0, "message": "SUCCESS" })
         else:
             if minION_output == 1:
                 return json.dumps([{ "code": 1, "message": "Invalid minION location"}])
             elif app_output == 1:
                 return json.dumps([{ "code": 1, "message": "Invalid App location" }])
+            return json.dumps([{ "code": 1, "message": "Invalid Queries location"}])
     else:
         return "N/a"
 
