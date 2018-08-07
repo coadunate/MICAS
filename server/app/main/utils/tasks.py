@@ -1,5 +1,5 @@
 from celery import Celery
-import subprocess, envoy, os, shutil, random
+import subprocess, os, shutil, random
 from celery.exceptions import SoftTimeLimitExceeded
 from flask_socketio import emit
 
