@@ -41,16 +41,31 @@
     "file-loader": "^0.11.2",
     "jquery": "^3.2.1",
     "react": "^15.6.1",
-    "react-bootstrap": "^0.31.0",
+    "react-bootstrap": "^0.31.5",
     "react-dom": "^15.6.1",
     "style-loader": "^0.18.2",
     "webpack": "^3.0.0"
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "bootstrap": "^4.1.2",
     "downshift": "^2.0.14",
+    "fusioncharts": "^3.13.0",
+    "glamor": "^2.20.40",
+    "glamorous": "^4.13.1",
+    "match-sorter": "^2.2.3",
+    "popper.js": "^1.14.3",
+    "react-animated-dots": "^1.0.0",
+    "react-bar-chart": "^0.1.2",
+    "react-dom-factories": "^1.0.2",
+    "react-fusioncharts": "^2.0.1",
     "react-select": "^1.2.1",
+    "react-selectize": "^3.0.1",
+    "react-transition-group": "^1.2.1",
     "react-vis": "^1.10.1",
-    "socket.io-client": "^2.1.1"
+    "react-visjs-timeline": "^1.5.0",
+    "socket.io-client": "^2.1.1",
+    "tether": "^1.4.4",
+    "vis": "^4.21.0"
   }
 }

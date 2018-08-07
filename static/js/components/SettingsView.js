@@ -5,7 +5,7 @@ import { FormGroup, FormControl } from 'react-bootstrap';
 import NCBIDatabaseView from './SettingsView/DatabaseView/NCBIDatabaseView';
 import AdditionalDatabaseView from './SettingsView/DatabaseView/AdditionalDatabaseView';
 import ConfigurationView from './SettingsView/ConfigurationView';
-import Alert from './SettingsView/Alert';
+import AlertSetupView from './SettingsView/AlertSetupView';
 
 import '../../css/SettingsView.css';
 
@@ -28,17 +28,20 @@ class SettingsView extends Component {
     this.state = {
       minion_read_location: '/dev/null',
       app_location: '/dev/null',
-      showLoading: false,
       queries: [],
       alertInfo: {
-        phone: null,
-        email: null
+        phone_number: '',
+        email_address: '',
+        alert_sequence_threshold: 100,
+        alert_sequences: [],
+        all_alert_sequences: []
       },
       preDB: {
         bacteria: true,
         archaea: false,
         virus: false
-      }
+      },
+      url: ""
     }
 
     // Function Binding to preserve `this` keyword.
@@ -47,6 +50,17 @@ class SettingsView extends Component {
     this.createDatabase.bind(this);
     this.updateLocations.bind(this);
     this.validateLocations.bind(this);
+  }
+
+  componentDidMount(){
+
+    socket.on('download_database_status',function(status){
+      console.log(status);
+    });
+
+    socket.on('download_status',function(s){
+      console.log("DOWNLOAD_STATUS: WOW!")
+    })
   }
 
   /**
@@ -73,11 +87,6 @@ class SettingsView extends Component {
           minion_read_location: minION_location,
           app_location: _app_location
         });
-
-  /**
-  * Shows the loading GIF while the database is being downloaded.
-  */
-  showLoading = () => this.setState({ showLoading: true });
 
   /**
   * validateLocations -- validates the user-typed
@@ -114,10 +123,9 @@ class SettingsView extends Component {
   */
   createDatabase(e){
     e.preventDefault();
-
     // if user has selected pre-exisiting database
     if(this.validateLocations()){
-
+      console.log("Locations are valid.")
       var dbinfo = {
         minion: this.state.minion_read_location,
         app_location: this.state.app_location,
@@ -126,16 +134,20 @@ class SettingsView extends Component {
         virus: this.state.preDB.virus
       };
 
-      console.log(this.state.queries)
+      let _url = window.location.href + 'analysis/app_location=' + dbinfo.app_location +
+                 '&minion_location=' + dbinfo.minion;
 
-      socket.emit('download_database',dbinfo,this.state.queries)
-      socket.on('go_to_analysis',function(data){
-          window.location = data.url
-      });
+      this.setState({ url: _url })
+
+
+
+      var one = socket.emit('download_database',dbinfo,this.state.queries,this.state.alertInfo)
 
       // $.post(window.location.href + 'download_database', predb, (data) => {
       //
       // });
+    } else {
+      console.log("Locations are not valid.")
     }
 
   }
@@ -148,6 +160,7 @@ class SettingsView extends Component {
     return(
 
       <Col md={12}>
+        { console.log(this.state.queries)}
         <form name="settingsForm" autoComplete="off" className="go-left" onSubmit={this.createDatabase.bind(this)}>
           <Row><h3>Database Selection</h3></Row>
           <Well>
@@ -159,20 +172,21 @@ class SettingsView extends Component {
               <AdditionalDatabaseView currentQueryState={this.state.queries} changeQueryState={ this.updateQueries }/>
             </Row>
           </Well>
+          <Row><h3>Alert</h3></Row>
+          <Well>
+            <Row>
+              <Col md={12}><AlertSetupView appname={this.props.appname} changeAlertInfo={this.updateAlertInfo} /></Col>
+            </Row>
+          </Well>
           <Row><h3>Configuration</h3></Row>
           <Well>
             <Row>
               <Col md={12}><ConfigurationView appname={this.props.appname} changeLocation={this.updateLocations} /></Col>
             </Row>
           </Well>
-          <Row><h3>Alert</h3></Row>
-          <Well>
-            <Row>
-              <Col md={12}><Alert appname={this.props.appname} changeAlertInfo={this.updateAlertInfo} /></Col>
-            </Row>
-          </Well>
           <Row>
-            <Button bsStyle="primary" type="submit" className="pull-right" onClick={this.showLoading.bind(this)}><i className="fa fa-database"></i> Create Database</Button>
+            { this.state.url && <a href={ this.state.url } target="_blank">Go to Analysis</a> }
+            <Button bsStyle="primary" type="submit" className="pull-right"><i className="fa fa-database"></i> Create Database</Button>
           </Row>
         </form>
       </Col>

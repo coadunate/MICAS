@@ -32,7 +32,7 @@ let getTaxidFromName = (name) => {
 }
 
 
-const baseEndpoint = 'http://' + document.domain + ':' + location.port + '/scientific_name/'
+const baseEndpoint = 'https://www.ebi.ac.uk/ena/data/taxonomy/v1/taxon/suggest-for-search/'
 
 
 class AxiosAutocomplete extends Component {
@@ -45,8 +45,8 @@ class AxiosAutocomplete extends Component {
     axios
       .get(baseEndpoint + value)
       .then(response => {
-        const items = response.data.results.map(
-          item => `${item.label} (tax_id:${item.value.toString()})`,
+        const items = response.data.map(
+          item => `${item.scientificName} (tax_id:${item.taxId})`,
         ) // Added ID to make it unique
         this.setState({items})
 
@@ -58,6 +58,7 @@ class AxiosAutocomplete extends Component {
 
   render() {
     return (
+      <div>
       <Downshift
         onChange={selection => this.props.changeChoice(getTaxidFromName(selection)) }
       >
@@ -110,6 +111,7 @@ class AxiosAutocomplete extends Component {
           )
         }}
       </Downshift>
+      </div>
     )
   }
 }

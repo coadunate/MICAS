@@ -45,21 +45,6 @@ class ConfigurationView extends Component {
             </FormGroup>
           </Col>
         </Row>
-        <hr />
-        <Row>
-          <Col md={4}>
-            <b>Query Sequences:</b>
-          </Col>
-          <Col md={4}>
-            <FormGroup controlId="formControlsSelectMultiple">
-              <FormControl componentClass="select" multiple>
-                <option value="0">Salmonella e. subsp</option>
-                <option value="1">Saccharomyces cerevisiae</option>
-                <option value="2">Theileria parva</option>
-              </FormControl>
-            </FormGroup>
-          </Col>
-        </Row>
       </div>
     );
   }

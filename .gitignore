@@ -4,3 +4,4 @@ static/dist
 .listing
 server/.listing
 server/__pycache__/
+venv/*

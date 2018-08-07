@@ -1,98 +1,243 @@
 import React, { Component} from "react";
 import {Grid, Row, Col, Well, Button } from 'react-bootstrap';
+import {ListGroup, ListGroupItem} from 'react-bootstrap'
 import { makeWidthFlexible, Sankey } from 'react-vis';
 import HeaderView from '../components/HeaderView';
 
+import { Dot } from 'react-animated-dots';
+
+import Timeline from 'react-visjs-timeline'
+
+var $ = require('jquery');
+
+import FusionCharts from 'fusioncharts/core';
+import Column2D from 'fusioncharts/viz/column2d';
+import ReactFC from 'react-fusioncharts';
+import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.ocean';
+
+ReactFC.fcRoot(FusionCharts, Column2D, FusionTheme);
+
+
 import io from 'socket.io-client';
+
 let socket = io('http://' + document.domain + ':' + location.port + '/analysis');
 
 import '../../css/AnalysisPage.css';
 
-const nodes = [{'name': 'Bacteria'}, {'name': 'Terrabacteria group'}, {'name': 'Firmicutes'}, {'name': 'Bacilli'}, {'name': 'Bacillales'}, {'name': 'Bacillaceae'}, {'name': 'Bacillus'}, {'name': 'Bacillus cereus group'}, {'name': 'Bacillus anthracis'}, {'name': 'B.anthracis Ames Coadunate'}, {'name': 'B.anthracis A2012 Coadunate'}];
-const links = [{'source': 0, 'target': 1, 'value': 20}, {'source': 1, 'target': 2, 'value': 10}, {'source': 2, 'target': 3, 'value': 20}, {'source': 3, 'target': 4, 'value': 10}, {'source': 4, 'target': 5, 'value': 20}, {'source': 5, 'target': 6, 'value': 10}, {'source': 6, 'target': 7, 'value': 20}, {'source': 7, 'target': 8, 'value': 20}, {'source': 8, 'target': 9, 'value': 10}, {'source': 8, 'target': 10, 'value': 2}];
-
-
-
-const SankeyPlot = ({ width }) =>
-            <Sankey
-              nodes={nodes}
-              links={links}
-              width={width}
-              height={200}
-              layout={1}
-            />
-SankeyPlot.propTypes = { width: React.PropTypes.number }
-const FlexSankeyPlot = makeWidthFlexible(SankeyPlot)
-
-
 
 class AnalysisPage extends Component {
 
-    componentDidMount(){
-      socket.on('good',function(){
-          console.log("Good, it works")
-          // $.get(window.location.href + 'analysis')
-      });
-      socket.on('connect',function(){
-        console.log("CONNECTIOAN")
-      })
-      socket.on('created_fastq', function(msg){
-        console.log(msg.path);
-      });
-      socket.on('my response',function(msg){
-        console.log("MY RESP")
-      })
-      socket.on('downloaded_taxonomy',function(){
-        console.log("DOWNLOADED_TAXONOMY")
-      })
+    constructor(props){
+      super(props);
+      this.state = {
+        databaseDownloaded: true,
+        databaseDownloadTimer: null,
+        alertsInfo: {
+          alerts: [],
+          seqs_threshold: 100
+        },
+        sankeyData: {
+          nodes: [],
+          links: []
+        },
+        windowWidth: 500
+      }
+
     }
 
-    TestSocket(e){
-      e.preventDefault();
-      console.log("Inside TestSocket")
-      socket.emit('something',{'data': 'data'})
-      socket.on('resp_something',function(msg){
-        console.log("Response from server about something.")
-      })
+    updateSankey = (app_location) => {
+      let url = '/get_sankey_data?app_location=' + app_location
+      $.getJSON(url, (response) => {
+        if(response.status == 200){
+          var newSankeyData = {
+            nodes: response.nodes,
+            links: response.links
+          }
+          this.setState({ sankeyData: newSankeyData })
+        }
+      });
+    }
+
+    updateAlertInfo = (app_location) => {
+      let url = '/get_alert_info?app_location=' + app_location
+      $.getJSON(url, (response) => {
+        if(response.status == 200){
+          var newAlertInfo = {
+            alerts: response.alerts,
+            seqs_threshold: 100
+          }
+          this.setState({ alertsInfo: newAlertInfo })
+        }
+      });
+    }
+
+    componentDidMount(){
+
+      window.onresize = () => {
+       this.setState({windowWidth: this.refs.root.offsetWidth});
+      };
+
+      function updateAnalysis(that){
+        setTimeout(() => {
+          that.updateSankey(that.props.appLocation)
+          that.updateAlertInfo(that.props.appLocation)
+          updateAnalysis(that)
+        },5000)
+      }
+
+      updateAnalysis(this)
+
+
+      // (function pollServerForDownloadStatus() {
+      //   let url = '/is_database_downloaded?app_location=' + app_location
+      //   var _that = that;
+      //   $.getJSON(url, (response) => {
+      //     if(response.status == 200){
+      //       _that.setState({ databaseDownloaded: true })
+      //       if(_that.state.databaseDownloaded){
+      //         clearTimeout(_that.state.databaseDownloadTimer)
+      //       }
+      //     }
+      //     _that.state.databaseDownloadTimer = setTimeout(pollServerForDownloadStatus, 1000);
+      //   });
+      // }());
+
+
+      socket.emit('start_fastq_file_listener',this.props.appLocation,this.props.minionLocation)
+
     }
 
     render () {
-        return (
-          <div className="SetupPage">
-            <Grid fluid={true}>
-              <div className="walk"></div>
-              <Row className="show-grid">
-                <Col md={12}>
-                  <Col md={1} />
-                  <Col md={10}>
-                    <HeaderView name={this.props.name}/>
+
+        var SankeyPlot = ({ width }) =>
+                  <Sankey
+                    nodes={this.state.sankeyData.nodes}
+                    links={this.state.sankeyData.links}
+                    width={width}
+                    height={200}
+                    layout={1}
+                  />
+        SankeyPlot.propTypes = { width: React.PropTypes.number }
+        var FlexSankeyPlot = makeWidthFlexible(SankeyPlot)
+
+        var downloadDatabase = this.state.databaseDownloaded;
+        const options = {
+          rtl: false,
+          start: this.props.startTime
+
+        }
+        const items = [
+          {
+            start: this.props.startTime,
+            end: new Date(this.props.startTime.getTime()),  // end is optional
+            content: '<strong>MICAS</strong>',
+            style: "border: 1px solid black;background-color:#3988FE;color:white;"
+          },
+          {
+            start: this.props.startTime,
+            end: new Date(this.props.startTime.getTime() + 0.25*60000),  // end is optional
+            content: '<strong>MinION</strong>',
+            style: "border: 1px solid black;background-color:#38818A;color:white;"
+          }
+        ]
+
+        var alertdata = []
+
+        this.state.alertsInfo.alerts.map( (sequence) => {
+            alertdata.push({"label": sequence.name, "value": sequence.num_reads})
+        })
+
+        const chartConfigs = {
+            type: 'column2d',
+            width: '700',
+            height: '400',
+            dataFormat: 'json',
+            dataSource: {
+                "chart": {
+                    "caption": "Alert Sequences Status",
+                    "xAxisName": "Sequences",
+                    "yAxisName": "Number of reads",
+                    "theme": "ocean"
+                },
+                "data": alertdata,
+                "trendlines": [
+                    {
+                        "line": [
+                            {
+                                "startvalue": this.state.alertsInfo.seqs_threshold.toString(),
+                                "color": "#FF0000",
+                                "valueOnRight": "1",
+                                "displayvalue": "Read Threshold"
+                            }
+                        ]
+                    }
+                ]
+            },
+        };
+
+        if(downloadDatabase){
+          return (
+              <div className="SetupPage">
+                <Grid fluid={true}>
+                  <div className="walk"></div>
+                  <Row className="show-grid">
                     <Col md={12}>
-                      <Well>
-                      <h4>Timeline</h4>
-                      <hr />
-                      <Button bsStyle="primary" type="submit" className="pull-right" onClick={this.TestSocket.bind(this)}>Do Something</Button>
-                      </Well>
-                    </Col>
-                    <Col md={12}>
-                      <Col md={8}>
-                        <FlexSankeyPlot />
-                      </Col>
-                      <Col md={4}>
-                        <Row>
+                      <Col md={1} />
+                      <Col md={10}>
+                        <HeaderView name={this.props.name}/>
+                        <Col md={12}>
                           <Well>
-                            <h4>Application Log</h4>
+                            <h4>Timeline</h4>
                             <hr />
+                            <Timeline
+                              options={options}
+                              items={items}
+                            />
                           </Well>
-                        </Row>
+                        </Col>
+                        <Col md={12}>
+                          <Well>
+                            <h4>Alerts</h4>
+                            <ReactFC {...chartConfigs} />
+                          </Well>
+                        </Col>
+                        <Col md={12}>
+                          <Well style={{ height: '25vh'}}>
+                            { this.state.sankeyData.nodes.length > 0 &&
+                              <FlexSankeyPlot />
+                            }
+                            {
+                              this.state.sankeyData.nodes.length == 0 &&
+                              <div>
+                                <br />
+                                <h3>No significant data has been reported for snakey plot yet</h3>
+                              </div>
+                            }
+                          </Well>
+                        </Col>
                       </Col>
+                      <Col md={1} />
                     </Col>
-                  </Col>
-                  <Col md={1} />
-                </Col>
-              </Row>
-            </Grid>
-          </div>
-        );
+                  </Row>
+                </Grid>
+              </div>
+          );
+        }else{
+          return (
+            <div>
+              <Col md={12}>
+                <Well style={{top:'0', bottom:'0', left:'0', right:'0', minHeight: window.innerHeight + 'px', position: 'absolute'}}>
+                  <h3 className="text-center" style={{ marginTop: window.innerHeight/2 + 'px'}}>
+                    The database is still downloading
+                    <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
+                    <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
+                    <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
+                  </h3>
+                </Well>
+              </Col>
+            </div>
+          );
+        }
     }
 }
 

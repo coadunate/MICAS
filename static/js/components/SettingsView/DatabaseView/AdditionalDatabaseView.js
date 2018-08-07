@@ -1,5 +1,5 @@
 import React, { Component} from 'react';
-import { Well, Col, Row, FormGroup, FormControl, Button } from 'react-bootstrap';
+import { Well, Col, Row, FormGroup, FormControl, Button, Checkbox } from 'react-bootstrap';
 
 // import States from './States'
 import AxiosAutocomplete from './AxiosAutocomplete';
@@ -11,7 +11,7 @@ class AdditionalDatabaseView extends Component {
   constructor(props) {
       super(props);
       this.state = {
-        queries: [{ name: '', file: '', parent: '' }],
+        queries: [{ name: '', file: '', parent: '', alert: false }],
       };
 
       this.updateChoice.bind(this);
@@ -32,6 +32,16 @@ class AdditionalDatabaseView extends Component {
     const newQuery = this.state.queries.map((query, sidx) => {
       if (idx !== sidx) return query;
       return { ...query, file: evt.target.value };
+    });
+
+    this.setState({ queries: newQuery });
+    this.props.changeQueryState(newQuery);
+  }
+
+  handleAlertUpdate = (idx) => (evt) => {
+    const newQuery = this.state.queries.map((query,sidx) => {
+      if (idx !== sidx) return query;
+      return { ...query, alert: evt.target.checked };
     });
 
     this.setState({ queries: newQuery });
@@ -72,20 +82,25 @@ class AdditionalDatabaseView extends Component {
               <Col md={12}>
                 <Row key={idx} style={{borderBottom: 1 + 'px solid #CCC'}}>
                   <div className='d-inline'>
-                    <Col md={3} style={{padding: 10 + 'px'}}>
+                    <Col md={4} style={{padding: 10 + 'px'}}>
                     <FormGroup controlId="formInlineSName">
                       <FormControl key={idx}  name="sci_file" value={query.file} onChange={this.handleQueryFileChange(idx)} type="text" placeholder="/path/to/file.fasta" />
                     </FormGroup>
                     </Col>
-                    <Col md={4} style={{padding: 10 + 'px'}}>
+                    <Col md={3} style={{padding: 10 + 'px'}}>
                       <FormGroup controlId="formInlineSName">
                         <FormControl key={idx}  name="sci_name" value={query.name} onChange={this.handleQueryNameChange(idx)} type="text" placeholder="Scientific Name (eg. Streptococcus pneumoniae)" />
                       </FormGroup>
                     </Col>
-                    <Col md={4} style={{padding: 10 + 'px'}}>
+                    <Col md={3} style={{padding: 10 + 'px'}}>
                       <FormGroup controlId="formInlineSName">
                       <AxiosAutocomplete key={idx} currentChoice={this.state.parent} changeChoice={this.updateChoice(idx)}/>
                       </FormGroup>
+                    </Col>
+                    <Col md={1} style={{padding: 10 + 'px'}}>
+                        <Button bsStyle="primary" key={idx}>
+                          &nbsp;<Checkbox inline onChange={ this.handleAlertUpdate(idx) }>&nbsp;Alert</Checkbox>
+                        </Button>
                     </Col>
                     <Col md={1} style={{padding: 10 + 'px'}}>
                       <Button bsStyle="danger" onClick={this.handleRemoveQuery(idx)} className="pull-right"><i className="fa fa-trash-alt"></i></Button>
