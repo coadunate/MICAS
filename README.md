@@ -1,5 +1,5 @@
-# xWIMP
-> Extended real-time data classification tool for minION sequencer.
+# MICAS
+> MinION Classification & Alerting System
 
 
 ## Prerequisites
