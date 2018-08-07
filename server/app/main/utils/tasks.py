@@ -56,7 +56,6 @@ def int_download_database(self,db_data,queries):
         self.update_state(state="PROGRESS", meta={'percent-done': 30, 'message': 'Entering queries into taxonomy files.'})
         for query in queries:
             query_file = open(query['file'],'r')
-            NCBI_id = query_file.readline().split(' ')[0][1:]
 
             # Generate non-existant tax_id from the given parent tax_id
             proposed_tax_id = ''
@@ -70,6 +69,7 @@ def int_download_database(self,db_data,queries):
                     already_seen_tax_id.append(proposed_tax_id)
                     break
 
+            NCBI_id = "sequence_" + str(proposed_tax_id) # Sequence ID for seqid2taxid.map file
 
             # Update alertconfig file with the new proposed tax_id.
             import ast
