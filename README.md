@@ -24,6 +24,7 @@ $ npm install
 $ virtualenv -p python3 env_micas
 $ source env_micas/bin/activate
 $ curl https://bootstrap.pypa.io/get-pip.py | python3
+$ pip install --upgrade setuptools
 $ pip install -r requirements.txt
 $ python server/micas.py
 ```
