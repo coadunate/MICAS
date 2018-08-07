@@ -104,8 +104,8 @@ def download_database(dbinfo,queries,alertInfo):
     print(alertInfo)
 
     with open(app_location + 'alertinfo.cfg','w+') as alert_config_file:
-        phone_number = '""' if not alertInfo['phone_number'] else alertnfo['phone_number']
-        email_address = '""' if not alertInfo['email_address'] else alertnfo['email_address']
+        phone_number = '""' if not alertInfo['phone_number'] else alertInfo['phone_number']
+        email_address = '""' if not alertInfo['email_address'] else alertInfo['email_address']
         alert_config_file.write('phone_number = ' + phone_number + '\n')
         alert_config_file.write('email_address = ' + email_address + '\n')
         alert_config_file.write('alert_sequence_threshold = ' + str(alertInfo['alert_sequence_threshold']) + '\n')
