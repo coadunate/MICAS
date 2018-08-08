@@ -183,7 +183,7 @@ def int_download_database(self,db_data,queries):
            'seqid2taxid.map --taxonomy-tree ' + app_location_database + \
            'taxonomy/nodes.dmp --name-table ' + app_location_database + \
            'taxonomy/names.dmp ' + app_location_database + 'input_sequences.fa' + \
-           str(now.year) + str(now.month) + str(now.day) + str(now.hour) + \
+           ' ' + str(now.year) + str(now.month) + str(now.day) + str(now.hour) + \
            str(now.minute) + str(now.second)
           ]
     print("IDX CMD: ")
