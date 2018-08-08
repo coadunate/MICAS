@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import AnalysisPage from "./Pages/AnalysisPage";
-import SetupPage from "./Pages/Setuppage";
+import SetupPage from "./Pages/SetupPage";
 
 
 if(document.getElementById("content") != null)
