@@ -64,7 +64,7 @@ class AnalysisPage extends Component {
         if(response.status == 200){
           var newAlertInfo = {
             alerts: response.alerts,
-            seqs_threshold: 100
+            seqs_threshold: response.alert_sequences_threshold
           }
           this.setState({ alertsInfo: newAlertInfo })
         }
