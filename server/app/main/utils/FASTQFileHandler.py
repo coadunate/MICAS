@@ -24,6 +24,7 @@ class FASTQFileHandler(FileSystemEventHandler):
             centrifuge_output = self.app_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.out.centrifuge'
             centrifuge_report = self.app_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.report.tsv'
 
+
             # paths for final output file and final report file
             final_output = self.app_loc + 'centrifuge/final.out.centrifuge'
             final_report = self.app_loc + 'centrifuge/final.report.tsv'
@@ -41,44 +42,46 @@ class FASTQFileHandler(FileSystemEventHandler):
             else:
                 index_file = indices[0].split(".")[0]
 
-            # run centrifuge classification
-            run_cent = subprocess.call([ \
-                'centrifuge', \
-                '-x',self.app_loc + index_file, \
-                '-U',event.src_path, \
-                '-f', \
-                '-S', centrifuge_output, \
-                '--report-file', centrifuge_report, \
-                ],stderr=subprocess.DEVNULL)
+            print(index_file)
+
+            cmd = 'centrifuge -x ' + index_file + ' -U ' + event.src_path  + ' -f -S ' + centrifuge_output + ' --report-file ' + centrifuge_report
+            print(cmd)
+
+
+            proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+            (output,err) = proc.communicate()
+            proc.wait()
+            print("COMMAND OUTPUT: " + str(output))
+
 
             # if running centrifuge was successful
-            if run_cent == 0:
+            print("RUN CENT WAS SUCCESSFUL")
+            # if the final report and output files already exist, append to them
+            if subprocess.call(['ls',final_output]) == 0 and \
+               subprocess.call(['ls',final_report]) == 0:
 
-                # if the final report and output files already exist, append to them
-                if subprocess.call(['ls',final_output]) == 0 and \
-                   subprocess.call(['ls',final_report]) == 0:
+                open(final_output, "a").writelines([l for l in open(centrifuge_output).readlines()[1:]])
+                open(final_report, "a").writelines([l for l in open(centrifuge_report).readlines()[1:]])
 
-                    open(final_output, "a").writelines([l for l in open(centrifuge_output).readlines()[1:]])
-                    open(final_report, "a").writelines([l for l in open(centrifuge_report).readlines()[1:]])
+                subprocess.call(['rm',centrifuge_output])
+                subprocess.call(['rm',centrifuge_report])
 
-                    subprocess.call(['rm',centrifuge_output])
-                    subprocess.call(['rm',centrifuge_report])
+            # if final report and output files do not exist, move the already
+            # generated report and output files to the appropriate location,
+            # also rename them as final report and output respectively.
+            else:
+                subprocess.call(['mv',centrifuge_output,final_output])
+                subprocess.call(['mv',centrifuge_report,final_report])
+                print("MOVING FILES")
 
-                # if final report and output files do not exist, move the already
-                # generated report and output files to the appropriate location,
-                # also rename them as final report and output respectively.
-                else:
-                    subprocess.call(['mv',centrifuge_output,final_output])
-                    subprocess.call(['mv',centrifuge_report,final_report])
+            # Re-create the centrifuge kraken-style report
+            run_kreport = subprocess.call([ \
+                'centrifuge-kreport',
+                '-x', index_file , \
+                final_output,
+            ],stdout=final_kreport,stderr=subprocess.DEVNULL)
 
-                # Re-create the centrifuge kraken-style report
-                run_kreport = subprocess.call([ \
-                    'centrifuge-kreport',
-                    '-x',self.app_loc + 'database/lambda-reference', \
-                    final_output,
-                ],stdout=final_kreport,stderr=subprocess.DEVNULL)
-
-                # Generate Sankey JSON data
-                kraken_output = None
-                with open(self.app_loc + 'centrifuge/sankey.data','w') as sankey_data_file:
-                    sankey_data_file.write(str(krakenParse(self.app_loc + 'centrifuge/final.out.kraken')) + "\n")
+            # Generate Sankey JSON data
+            kraken_output = None
+            with open(self.app_loc + 'centrifuge/sankey.data','w') as sankey_data_file:
+                sankey_data_file.write(str(krakenParse(self.app_loc + 'centrifuge/final.out.kraken')) + "\n")
