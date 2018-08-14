@@ -115,7 +115,7 @@ class AnalysisPage extends Component {
                     links={this.state.sankeyData.links}
                     width={width}
                     height={200}
-                    layout={1}
+                    layout={50}
                   />
         SankeyPlot.propTypes = { width: React.PropTypes.number }
         var FlexSankeyPlot = makeWidthFlexible(SankeyPlot)

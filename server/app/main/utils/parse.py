@@ -55,6 +55,7 @@ def krakenParse(kraken_file):
         if root_node == None and len(nodes) == 1:
             return None
 
+        # print(unclassified)
 
         domains.append(len(nodes))
         # print(domains)
@@ -66,13 +67,17 @@ def krakenParse(kraken_file):
         # print(final_nodes)
 
         names = [[ y[5].strip() for y in x] for x in final_nodes]
+        values = [[ float(y[0]) for y in x ] for x in final_nodes]
         links = []
+
+
         for i in range(len(names)):
             one_link = []
             for j in range(len(names[i])):
                 if j < len(names[i])-1:
-                    one_link.append([j,j+1])
+                    one_link.append([j,j+1,values[i][j]])
             links.append(one_link)
+
 
         final_links = []
         final_links.append(links[0])
@@ -83,8 +88,8 @@ def krakenParse(kraken_file):
             final_links.append(new_list)
 
         final_links = [x for x in [item for sublist in final_links for item in sublist]]
-
         combined_names = [x for x in[item for sublist in names for item in sublist]]
+
 
         json_nodes = []
         for name in combined_names:
@@ -94,14 +99,34 @@ def krakenParse(kraken_file):
 
         json_links = []
         for link  in final_links:
-            # print(link)
             ind_json = {}
             ind_json['source'] = link[0]
             ind_json['target'] = link[1]
-            ind_json['value'] = 20
+            ind_json['value'] = link[2]*0.1
             json_links.append(ind_json)
 
-        return json_nodes, json_links
+        retNodes = json_nodes
+        if len(unclassified) > 0:
+            retNodes = [{'name': 'root'},{'name': 'Unclassified'}] + retNodes
+        # print(retNodes)
+
+        retLinks = json_links
+        if len(unclassified) > 0:
+
+            val = [x['value'] for x in retLinks if x['source'] == 0 and x['target'] == 1][0]
+            retLinks = [{'source': 0, 'value': val, 'target': 2}] + retLinks
+            retLinks[:] = [x for x in retLinks if (x['source'] != 1 or x['target'] != 2)]
+
+            for d in retLinks:
+                if(d['source'] == 0 and d['target'] == 1):
+                    d['value'] = float(unclassified[0][0])*0.1
+
+
+
+        # print(retLinks)
+
+
+        return retNodes,retLinks
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
