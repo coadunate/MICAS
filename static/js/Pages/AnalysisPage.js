@@ -3,6 +3,7 @@ import {Grid, Row, Col, Well, Button } from 'react-bootstrap';
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
 import { makeWidthFlexible, Sankey } from 'react-vis';
 import HeaderView from '../components/HeaderView';
+import Hint from 'react-vis/dist/plot/hint'
 
 import { Dot } from 'react-animated-dots';
 
@@ -25,6 +26,9 @@ let socket = io('http://' + document.domain + ':' + location.port + '/analysis')
 import '../../css/AnalysisPage.css';
 
 
+const BLURRED_LINK_OPACITY = 0.3;
+const FOCUSED_LINK_OPACITY = 0.6;
+
 class AnalysisPage extends Component {
 
     constructor(props){
@@ -40,6 +44,7 @@ class AnalysisPage extends Component {
           nodes: [],
           links: []
         },
+        activeLink: null,
         windowWidth: 500
       }
 
@@ -107,16 +112,40 @@ class AnalysisPage extends Component {
 
     }
 
-    render () {
 
+    _renderHint() {
+      const {activeLink} = this.state;
+
+      // calculate center x,y position of link for positioning of hint
+      const x = activeLink.source.x1 + ((activeLink.target.x0 - activeLink.source.x1) / 2);
+      const y = activeLink.y0 - ((activeLink.y0 - activeLink.y1) / 2);
+
+      const hintValue = {
+        [`${activeLink.source.name} ➞ ${activeLink.target.name}`]: activeLink.value
+      };
+
+      return (
+        <Hint x={x} y={y} value={hintValue} />
+      );
+    }
+
+    render () {
+        const {activeLink} = this.state;
         var SankeyPlot = ({ width }) =>
                   <Sankey
                     nodes={this.state.sankeyData.nodes}
-                    links={this.state.sankeyData.links}
+                    links={this.state.sankeyData.links.map((d, i) => ({
+                      ...d,
+                      opacity: activeLink && i === activeLink.index ? FOCUSED_LINK_OPACITY : BLURRED_LINK_OPACITY
+                    }))}
                     width={width}
                     height={200}
                     layout={50}
-                  />
+                    hideLabels={false}
+                    onLinkMouseOver={node => this.setState({activeLink: node})}
+                    onLinkMouseOut={() => this.setState({activeLink: null})}
+                  >{ activeLink && this._renderHint() }
+                  </Sankey>
         SankeyPlot.propTypes = { width: React.PropTypes.number }
         var FlexSankeyPlot = makeWidthFlexible(SankeyPlot)
 
@@ -202,7 +231,7 @@ class AnalysisPage extends Component {
                           </Well>
                         </Col>
                         <Col md={12}>
-                          <Well style={{ height: '25vh'}}>
+                          <div style={{ height: '30vh'}}>
                             { this.state.sankeyData.nodes.length > 0 &&
                               <FlexSankeyPlot />
                             }
@@ -213,7 +242,7 @@ class AnalysisPage extends Component {
                                 <h3>No significant data has been reported for snakey plot yet</h3>
                               </div>
                             }
-                          </Well>
+                          </div>
                         </Col>
                       </Col>
                       <Col md={1} />
