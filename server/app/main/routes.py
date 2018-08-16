@@ -16,6 +16,8 @@ import ast
 import re
 
 from .utils.parse import krakenReadCount
+from .utils.send_email import send_email
+
 
 
 @main.route('/')
@@ -64,20 +66,33 @@ def get_alert_info():
 
         if subprocess.call(['ls',app_location + 'alertinfo.cfg']) == 0:
             alert_sequences_list = ""
+            already_alerted_list = ""
             alert_sequences_threshold = 100
+            email_address = None
             with open(app_location + 'alertinfo.cfg','r') as config_file:
                 for line in config_file:
                     if "alert_sequences" in line:
                         alert_sequences_list = line
-                        break
                     if "alert_sequence_threshold" in line:
                         print(line)
                         alert_sequences_threshold = int(line.split("=")[1].strip())
+                    if "email_address" in line:
+                        email_address = line.split("=")[1].strip()
+                        print(email_address)
+                    if "already_alerted" in line:
+                        already_alerted_list = line
 
             finalList = []
             otherFinalList = []
+
+
+
             alert_sequences_list = alert_sequences_list.split("=")[1].strip()
             alert_sequences_list = ast.literal_eval(alert_sequences_list)
+
+            already_alerted_list = already_alerted_list.split("=")[1].strip()
+            already_alerted_list = ast.literal_eval(already_alerted_list)
+
             for alert in alert_sequences_list:
                 krakenResult = krakenReadCount(app_location + 'centrifuge/final.out.kraken',int(alert))
                 print(krakenResult)
@@ -96,6 +111,29 @@ def get_alert_info():
                     # taxid, num_reads, name
                     int_dict = {"tax_id": int(alert), "name": krakenResult[2].rstrip(), "num_reads": krakenResult[1] }
                     finalList.append(int_dict)
+
+                    # Send an email if the # of reads are greater than the alert_sequence_threshold
+                    if int(krakenResult[1]) >= alert_sequences_threshold and (alert not in already_alerted_list):
+                        send_email(krakenResult[2].strip(), krakenResult[1],email_address)
+
+                        # Update alertconfig file for already_alerted sequences.
+                        other_info = ""
+                        list_of_sequences = ""
+                        line_number = -1
+                        with open(app_location + 'alertinfo.cfg','r') as read_file:
+                            for idx,line in enumerate(read_file):
+                                if "already_alerted" not in line:
+                                    other_info += line
+                                else:
+                                    list_of_sequences = line.split("=")[1]
+
+                        list_of_sequences = ast.literal_eval(list_of_sequences.strip())
+                        list_of_sequences.append(str(alert))
+                        new_list_of_sequences = "already_alerted = " + str(list_of_sequences)
+                        with open(app_location + 'alertinfo.cfg','w') as write_file:
+                            write_file.write(other_info)
+                            write_file.write(new_list_of_sequences)
+
 
             if(len(finalList) > 0):
                 return json.dumps({ 'status': 200, 'alerts': finalList, 'alert_sequences_threshold': alert_sequences_threshold })
