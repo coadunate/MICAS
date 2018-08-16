@@ -42,14 +42,15 @@ def krakenParse(kraken_file):
         domains = []
         for num,line in enumerate(report_file,1):
             parsed_line = line.strip().split('\t')
-            if 'unclassified' in parsed_line:
-                unclassified.append(parsed_line)
-            elif 'root' in parsed_line:
-                root_node = parsed_line
-            else:
-                if(parsed_line[3] == 'D'):
-                    domains.append(num-1)
-            nodes.append(parsed_line)
+            if(len(parsed_line) > 3):
+                if 'unclassified' in parsed_line:
+                    unclassified.append(parsed_line)
+                elif 'root' in parsed_line:
+                    root_node = parsed_line
+                else:
+                    if(parsed_line[3] == 'D'):
+                        domains.append(num-1)
+                nodes.append(parsed_line)
 
         # If there is nothing in kraken report
         if root_node == None and len(nodes) == 1:
@@ -67,7 +68,7 @@ def krakenParse(kraken_file):
         # print(final_nodes)
 
         names = [[ y[5].strip() for y in x] for x in final_nodes]
-        values = [[ float(y[0]) for y in x ] for x in final_nodes]
+        values = [[ y[1] for y in x ] for x in final_nodes]
         links = []
 
 
@@ -78,7 +79,6 @@ def krakenParse(kraken_file):
                     one_link.append([j,j+1,values[i][j]])
             links.append(one_link)
 
-
         final_links = []
         final_links.append(links[0])
         for m in range(1,len(links)):
@@ -86,7 +86,6 @@ def krakenParse(kraken_file):
             list = [x+last_val+1 for x in [item for sublist in links[m] for item in sublist]]
             new_list = [ x for x in [ list[x+2:x+4] for x in range(-2,len(list),2) ] if x]
             final_links.append(new_list)
-
         final_links = [x for x in [item for sublist in final_links for item in sublist]]
         combined_names = [x for x in[item for sublist in names for item in sublist]]
 
@@ -102,12 +101,12 @@ def krakenParse(kraken_file):
             ind_json = {}
             ind_json['source'] = link[0]
             ind_json['target'] = link[1]
-            ind_json['value'] = link[2]*0.1
+            ind_json['value'] = link[2]
             json_links.append(ind_json)
 
         retNodes = json_nodes
         if len(unclassified) > 0:
-            retNodes = [{'name': 'root'},{'name': 'Unclassified'}] + retNodes
+            retNodes = [{'name': 'root'},{'name': 'Unclassified', 'color': 'red','opacity': 0.9}] + retNodes
         # print(retNodes)
 
         retLinks = json_links
@@ -119,7 +118,9 @@ def krakenParse(kraken_file):
 
             for d in retLinks:
                 if(d['source'] == 0 and d['target'] == 1):
-                    d['value'] = float(unclassified[0][0])*0.1
+                    d['value'] = unclassified[0][0]
+                    d['color'] = 'red'
+                    d['opacity'] = 0.5
 
 
 
