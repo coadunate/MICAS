@@ -110,6 +110,7 @@ def download_database(dbinfo,queries,alertInfo):
         alert_config_file.write('email_address = ' + email_address + '\n')
         alert_config_file.write('alert_sequence_threshold = ' + str(alertInfo['alert_sequence_threshold']) + '\n')
         alert_config_file.write('alert_sequences = ' + str(alertInfo['alert_sequences']) + '\n')
+        alert_config_file.write('already_alerted = []\n')
 
     # Create database directory.
     print("DOWNLOAD_DATABADE: Creating database directory.")
