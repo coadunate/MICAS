@@ -1,0 +1,11 @@
+static/node_modules
+static/dist
+.listing
+server/.listing
+server/__pycache__/
+env_micas
+.DS_Store
+server/app/config/*
+server/app/main/__pycache__/
+*.py[cod]
+*$py.class
