@@ -7,14 +7,15 @@ from twilio.rest import Client
 
 import os
 sms_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/sms_config.json')
+email_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/email_config.json')
 
 twilio_data = None
-with open(sms_config_path) as json_data_file:
-    twilio_data = json.load(json_data_file)
+with open(sms_config_path) as json_sms_file:
+    twilio_data = json.load(json_sms_file)
 
-# Your email details
-fromaddr = "coadunateusask@gmail.com"
-PASSWORD = "PASS_HERE"
+email_data = None
+with open(email_config_path) as json_email_file:
+    email_data = json.load(json_email_file)
 
 def send_sms(alert_name,num_reads,phone_number):
     """
@@ -43,7 +44,7 @@ def send_email(alert_name, num_reads,email_address):
 
     try:
         msg = MIMEMultipart()
-        msg['From'] = fromaddr
+        msg['From'] = email_data['from_email']
         msg['To'] = email_address
         msg['Subject'] = SUBJECT
 
@@ -51,9 +52,9 @@ def send_email(alert_name, num_reads,email_address):
 
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(fromaddr, PASSWORD)
+        server.login(email_data['from_email'], email_data['password'])
         text = msg.as_string()
-        server.sendmail(fromaddr, email_address, text)
+        server.sendmail(email_data['from_email'], email_address, text)
         server.quit()
         print("Email sent to '" + email_address + "' successfully!")
     except Exception as error:
