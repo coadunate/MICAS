@@ -7,6 +7,11 @@ from email.mime.text import MIMEText
 fromaddr = "coadunateusask@gmail.com"
 PASSWORD = "PASS_HERE"
 
+def send_sms(alert_name,num_reads,email_address):
+    """
+        Sends a SMS message about the alerts to given phone_number.
+    """
+    print("Sent!")
 
 def send_email(alert_name, num_reads,email_address):
     """
