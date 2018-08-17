@@ -16,7 +16,7 @@ import ast
 import re
 
 from .utils.parse import krakenReadCount
-from .utils.send_email import send_email
+from .utils.notification import send_email, send_sms
 
 
 
@@ -69,6 +69,7 @@ def get_alert_info():
             already_alerted_list = ""
             alert_sequences_threshold = 100
             email_address = None
+            phone_number = None
             with open(app_location + 'alertinfo.cfg','r') as config_file:
                 for line in config_file:
                     if "alert_sequences" in line:
@@ -79,6 +80,9 @@ def get_alert_info():
                     if "email_address" in line:
                         email_address = line.split("=")[1].strip()
                         print(email_address)
+                    if "phone_number" in line:
+                        phone_number = line.split("=")[1].strip()
+                        print(phone_number)
                     if "already_alerted" in line:
                         already_alerted_list = line
 
@@ -114,7 +118,10 @@ def get_alert_info():
 
                     # Send an email if the # of reads are greater than the alert_sequence_threshold
                     if int(krakenResult[1]) >= alert_sequences_threshold and (alert not in already_alerted_list):
-                        send_email(krakenResult[2].strip(), krakenResult[1],email_address)
+                        if email_address is not None:
+                            send_email(krakenResult[2].strip(), krakenResult[1],email_address)
+                        if phone_number is not None:
+                            send_sms(krakenResult[2].strip(), krakenResult[1],phone_number)
 
                         # Update alertconfig file for already_alerted sequences.
                         other_info = ""
