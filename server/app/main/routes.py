@@ -75,14 +75,11 @@ def get_alert_info():
                     if "alert_sequences" in line:
                         alert_sequences_list = line
                     if "alert_sequence_threshold" in line:
-                        print(line)
                         alert_sequences_threshold = int(line.split("=")[1].strip())
                     if "email_address" in line:
                         email_address = line.split("=")[1].strip()
-                        print(email_address)
                     if "phone_number" in line:
                         phone_number = line.split("=")[1].strip()
-                        print(phone_number)
                     if "already_alerted" in line:
                         already_alerted_list = line
 
