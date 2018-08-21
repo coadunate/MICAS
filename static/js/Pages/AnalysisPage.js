@@ -79,7 +79,7 @@ class AnalysisPage extends Component {
     componentDidMount(){
 
       window.onresize = () => {
-       this.setState({windowWidth: this.refs.root.offsetWidth});
+       // this.setState({windowWidth: this.refs.root.offsetWidth});
       };
 
       function updateAnalysis(that){
@@ -132,20 +132,25 @@ class AnalysisPage extends Component {
     render () {
         const {activeLink} = this.state;
         var SankeyPlot = ({ width }) =>
-                  <Sankey
-                    nodes={this.state.sankeyData.nodes}
-                    links={this.state.sankeyData.links.map((d, i) => ({
-                      ...d,
-                      opacity: activeLink && i === activeLink.index ? FOCUSED_LINK_OPACITY : BLURRED_LINK_OPACITY
-                    }))}
-                    width={width}
-                    height={200}
-                    layout={50}
-                    hideLabels={false}
-                    onLinkMouseOver={node => this.setState({activeLink: node})}
-                    onLinkMouseOut={() => this.setState({activeLink: null})}
-                  >{ activeLink && this._renderHint() }
-                  </Sankey>
+                <Sankey
+                  style={{
+                    height: "auto",
+                    minHeight: "550%",
+                    paddingTop: "100px"
+                  }}
+                  nodes={this.state.sankeyData.nodes}
+                  links={this.state.sankeyData.links}
+                  width={width}
+                  height={200}
+                  layout={2}
+                  align="center"
+                  hideLabels={false}
+                  labelRotation={-45}
+                  nodePadding={85}
+                  nodeWidth={5}
+                >
+                </Sankey>
+
         SankeyPlot.propTypes = { width: React.PropTypes.number }
         var FlexSankeyPlot = makeWidthFlexible(SankeyPlot)
 
