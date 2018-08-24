@@ -46,11 +46,11 @@ def get_sankey_data():
 
         if subprocess.call(['ls',app_location + 'centrifuge/sankey.data']) == 0:
             with open(app_location + 'centrifuge/sankey.data','r') as sankey_file:
-                line = sankey_file.readline()
-                if "None" in line:
+                lines = sankey_file.read()
+                if "None" in lines:
                     return json.dumps({ 'status': 204 })
                 else:
-                    jsonRecord = ast.literal_eval(line)
+                    jsonRecord = ast.literal_eval(lines)
                     return json.dumps({ 'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1] })
         else:
             return json.dumps({ 'status': 404 })
