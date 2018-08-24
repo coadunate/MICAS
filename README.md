@@ -10,7 +10,7 @@
 ## Installation
 
 ```sh
-$ git clone https://github.com/coadunate/xWIMP.git
+$ git clone https://github.com/coadunate/MICAS.git
 $ cd MICAS
 $ cd static
 $ npm install
