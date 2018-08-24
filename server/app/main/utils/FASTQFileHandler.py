@@ -12,13 +12,14 @@ class FASTQFileHandler(FileSystemEventHandler):
     def __init__(self,app_loc):
         print("FASTQ FILE HANDLER INITIATED")
         self.app_loc = app_loc
+        self.num_files_classified = 0
 
     def on_created(self, event):
 
         #if fastq file is created
         if event.src_path.endswith(".fasta"):
 
-            print('event type:', event.event_type , 'path :', event.src_path)
+            print('event type:', event.event_type , 'path :', event.src_path,'num files classified:',self.num_files_classified)
 
             # paths for centrifuge out file and centrifuge report file
             centrifuge_output = self.app_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.out.centrifuge'
@@ -85,3 +86,16 @@ class FASTQFileHandler(FileSystemEventHandler):
             kraken_output = None
             with open(self.app_loc + 'centrifuge/sankey.data','w') as sankey_data_file:
                 sankey_data_file.write(str(krakenParse(self.app_loc + 'centrifuge/final.out.kraken')) + "\n")
+
+
+            # increase the # of files it has classified
+            self.num_files_classified += 1
+
+            # Get the number of files that are in MinION reads directory
+            minion_reads_dir = os.path.abspath(os.path.join(event.src_path, os.pardir))
+            num_files_minion_reads = int(os.popen('ls -1 ' + minion_reads_dir + ' | wc -l').read())
+
+            # Update the analysis.timeline file
+            with open(self.app_loc + 'analysis.timeline','w') as analysis_timeline:
+                analysis_timeline.write(str(num_files_minion_reads) + \
+                                        '\t' + str(self.num_files_classified))
