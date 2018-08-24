@@ -193,8 +193,6 @@ class AnalysisPage extends Component {
           }
         ]
 
-        console.log(this.state.timelineInfo.num_total_reads)
-        console.log(this.state.timelineInfo.num_classified_reads)
 
         var alertdata = []
 
@@ -268,12 +266,7 @@ class AnalysisPage extends Component {
                           <Well>
                             <h4>Timeline</h4>
                             <hr />
-                            {/*
-                              <Timeline
-                              options={options}
-                              items={items}
-                            />
-                            */}
+                            
                             <ReactFC {...timelineChartConfig} />
                           </Well>
                         </Col>
