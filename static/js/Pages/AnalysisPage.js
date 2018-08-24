@@ -13,11 +13,11 @@ var $ = require('jquery');
 
 import FusionCharts from 'fusioncharts/core';
 import Column2D from 'fusioncharts/viz/column2d';
+import Bar2D from 'fusioncharts/viz/bar2d';
 import ReactFC from 'react-fusioncharts';
 import FusionTheme from 'fusioncharts/themes/fusioncharts.theme.ocean';
 
-ReactFC.fcRoot(FusionCharts, Column2D, FusionTheme);
-
+ReactFC.fcRoot(FusionCharts, Column2D, FusionTheme, Bar2D);
 
 import io from 'socket.io-client';
 
@@ -36,6 +36,10 @@ class AnalysisPage extends Component {
       this.state = {
         databaseDownloaded: true,
         databaseDownloadTimer: null,
+        timelineInfo: {
+          num_total_reads: 0,
+          num_classified_reads: 0
+        },
         alertsInfo: {
           alerts: [],
           seqs_threshold: 100
@@ -76,6 +80,19 @@ class AnalysisPage extends Component {
       });
     }
 
+    updateTimelineInfo = (app_location) => {
+      let url = '/get_timeline_info?app_location=' + app_location
+      $.getJSON(url, (response) => {
+        if(response.status == 200){
+          var newTimelineInfo = {
+            num_total_reads: response.num_total_reads,
+            num_classified_reads: response.num_classified_reads
+          }
+          this.setState({ timelineInfo: newTimelineInfo })
+        }
+      })
+    }
+
     componentDidMount(){
 
       window.onresize = () => {
@@ -86,6 +103,7 @@ class AnalysisPage extends Component {
         setTimeout(() => {
           that.updateSankey(that.props.appLocation)
           that.updateAlertInfo(that.props.appLocation)
+          that.updateTimelineInfo(that.props.appLocation)
           updateAnalysis(that)
         },5000)
       }
@@ -157,31 +175,58 @@ class AnalysisPage extends Component {
         var downloadDatabase = this.state.databaseDownloaded;
         const options = {
           rtl: false,
-          start: this.props.startTime
+          start: Date("2018-08-24T20:07:17.487Z")
 
         }
         const items = [
           {
-            start: this.props.startTime,
-            end: new Date(this.props.startTime.getTime()),  // end is optional
+            start: Date("2018-08-24T20:07:17.487Z"),
+            end: Date("2018-08-24T20:08:17.487Z"),  // end is optional
             content: '<strong>MICAS</strong>',
             style: "border: 1px solid black;background-color:#3988FE;color:white;"
           },
           {
-            start: this.props.startTime,
-            end: new Date(this.props.startTime.getTime() + 0.25*60000),  // end is optional
+            start: Date("2018-08-24T20:07:17.487Z"),
+            end: Date("2018-08-24T20:10:17.487Z"),  // end is optional
             content: '<strong>MinION</strong>',
             style: "border: 1px solid black;background-color:#38818A;color:white;"
           }
         ]
+
+        console.log(this.state.timelineInfo.num_total_reads)
+        console.log(this.state.timelineInfo.num_classified_reads)
 
         var alertdata = []
 
         this.state.alertsInfo.alerts.map( (sequence) => {
             alertdata.push({"label": sequence.name, "value": sequence.num_reads})
         })
+        const timelineChartConfig = {
+          type: 'bar2d',
+          width: '700',
+          height: '200',
+          dataFormat: 'json',
+          dataSource: {
+            "chart": {
+              "plottooltext": "Number of reads",
+              "theme": "ocean",
+            },
+            "data": [
+              {
+                "label": "MinION",
+                "value": this.state.timelineInfo.num_total_reads,
+                "color": "#088A68"
+              },
+              {
+                "label": "MICAS",
+                "value": this.state.timelineInfo.num_classified_reads,
+                "color": "#58ACFA"
+              }
+            ]
+          }
+        }
 
-        const chartConfigs = {
+        const alertChartConfigs = {
             type: 'column2d',
             width: '700',
             height: '400',
@@ -223,16 +268,19 @@ class AnalysisPage extends Component {
                           <Well>
                             <h4>Timeline</h4>
                             <hr />
-                            <Timeline
+                            {/*
+                              <Timeline
                               options={options}
                               items={items}
                             />
+                            */}
+                            <ReactFC {...timelineChartConfig} />
                           </Well>
                         </Col>
                         <Col md={12}>
                           <Well>
                             <h4>Alerts</h4>
-                            <ReactFC {...chartConfigs} />
+                            <ReactFC {...alertChartConfigs} />
                           </Well>
                         </Col>
                         <Col md={12}>
