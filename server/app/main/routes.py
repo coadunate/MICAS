@@ -38,6 +38,31 @@ def is_database_downloaded():
     else:
         return json.dumps({ 'status': 400 })
 
+@main.route('/get_timeline_info',methods=["GET"])
+def get_timeline_info():
+    if request.method == 'GET':
+        app_location = request.args.get('app_location')
+        app_location = app_location if app_location.endswith('/') else app_location + '/'
+
+        if subprocess.call(['ls',app_location + 'analysis.timeline']) == 0:
+            with open(app_location + 'analysis.timeline','r') as analysis_timeline:
+                try:
+                    line = analysis_timeline.readline()
+                    (num_total_reads,num_classified_reads) = line.split("\t")
+
+                    return json.dumps( \
+                        { \
+                            'status': 200, \
+                            'num_total_reads': int(num_total_reads), \
+                            'num_classified_reads': int(num_classified_reads) \
+                        })
+
+                except:
+                    return json.dumps({ 'status': 404 })
+
+
+
+
 @main.route('/get_sankey_data', methods=['GET'])
 def get_sankey_data():
     if request.method == 'GET':
