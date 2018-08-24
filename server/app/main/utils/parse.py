@@ -115,7 +115,7 @@ build_sankey_network <- function(my_report, taxRanks =  c("D","K","P","C","O","F
                                 lapply(splits, function(x) utils::tail(x[x %in% my_report$name], n=2))), stringsAsFactors = FALSE)
     colnames(links) <- c("source","target")
     links$value <- my_report[sel,"cladeReads"]
-    links$color <- "blue"
+    links$color <- "red"
 
     my_taxRanks <- taxRanks[taxRanks %in% my_report$taxRank]
     taxRank_to_depth <- stats::setNames(seq_along(my_taxRanks)-1, my_taxRanks)
