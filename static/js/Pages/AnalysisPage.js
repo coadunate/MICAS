@@ -111,21 +111,6 @@ class AnalysisPage extends Component {
       updateAnalysis(this)
 
 
-      // (function pollServerForDownloadStatus() {
-      //   let url = '/is_database_downloaded?app_location=' + app_location
-      //   var _that = that;
-      //   $.getJSON(url, (response) => {
-      //     if(response.status == 200){
-      //       _that.setState({ databaseDownloaded: true })
-      //       if(_that.state.databaseDownloaded){
-      //         clearTimeout(_that.state.databaseDownloadTimer)
-      //       }
-      //     }
-      //     _that.state.databaseDownloadTimer = setTimeout(pollServerForDownloadStatus, 1000);
-      //   });
-      // }());
-
-
       socket.emit('start_fastq_file_listener',this.props.appLocation,this.props.minionLocation)
 
     }
