@@ -161,7 +161,7 @@ class AnalysisPage extends Component {
                   width={width}
                   height={200}
                   layout={2}
-                  align="center"
+                  align="left"
                   hideLabels={false}
                   labelRotation={-45}
                   nodePadding={85}
@@ -206,8 +206,11 @@ class AnalysisPage extends Component {
           dataFormat: 'json',
           dataSource: {
             "chart": {
-              "plottooltext": "Number of reads",
+              "yAxisName": "Number of reads",
               "theme": "ocean",
+              "bgColor": "#F5F5F5",
+              "valueFontBold": true,
+              "valueFontSize": 25
             },
             "data": [
               {
@@ -217,7 +220,7 @@ class AnalysisPage extends Component {
               },
               {
                 "label": "MICAS",
-                "value": this.state.timelineInfo.num_classified_reads,
+                "value": this.state.timelineInfo.num_classified_reads + " reads classified",
                 "color": "#58ACFA"
               }
             ]
@@ -229,6 +232,7 @@ class AnalysisPage extends Component {
             width: '700',
             height: '400',
             dataFormat: 'json',
+            bgColor: "#F5F5F5",
             dataSource: {
                 "chart": {
                     "caption": "Alert Sequences Status",
@@ -266,7 +270,7 @@ class AnalysisPage extends Component {
                           <Well>
                             <h4>Timeline</h4>
                             <hr />
-                            
+
                             <ReactFC {...timelineChartConfig} />
                           </Well>
                         </Col>
