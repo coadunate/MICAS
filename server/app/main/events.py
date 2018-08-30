@@ -32,7 +32,6 @@ def run_fastq_watcher(app_loc,minion_loc):
     observer.schedule(event_handler, path=minion_loc, recursive=False)
     observer.start()
     sleep(1)
-    # self.observer.join();
 
 ###############------------------###############
 
