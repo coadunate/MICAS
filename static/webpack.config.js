@@ -28,6 +28,10 @@ const config = {
             {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: 'file-loader'
+            },
+            {
+                test: /\.json$/,
+                use: 'raw-loader'
             }
         ],
       loaders: [
