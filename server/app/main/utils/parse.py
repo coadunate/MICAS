@@ -8,10 +8,9 @@ def krakenReadCount(kraken_file,tax_id):
     if not os.path.exists(kraken_file):
         return None
     matches = \
-        [re.findall(r'([0-9]{1,}.[0-9]{1,})\t[0-9]{1,}\t([0-9]{1,})\t[A-Z\-]\t([0-9]{1,})[\t\s]{0,}([A-z.\w\s]{1,})'\
+        [re.findall(r'([0-9]{1,}.[0-9]{1,})\t[0-9]{1,}\t([0-9]{1,})\t[A-Z\-]\t([0-9]{1,})[\t\s]{0,}([A-z.\w\s\(\)]{1,})'\
         ,line) for line in open(kraken_file)]
     match_list = [item for sublist in matches for item in sublist]
-
     # LIST FORMAT
     # ('6.00', '600', '0', 'unclassified\n')
     # ('94.00', '0', '1', 'root\n')
@@ -34,11 +33,26 @@ def krakenReadCount(kraken_file,tax_id):
                 # taxid, num_reads, name
                 return [int(i[2]),int(i[1]),i[3]]
 
+def getAllPhylums(kraken_file):
+    report = read_report(kraken_file)
+    phylums = get_all_phylums(report)
+    out = toJSONArray( tbl_df_strip(phylums) )
+    return out
 
-def krakenParse(kraken_file):
+def krakenParse(sankey_filter_file, kraken_file):
+
+    # find the sankey_filter_value
+    filter_value = 0
+    try:
+        with open(sankey_filter_file) as sankey_filter:
+            filter_value = int(sankey_filter.readline())
+    except Exception as e:
+        pass
+
     report = read_report(kraken_file)
 
-    sankey_data  = build_sankey_network(report)
+
+    sankey_data  = build_sankey_network(report,filter_value)
 
     output1 = toJSONArray( tbl_df_strip(sankey_data[0]) )[0]
     output2 = toJSONArray( tbl_df_strip(sankey_data[1]) )[0]
@@ -85,9 +99,47 @@ toJSONarray <- function(dtf){
 
 """)
 
+get_all_phylums = r("""
+
+    get_all_phylums <- function(my_report, taxRanks =  c("D","K","P","C","O","F","G","S"), maxn=10,
+    				 zoom = F, title = NULL,
+    				 ...) {
+        stopifnot("taxRank" %in% colnames(my_report))
+        if (!any(taxRanks %in% my_report$taxRank)) {
+            warning("report does not contain any of the taxRanks - skipping it")
+            return()
+        }
+        my_report <- subset(my_report, taxRank %in% taxRanks)
+
+
+        my_report <- plyr::ddply(my_report, "taxRank", function(x) x[utils::tail(order(x$cladeReads,-x$depth), n=maxn), , drop = FALSE])
+
+        my_report <- my_report[, c("name","taxLineage","taxonReads", "cladeReads","depth", "taxRank")]
+
+        my_report <- my_report[!my_report$name %in% c('-_root'), ]
+        #my_report$name <- sub("^-_root.", "", my_report$name)
+
+        splits <- strsplit(my_report$taxLineage, "\\\|")
+
+        ## for the root nodes, we'll have to add an 'other' link to account for all cladeReads
+        root_nodes <- sapply(splits[sapply(splits, length) ==2], function(x) x[2])
+
+        sel <- sapply(splits, length) >= 3
+        splits <- splits[sel]
+
+        links <- data.frame(do.call(rbind,
+                                    lapply(splits, function(x) utils::tail(x[x %in% my_report$name], n=2))), stringsAsFactors = FALSE)
+        colnames(links) <- c("source","name")
+        links$value <- my_report[sel,"cladeReads"]
+
+        tayab <- subset(links, grepl("p_", name))
+        return(tayab[, c("name","value")])
+    }
+""")
+
 build_sankey_network = r("""
 
-build_sankey_network <- function(my_report, taxRanks =  c("D","K","P","C","O","F","G","S"), maxn=10,
+build_sankey_network <- function(my_report, filter_value, taxRanks =  c("D","K","P","C","O","F","G","S"), maxn=10,
 				 zoom = F, title = NULL,
 				 ...) {
     stopifnot("taxRank" %in% colnames(my_report))
@@ -96,12 +148,20 @@ build_sankey_network <- function(my_report, taxRanks =  c("D","K","P","C","O","F
         return()
     }
     my_report <- subset(my_report, taxRank %in% taxRanks)
+
+
+
     my_report <- plyr::ddply(my_report, "taxRank", function(x) x[utils::tail(order(x$cladeReads,-x$depth), n=maxn), , drop = FALSE])
+
 
     my_report <- my_report[, c("name","taxLineage","taxonReads", "cladeReads","depth", "taxRank")]
 
     my_report <- my_report[!my_report$name %in% c('-_root'), ]
+    my_report <- my_report[my_report$cladeReads > c(filter_value),]
+    #my_report <- my_report[my_report$cladeReads > c(filter_value), ]
     #my_report$name <- sub("^-_root.", "", my_report$name)
+
+
 
     splits <- strsplit(my_report$taxLineage, "\\\|")
 
@@ -116,6 +176,7 @@ build_sankey_network <- function(my_report, taxRanks =  c("D","K","P","C","O","F
     colnames(links) <- c("source","target")
     links$value <- my_report[sel,"cladeReads"]
     links$color <- "red"
+
 
     my_taxRanks <- taxRanks[taxRanks %in% my_report$taxRank]
     taxRank_to_depth <- stats::setNames(seq_along(my_taxRanks)-1, my_taxRanks)
@@ -306,11 +367,13 @@ function(myfile,collapse=TRUE,keep_taxRanks=c("D","K","P","C","O","F","G","S"),m
     colnames(report)[colnames(report)=="taxonid"] <- "taxID"
     colnames(report)[colnames(report)=="tax"] <- "taxID"
 
+
   } else {
     report <- utils::read.table(myfile,sep="\t",header = F,
                                 col.names = c("percentage","cladeReads","taxonReads","taxRank","taxID","name"),
                                 quote = "",stringsAsFactors=FALSE)
   }
+
 
   report$depth <- nchar(gsub("\\\\S.*","",report$name))/2
   report$name <- gsub("^ *","",report$name)
@@ -353,7 +416,6 @@ function(myfile,collapse=TRUE,keep_taxRanks=c("D","K","P","C","O","F","G","S"),m
   }
 
   report <- report[report$depth >= min.depth,]
-
   report$percentage <- round(report$cladeReads/sum(report$taxonReads),6) * 100
 
 	for (column in c("taxonReads", "cladeReads"))
@@ -375,4 +437,6 @@ function(myfile,collapse=TRUE,keep_taxRanks=c("D","K","P","C","O","F","G","S"),m
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit("ERROR: You need to provide the kraken output file")
-    print(krakenParse(sys.argv[1]))
+    #print(krakenReadCount(sys.argv[1],sys.argv[2]))
+    #print(krakenParse(sys.argv[1],sys.argv[2]))
+    print(getAllPhylums(sys.argv[2]))
