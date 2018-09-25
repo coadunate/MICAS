@@ -42,6 +42,9 @@
   display: none;
 }
 
+path {
+  stroke: #000;
+}
 
 .node rect {
   fill: #888888;
@@ -192,4 +195,8 @@ a:hover {
   padding-bottom: 10px;
   border-radius: 5px;
   color: #000;
+}
+
+.italicText {
+  font-style: italic;
 }
