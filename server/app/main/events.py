@@ -12,6 +12,7 @@ from time import sleep
 from .utils.FASTQFileHandler import FASTQFileHandler
 from .utils.tasks import int_download_database
 
+from .utils.parse import krakenParse
 
 # for run_fasq_watcher
 from watchdog.observers import Observer
@@ -58,6 +59,20 @@ def start_fastq_file_listener(app_location,minion_location):
         fileListenerThread.daemon = True
         fileListenerThread.start()
 
+@socketio.on('update_sankey_filter', namespace="/analysis")
+def update_sankey_filter(app_location, value):
+    print("update_sankey_filter")
+
+    app_location = app_location if app_location.endswith('/') else app_location + '/'
+    analysis_filter_file_path = app_location + 'centrifuge/sankey.filter'
+    with open(analysis_filter_file_path,'w') as analysis_filter_file:
+        analysis_filter_file.write(str(value))
+
+
+    with open(app_location + 'centrifuge/sankey.data','w') as sankey_data_file:
+        sankey_data_file.write(str(krakenParse(app_location + 'centrifuge/sankey.filter', app_location + 'centrifuge/final.out.kraken')) + "\n")
+
+
 
 def on_raw_message(message):
 
@@ -68,7 +83,6 @@ def on_raw_message(message):
         status_message = message['result']['message']
 
         socketReturn = emit('download_database_status',{'percent_done': percent_done, 'status_message': status_message}, namespace="/analysis")
-        print(socketReturn)
         print(str(percent_done) + "% [" + status_message + "]")
 
 
