@@ -75,8 +75,13 @@ def get_sankey_data():
                 if "None" in lines:
                     return json.dumps({ 'status': 204 })
                 else:
-                    jsonRecord = ast.literal_eval(lines)
-                    return json.dumps({ 'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1] })
+                    try:
+                        jsonRecord = ast.literal_eval(lines)
+                        return json.dumps({ 'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1] })
+                    except:
+                        print("TAYAB! TAKE A LOOK!")
+                        print(lines)
+                        return json.dumps({ 'status': 404 })
         else:
             return json.dumps({ 'status': 404 })
     else:
@@ -121,7 +126,6 @@ def get_alert_info():
 
             for alert in alert_sequences_list:
                 krakenResult = krakenReadCount(app_location + 'centrifuge/final.out.kraken',int(alert))
-                print(krakenResult)
                 if(krakenResult == None):
 
                     # with open(os.path.abspath('./app/main/data/scientific_names.json'),'r') as f:
