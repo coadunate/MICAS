@@ -1,14 +1,10 @@
 import React, { Component} from "react";
 import {Grid, Row, Col, Well, Button } from 'react-bootstrap';
-import {ListGroup, ListGroupItem} from 'react-bootstrap'
+import {ListGroup, ListGroupItem, FormControl} from 'react-bootstrap'
 import { makeWidthFlexible, Sankey } from 'react-vis';
 import HeaderView from '../components/HeaderView';
-import KronaView from '../components/KronaView';
-import Hint from 'react-vis/dist/plot/hint'
 import { LabelSeries } from 'react-vis'
-import {Sunburst} from 'react-vis';
 import { Dot } from 'react-animated-dots';
-import {curveCatmullRom} from 'd3-shape';
 import 'react-vis/dist/style.css';
 import ReactFauxDOM from 'react-faux-dom';
 import {
@@ -18,12 +14,14 @@ import {
   HorizontalGridLines,
   LineSeries,
   VerticalGridLines,
-  HorizontalBarSeries
+  HorizontalBarSeries,
+  RadialChart,
+  Hint
 } from 'react-vis'
 
-var margin = { top: 10, right: 0, bottom: 10, left: 0 };
-var width = 690 - margin.left - margin.right;
-var height = 400 - margin.top - margin.bottom;
+
+import Sunburst from '../components/Sunburst';
+import { hierarchy } from 'd3-hierarchy';
 
 var $ = require('jquery');
 
@@ -33,15 +31,21 @@ let socket = io('http://' + document.domain + ':' + location.port + '/analysis')
 
 import '../../css/AnalysisPage.css';
 
+
+const BarSeries = HorizontalBarSeries;
+
 import d3 from 'd3';
 import sankey from 'd3-plugins-sankey';
 let _ = require('underscore');
 var cloneDeep = require('lodash.clonedeep');
+import { scaleOrdinal, schemeCategory10 } from 'd3-scale';
 
-var color = function(){
-  const color = d3.scale.ordinal(d3.schemeCategory10);
-  return name => color(name.replace(/ .*/, ""));
-}
+const color = scaleOrdinal(schemeCategory10);
+
+var margin = { top: 10, right: 0, bottom: 10, left: 0 };
+var width = window.innerWidth - margin.left - margin.right;
+var height = 400 - margin.top - margin.bottom;
+
 
 var my_sankey = d3.sankey()
   .size([width, height])
@@ -50,62 +54,42 @@ var my_sankey = d3.sankey()
 
 var path = my_sankey.link();
 
-
-
-const BarSeries = HorizontalBarSeries;
-
-const COLORS = [
-  '#cd3b54',
-  '#59b953',
-  '#ba4fb9',
-  '#99b53e',
-  '#7f61d3',
-  '#c9a83a',
-  '#626dbc',
-  '#e08b39',
-  '#5ea0d8',
-  '#cf4d2a',
-  '#4fb79b',
-  '#d24691',
-  '#528240',
-  '#c388d2',
-  '#80742b',
-  '#9c4a6d',
-  '#caaa70',
-  '#e0829f',
-  '#9d5d30',
-  '#dc7666'
-];
-
-
-const D3FlareData = {
+const sun_data =  {
+ "name": "Root",
  "children": [
   {
    "name": "CLASSIFIED",
    "hex": "#12939A",
-   "value": 20,
+   "size": 20,
    "children": [
-    {"name": "Proteobacteria", "hex": "#12939A", "value": 5},
+    {"name": "Proteobacteria", "hex": "#12939A", "size": 5},
     {
       "name": "Spirochaetes",
       "hex": "#12939A",
-      "value": 2,
+      "size": 2,
       "children": [
-        {"name": "Alert 1", "hex": "#FF8800", "value": 14}
+        {"name": "Alert 1", "hex": "#FF8800", "size": 14}
       ]
     },
-    {"name": "Fusobacteria", "hex": "#12939A", "value": 7},
-    {"name": "Acidobacteria", "hex": "#12939A", "value": 8},
-    {"name": "Thermodesulfobacteria", "hex": "#12939A", "value": 12},
-    {"name": "Euryarchaeota", "hex": "#12939A", "value": 12},
+    {'name': 'p_Verrucomicrobia', 'size': 4}, {'name': 'p_Tenericutes', 'size': 5},
+    {'name': 'p_Spirochaetes', 'size': 5}, {'name': 'p_Cyanobacteria', 'size': 9},
+    {'name': 'p_Euryarchaeota', 'size': 12}, {'name': 'p_Bacteroidetes', 'size': 25},
+    {'name': 'p_Actinobacteria', 'size': 112}, {'name': 'p_Chordata', 'size': 234},
+    {'name': 'p_Firmicutes', 'size': 29048},
+    {'name': 'p_Proteobacteria', 'size': 38614},
    ]
   },
   {
    "name": "UNPROCESSED",
-   "value": 50
+   "size": 50
   }
  ]
 }
+
+const root = hierarchy(sun_data)
+  .sum(d => d.size) //size)
+  //.sum(d => 1) // count
+  //.sort((a, b) => b.value - a.value);
 
 function buildValue(hoveredCell) {
   const {radius, angle, angle0} = hoveredCell;
@@ -130,33 +114,6 @@ const LABEL_STYLE = {
   textAnchor: 'middle'
 };
 
-function getKeyPath(node) {
-  if (!node.parent) {
-    return ['All'];
-  }
-
-  return [node.data && node.data.name || node.name].concat(getKeyPath(node.parent));
-}
-
-function updateData(data, keyPath) {
-  if (data.children) {
-    data.children.map(child => updateData(child, keyPath));
-  }
-  // add a fill to all the uncolored cells
-  if (!data.hex) {
-    data.style = {
-      fill: COLORS[5]
-    };
-  }
-  data.style = {
-    ...data.style,
-    fillOpacity: keyPath && !keyPath[data.name] ? 0.2 : 1
-  };
-
-  return data;
-}
-
-const decoratedData = updateData(D3FlareData, false);
 
 class AnalysisPage extends Component {
 
@@ -177,11 +134,15 @@ class AnalysisPage extends Component {
           nodes: [],
           links: []
         },
-        pathValue: false,
-        data: decoratedData,
-        finalValue: 'ALL',
-        clicked: false
+        sankeyFilterValue: 0
       }
+
+    }
+
+    updateSankeyFilter = (e) => {
+      var value = e.target.value
+      socket.emit('update_sankey_filter',this.props.appLocation,value)
+      this.setState({ sankeyFilterValue: value })
 
     }
 
@@ -194,8 +155,11 @@ class AnalysisPage extends Component {
             links: response.links
           }
           this.setState({ sankeyData: newSankeyData })
+        }else{
+          console.log("->" + response.status)
         }
       });
+
     }
 
     updateAlertInfo = (app_location) => {
@@ -225,7 +189,7 @@ class AnalysisPage extends Component {
     }
 
     componentDidMount(){
-
+      socket.emit('update_sankey_filter',this.props.appLocation,0)
       window.onresize = () => {
        // this.setState({windowWidth: this.refs.root.offsetWidth});
       };
@@ -246,6 +210,7 @@ class AnalysisPage extends Component {
 
     }
     render() {
+
       var graph = {
         nodes: cloneDeep(this.state.sankeyData.nodes),
         links: cloneDeep(this.state.sankeyData.links)
@@ -316,171 +281,201 @@ class AnalysisPage extends Component {
         .attr("x", 6 + my_sankey.nodeWidth())
         .attr("text-anchor", "start");
 
+      const {activeLink} = this.state;
 
-      return svgNode.toReact();
+
+      var SankeyPlot = ({ width }) =>
+              <Sankey
+                style={{
+                  height: "auto",
+                  minHeight: "550%",
+                  paddingTop: "100px"
+                }}
+                nodes={this.state.sankeyData.nodes}
+                links={this.state.sankeyData.links}
+                width={width}
+                height={200}
+                layout={2}
+                align="center"
+                hideLabels={false}
+                labelRotation={-45}
+                nodePadding={2}
+                nodeWidth={5}
+              >
+              </Sankey>
+
+      SankeyPlot.propTypes = { width: React.PropTypes.number }
+      var FlexSankeyPlot = makeWidthFlexible(SankeyPlot)
+
+      var downloadDatabase = this.state.databaseDownloaded;
+
+      var alertdata = []
+
+      this.state.alertsInfo.alerts.map( (sequence) => {
+          alertdata.push(<BarSeries key={sequence.name} onValueClick={(datapoint, event)=>{ return (<Hint x={10} y={10} value={ tayab } style={{fontSize: 14}}/>) }} data={[{"y": sequence.name, "x": sequence.num_reads}]} />)
+      })
+
+      var thresholdlinedata = []
+      this.state.alertsInfo.alerts.map( (sequence) => {
+        thresholdlinedata.push({"y": sequence.name, "x": this.state.alertsInfo.seqs_threshold })
+      })
+
+      if(downloadDatabase){
+        return (
+
+          <div className="SetupPage">
+            <Grid fluid={true}>
+              <Row>
+                <Col lg={4}>
+                    <Sunburst root={root} width={650} height={600} />
+                  </Col>
+                  <Col lg={8}>
+                      <XYPlot
+                        width={window.innerWidth/2}
+                        height={300}
+                        margin={{left: 210, right: 10, top: 10, bottom: 90}}
+                        yType="ordinal">
+                        <VerticalGridLines />
+                        <HorizontalGridLines />
+                        <XAxis />
+                        <YAxis
+                          tickLabelAngle={0}
+                          tickFormat={ (t,i) => {
+                            var rest = t.split(" ")
+                            var first = rest[0] + " " + rest[1] + " "
+                            var final = ""
+                            for(var i = 2; i < rest.length; i++){
+                              final += rest[i] + " "
+                            }
+                            return(<tspan><tspan x="0" dy="1em"><tspan style={{ fontStyle: "italic"}}>{ first}</tspan> { final }</tspan></tspan>)
+                          }}
+                        />{alertdata}
+                        <LineSeries color="red" data={thresholdlinedata}/>
+                      </XYPlot>
+                  </Col>
+              </Row>
+              <Row>
+                <Col md={12}>
+                <FormControl
+                    type="number"
+                    min="0"
+                    step="50"
+                    value={this.state.sankeyFilterValue}
+                    onChange={this.updateSankeyFilter}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <div style={{ minHeight: '50vh'}}>
+                  { this.state.sankeyData.nodes.length > 0 &&
+                    svgNode.toReact()
+                  }
+                  {
+                    this.state.sankeyData.nodes.length == 0 &&
+                    <div>
+                      <br />
+                      <h3>No significant data has been reported for Sankey plot yet</h3>
+                    </div>
+                  }
+                </div>
+              </Row>
+            </Grid>
+          </div>
+          /*{<div className="SetupPage">
+
+              <Grid fluid={true}>
+                <div className="walk"></div>
+                <Row className="show-grid">
+                  <Col md={12}>
+                    <Col md={1} />
+                    <Col md={10}>
+                      <HeaderView name={this.props.name}/>
+                    </Col>
+                    <Col md={1} />
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={12}>
+                    <div style={{ minHeight: "250px"}}>
+                      <Sunburst root={root} width={600} height={600} />
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={12}>
+                    <div>
+                      <h4>Alerts</h4>
+                      <XYPlot
+                        width={window.innerWidth-150}
+                        height={300}
+                        margin={{left: 210, right: 10, top: 10, bottom: 90}}
+                        yType="ordinal">
+                        <VerticalGridLines />
+                        <HorizontalGridLines />
+                        <XAxis />
+                        <YAxis
+                          tickLabelAngle={0}
+                          tickFormat={ (t,i) => {
+                            var rest = t.split(" ")
+                            var first = rest[0] + " " + rest[1] + " "
+                            var final = ""
+                            for(var i = 2; i < rest.length; i++){
+                              final += rest[i] + " "
+                            }
+                            return(<tspan><tspan x="0" dy="1em"><tspan style={{ fontStyle: "italic"}}>{ first}</tspan> { final }</tspan></tspan>)
+                          }}
+                        />
+                        {alertdata}
+                        <LineSeries color="red" data={thresholdlinedata}/>
+                      </XYPlot>
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <input
+                    id="typeinp"
+                    type="range"
+                    min="0" max="100000"
+                    value={this.state.sankeyFilterValue}
+                    onChange={this.updateSankeyFilter}
+                    step="1"/>
+                </Row>
+                <Row>
+                  <Col md={12}>
+                    <div style={{ minHeight: '50vh'}}>
+                      { this.state.sankeyData.nodes.length > 0 &&
+                        svgNode.toReact()
+                      }
+                      {
+                        this.state.sankeyData.nodes.length == 0 &&
+                        <div>
+                          <br />
+                          <h3>No significant data has been reported for snakey plot yet</h3>
+                        </div>
+                      }
+                    </div>
+                  </Col>
+                </Row>
+              </Grid>
+            </div> }*/
+        );
+      }else{
+        return (
+          <div>
+            <Col md={12}>
+              <Well style={{top:'0', bottom:'0', left:'0', right:'0', minHeight: window.innerHeight + 'px', position: 'absolute'}}>
+                <h3 className="text-center" style={{ marginTop: window.innerHeight/2 + 'px'}}>
+                  The database is still downloading
+                  <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
+                  <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
+                  <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
+                </h3>
+              </Well>
+            </Col>
+          </div>
+        );
+      }
     }
-    // render () {
-    //     const {activeLink} = this.state;
-    //
-    //     var SankeyPlot = ({ width }) =>
-    //             <Sankey
-    //               style={{
-    //                 height: "auto",
-    //                 minHeight: "550%",
-    //                 paddingTop: "100px"
-    //               }}
-    //               nodes={this.state.sankeyData.nodes}
-    //               links={this.state.sankeyData.links}
-    //               width={width}
-    //               height={200}
-    //               layout={2}
-    //               align="center"
-    //               hideLabels={false}
-    //               labelRotation={-45}
-    //               nodePadding={2}
-    //               nodeWidth={5}
-    //             >
-    //             </Sankey>
-    //
-    //     SankeyPlot.propTypes = { width: React.PropTypes.number }
-    //     var FlexSankeyPlot = makeWidthFlexible(SankeyPlot)
-    //
-    //     var downloadDatabase = this.state.databaseDownloaded;
-    //
-    //     var alertdata = []
-    //
-    //     this.state.alertsInfo.alerts.map( (sequence) => {
-    //         alertdata.push(<BarSeries key={sequence.name} onValueClick={(datapoint, event)=>{ return (<Hint x={10} y={10} value={ tayab } style={{fontSize: 14}}/>) }} data={[{"y": sequence.name, "x": sequence.num_reads}]} />)
-    //     })
-    //
-    //     var thresholdlinedata = []
-    //     this.state.alertsInfo.alerts.map( (sequence) => {
-    //       thresholdlinedata.push({"y": sequence.name, "x": this.state.alertsInfo.seqs_threshold })
-    //     })
-    //
-    //     if(downloadDatabase){
-    //       const {clicked, data, finalValue, pathValue} = this.state;
-    //       return (
-    //
-    //         <div className="SetupPage">
-    //
-    //             <Grid fluid={true}>
-    //               <div className="walk"></div>
-    //               <Row className="show-grid">
-    //                 <Col md={12}>
-    //                   <Col md={1} />
-    //                   <Col md={10}>
-    //                     <HeaderView name={this.props.name}/>
-    //                   </Col>
-    //                   <Col md={1} />
-    //                 </Col>
-    //               </Row>
-    //               <Row>
-    //                 <Col md={12}>
-    //                   <Well style={{ minHeight: "300px"}}>
-    //                     <Col md={4}></Col>
-    //                     <Col md={4}>
-    //                       <Sunburst
-    //                         animation
-    //                         className="basic-sunburst-example"
-    //                         hideRootNode
-    //                         onValueMouseOver={node => {
-    //                           if (clicked) {
-    //                             return;
-    //                           }
-    //                           const path = getKeyPath(node).reverse();
-    //                           const pathAsMap = path.reduce((res, row) => {
-    //                             res[row] = true;
-    //                             return res;
-    //                           }, {});
-    //                           this.setState({
-    //                             finalValue: path[path.length - 1],
-    //                             pathValue: path.join(' > '),
-    //                             data: updateData(decoratedData, pathAsMap)
-    //                           });
-    //                         }}
-    //                         onValueMouseOut={() => clicked ? () => {} : this.setState({
-    //                           pathValue: false,
-    //                           finalValue: false,
-    //                           data: updateData(decoratedData, false)
-    //                         })}
-    //                         onValueClick={() => this.setState({clicked: !clicked})}
-    //                         style={{
-    //                           stroke: '#ddd',
-    //                           strokeOpacity: 0.3,
-    //                           strokeWidth: '0.5'
-    //                         }}
-    //                         colorType="literal"
-    //                         getSize={d => d.value}
-    //                         getColor={d => d.hex}
-    //                         data={data}
-    //                         height={300}
-    //                         width={350}>
-    //                         {finalValue && <LabelSeries data={[
-    //                           {x: 0, y: 0, label: finalValue, style: LABEL_STYLE}
-    //                         ]} />}
-    //
-    //                       </Sunburst>
-    //                     </Col>
-    //                     <Col md={4}></Col>
-    //                   </Well>
-    //                 </Col>
-    //               </Row>
-    //               <Row>
-    //                 <Col md={12}>
-    //                   <Well>
-    //                     <h4>Alerts</h4>
-    //                     <XYPlot
-    //                       width={780}
-    //                       height={300}
-    //                       margin={{left: 180, right: 10, top: 10, bottom: 40}}
-    //                       yType="ordinal">
-    //                       <VerticalGridLines />
-    //                       <HorizontalGridLines />
-    //                       <XAxis />
-    //                       <YAxis />
-    //                       {alertdata}
-    //                       <LineSeries color="red" data={thresholdlinedata}/>
-    //                     </XYPlot>
-    //                   </Well>
-    //                 </Col>
-    //               </Row>
-    //               <Row>
-    //                 <Col md={12}>
-    //                   <div style={{ height: '30vh'}}>
-    //                     { this.state.sankeyData.nodes.length > 0 &&
-    //                       <FlexSankeyPlot />
-    //                     }
-    //                     {
-    //                       this.state.sankeyData.nodes.length == 0 &&
-    //                       <div>
-    //                         <br />
-    //                         <h3>No significant data has been reported for snakey plot yet</h3>
-    //                       </div>
-    //                     }
-    //                   </div>
-    //                 </Col>
-    //               </Row>
-    //             </Grid>
-    //           </div>
-    //       );
-    //     }else{
-    //       return (
-    //         <div>
-    //           <Col md={12}>
-    //             <Well style={{top:'0', bottom:'0', left:'0', right:'0', minHeight: window.innerHeight + 'px', position: 'absolute'}}>
-    //               <h3 className="text-center" style={{ marginTop: window.innerHeight/2 + 'px'}}>
-    //                 The database is still downloading
-    //                 <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
-    //                 <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
-    //                 <Dot><span style={{ fontSize: '40px' }} >.</span></Dot>
-    //               </h3>
-    //             </Well>
-    //           </Col>
-    //         </div>
-    //       );
-    //     }
-    // }
 }
 
 export default AnalysisPage;
