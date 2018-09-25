@@ -82,10 +82,11 @@ class FASTQFileHandler(FileSystemEventHandler):
                 final_output,
             ],stdout=final_kreport,stderr=subprocess.DEVNULL)
 
+
             # Generate Sankey JSON data
             kraken_output = None
             with open(self.app_loc + 'centrifuge/sankey.data','w') as sankey_data_file:
-                sankey_data_file.write(str(krakenParse(self.app_loc + 'centrifuge/final.out.kraken')) + "\n")
+                sankey_data_file.write(str(krakenParse(self.app_loc + 'centrifuge/sankey.filter',self.app_loc + 'centrifuge/final.out.kraken')) + "\n")
 
 
             # increase the # of files it has classified
