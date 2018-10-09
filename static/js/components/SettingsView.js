@@ -78,7 +78,6 @@ class SettingsView extends Component {
   * updateAlertInfo -- Updates the alert information for the user
   */
   updateAlertInfo = (newAlertInfo) => this.setState({ alertInfo: newAlertInfo })
-
   /**
   * updateLocations -- UPdates the locatiosn for minION and app locations.
   */
@@ -98,7 +97,7 @@ class SettingsView extends Component {
     var location_data = {
         "minION": this.state.minion_read_location,
         "App": this.state.app_location,
-        "Queries": queryFiles
+        "Queries": queryFiles,
     }
     // $.post(window.location.href + 'validate_locations', location_data, (data) => {
     //   data = JSON.parse(data);
@@ -124,7 +123,7 @@ class SettingsView extends Component {
   createDatabase(e){
     e.preventDefault();
     // if user has selected pre-exisiting database
-    if(this.validateLocations()){
+    if(this.validateLocations() || this.state.currentIDXFile != ""){
       console.log("Locations are valid.")
       var dbinfo = {
         minion: this.state.minion_read_location,
@@ -140,9 +139,7 @@ class SettingsView extends Component {
       this.setState({ url: _url })
 
 
-
-      var one = socket.emit('download_database',dbinfo,this.state.queries,this.state.alertInfo)
-
+      var one = socket.emit('download_database', dbinfo, this.state.queries, this.state.alertInfo, this.state.currentIDXFile)
       // $.post(window.location.href + 'download_database', predb, (data) => {
       //
       // });
@@ -171,23 +168,24 @@ class SettingsView extends Component {
             <Row>
               <AdditionalDatabaseView currentQueryState={this.state.queries} changeQueryState={ this.updateQueries }/>
             </Row>
-          </Well>
-          <Row><h3>Alert</h3></Row>
+            <br />
+        </Well>
+        <Row><h3>Alert</h3></Row>
           <Well>
             <Row>
               <Col md={12}><AlertSetupView appname={this.props.appname} changeAlertInfo={this.updateAlertInfo} /></Col>
             </Row>
-          </Well>
-          <Row><h3>Configuration</h3></Row>
-          <Well>
+        </Well>
+        <Row><h3>Configuration</h3></Row>
+        <Well>
             <Row>
               <Col md={12}><ConfigurationView appname={this.props.appname} changeLocation={this.updateLocations} /></Col>
             </Row>
-          </Well>
-          <Row>
+        </Well>
+        <Row>
             { this.state.url && <a href={ this.state.url } target="_blank">Go to Analysis</a> }
             <Button bsStyle="primary" type="submit" className="pull-right"><i className="fa fa-database"></i> Create Database</Button>
-          </Row>
+        </Row>
         </form>
       </Col>
     );
