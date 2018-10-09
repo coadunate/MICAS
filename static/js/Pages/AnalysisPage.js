@@ -276,7 +276,8 @@ class AnalysisPage extends Component {
         .attr("y", (d) => d.dy / 2)
         .attr("dy", ".35em")
         .attr("text-anchor", "end")
-        .text((d) => d.name)
+        .text((d) => {return d.name})
+        .style("fill", (d) => { return (d.name == "Colletotrichum lentis") || (d.name == "Ascochyta lentis") ? "red" : "black"})
         .filter((d) => d.x < width / 2)
         .attr("x", 6 + my_sankey.nodeWidth())
         .attr("text-anchor", "start");
@@ -326,33 +327,30 @@ class AnalysisPage extends Component {
           <div className="SetupPage">
             <Grid fluid={true}>
               <Row>
-                <Col lg={4}>
-                    <Sunburst root={root} width={650} height={600} />
-                  </Col>
-                  <Col lg={8}>
-                      <XYPlot
-                        width={window.innerWidth/2}
-                        height={300}
-                        margin={{left: 210, right: 10, top: 10, bottom: 90}}
-                        yType="ordinal">
-                        <VerticalGridLines />
-                        <HorizontalGridLines />
-                        <XAxis />
-                        <YAxis
-                          tickLabelAngle={0}
-                          tickFormat={ (t,i) => {
-                            var rest = t.split(" ")
-                            var first = rest[0] + " " + rest[1] + " "
-                            var final = ""
-                            for(var i = 2; i < rest.length; i++){
-                              final += rest[i] + " "
-                            }
-                            return(<tspan><tspan x="0" dy="1em"><tspan style={{ fontStyle: "italic"}}>{ first}</tspan> { final }</tspan></tspan>)
-                          }}
-                        />{alertdata}
-                        <LineSeries color="red" data={thresholdlinedata}/>
-                      </XYPlot>
-                  </Col>
+                <Col lg={12}>
+                    <XYPlot
+                      width={window.innerWidth}
+                      height={300}
+                      margin={{left: 210, right: 10, top: 10, bottom: 90}}
+                      yType="ordinal">
+                      <VerticalGridLines />
+                      <HorizontalGridLines />
+                      <XAxis />
+                      <YAxis
+                        tickLabelAngle={0}
+                        tickFormat={ (t,i) => {
+                          var rest = t.split(" ")
+                          var first = rest[0] + " " + rest[1] + " "
+                          var final = ""
+                          for(var i = 2; i < rest.length; i++){
+                            final += rest[i] + " "
+                          }
+                          return(<tspan><tspan x="0" dy="1em"><tspan style={{ fontStyle: "italic"}}>{ first}</tspan> { final }</tspan></tspan>)
+                        }}
+                      />{alertdata}
+                      <LineSeries color="red" data={thresholdlinedata}/>
+                    </XYPlot>
+                </Col>
               </Row>
               <Row>
                 <Col md={12}>
