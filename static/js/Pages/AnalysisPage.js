@@ -277,7 +277,6 @@ class AnalysisPage extends Component {
         .attr("dy", ".35em")
         .attr("text-anchor", "end")
         .text((d) => {return d.name})
-        .style("fill", (d) => { return (d.name == "Colletotrichum lentis") || (d.name == "Ascochyta lentis") ? "red" : "black"})
         .filter((d) => d.x < width / 2)
         .attr("x", 6 + my_sankey.nodeWidth())
         .attr("text-anchor", "start");
