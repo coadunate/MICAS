@@ -438,5 +438,5 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit("ERROR: You need to provide the kraken output file")
     #print(krakenReadCount(sys.argv[1],sys.argv[2]))
-    #print(krakenParse(sys.argv[1],sys.argv[2]))
-    print(getAllPhylums(sys.argv[2]))
+    print(krakenParse(sys.argv[1],sys.argv[2]))
+    #print(krakenParse(sys.argv[2]))
