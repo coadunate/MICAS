@@ -91,8 +91,6 @@ def download_database(dbinfo,queries,alertInfo):
 
     print("IN DOWNLOAD_DATABASE")
 
-    emit('test-downloading',{})
-
     # Location for the applicaiton data directory
     app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
 
