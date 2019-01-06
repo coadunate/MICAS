@@ -32,7 +32,7 @@ python-socketio==2.0.0
 pytz==2018.5
 PyYAML==3.13
 redis==2.10.6
-requests==2.19.1
+requests==2.20.0
 rpy2==2.9.4
 six==1.11.0
 twilio==6.15.1
