@@ -39,20 +39,13 @@ def getAllPhylums(kraken_file):
     out = toJSONArray( tbl_df_strip(phylums) )
     return out
 
-def krakenParse(sankey_filter_file, kraken_file):
+def krakenParse(kraken_file):
 
-    # find the sankey_filter_value
-    filter_value = 0
-    try:
-        with open(sankey_filter_file) as sankey_filter:
-            filter_value = int(sankey_filter.readline())
-    except Exception as e:
-        pass
 
     report = read_report(kraken_file)
 
 
-    sankey_data  = build_sankey_network(report,filter_value)
+    sankey_data  = build_sankey_network(report)
 
     output1 = toJSONArray( tbl_df_strip(sankey_data[0]) )[0]
     output2 = toJSONArray( tbl_df_strip(sankey_data[1]) )[0]
@@ -139,7 +132,7 @@ get_all_phylums = r("""
 
 build_sankey_network = r("""
 
-build_sankey_network <- function(my_report, filter_value, taxRanks =  c("D","K","P","C","O","F","G","S"), maxn=10,
+build_sankey_network <- function(my_report, taxRanks =  c("D","K","P","C","O","F","G","S"), maxn=10,
 				 zoom = F, title = NULL,
 				 ...) {
     stopifnot("taxRank" %in% colnames(my_report))
@@ -157,7 +150,6 @@ build_sankey_network <- function(my_report, filter_value, taxRanks =  c("D","K",
     my_report <- my_report[, c("name","taxLineage","taxonReads", "cladeReads","depth", "taxRank")]
 
     my_report <- my_report[!my_report$name %in% c('-_root'), ]
-    my_report <- my_report[my_report$cladeReads > c(filter_value),]
     #my_report <- my_report[my_report$cladeReads > c(filter_value), ]
     #my_report$name <- sub("^-_root.", "", my_report$name)
 
@@ -438,5 +430,5 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit("ERROR: You need to provide the kraken output file")
     #print(krakenReadCount(sys.argv[1],sys.argv[2]))
-    print(krakenParse(sys.argv[1],sys.argv[2]))
+    print(krakenParse(sys.argv[1]))
     #print(krakenParse(sys.argv[2]))
