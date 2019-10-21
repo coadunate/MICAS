@@ -27,7 +27,7 @@ pexpect==4.6.0
 ptyprocess==0.6.0
 PyJWT==1.6.4
 PySocks==1.6.8
-python-engineio==2.2.0
+python-engineio==3.8.2.post1
 python-socketio==2.0.0
 pytz==2018.5
 PyYAML==4.2b1
