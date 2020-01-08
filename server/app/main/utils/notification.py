@@ -10,12 +10,18 @@ sms_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/ap
 email_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/email_config.json')
 
 twilio_data = None
-with open(sms_config_path) as json_sms_file:
-    twilio_data = json.load(json_sms_file)
+try:
+   with open(sms_config_path) as json_sms_file:
+       twilio_data = json.load(json_sms_file)
+except:
+   print("[WARNING] Configuration not set")
 
 email_data = None
-with open(email_config_path) as json_email_file:
-    email_data = json.load(json_email_file)
+try:
+    with open(email_config_path) as json_email_file:
+        email_data = json.load(json_email_file)
+except:
+    print("[WARNING] Configuration not set")
 
 def send_sms(alert_name,num_reads,phone_number):
     """
