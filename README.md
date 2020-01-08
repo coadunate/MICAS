@@ -14,6 +14,7 @@ $ git clone https://github.com/coadunate/MICAS.git
 $ cd MICAS
 $ cd static
 $ npm install
+$ npm build
 ```
 ## Deployment
 
