@@ -33,7 +33,7 @@ pytz==2018.5
 PyYAML==4.2b1
 redis==2.10.6
 requests==2.20.0
-rpy2==2.9.4
+rpy2==3.2.4
 six==1.11.0
 twilio==6.15.1
 urllib3==1.23
