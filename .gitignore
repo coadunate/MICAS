@@ -131,3 +131,4 @@ env_micas/
 server/app/config/
 server/app/main/utils/.listing
 static/node_modules/
+.idea
