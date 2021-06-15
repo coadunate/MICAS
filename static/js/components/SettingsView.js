@@ -1,38 +1,36 @@
-import React, { Component } from 'react';
-import { Col, Row, Radio, Button, Well } from 'react-bootstrap';
-import { FormGroup, FormControl } from 'react-bootstrap';
+import React, {Component} from 'react';
+import {Button, Col, Row, Well} from 'react-bootstrap';
 
 import NCBIDatabaseView from './SettingsView/DatabaseView/NCBIDatabaseView';
-import AdditionalDatabaseView from './SettingsView/DatabaseView/AdditionalDatabaseView';
+import AdditionalDatabaseView
+    from './SettingsView/DatabaseView/AdditionalDatabaseView';
 import ConfigurationView from './SettingsView/ConfigurationView';
 import AlertSetupView from './SettingsView/AlertSetupView';
 
 import '../../css/SettingsView.css';
-
-import axios from 'axios';
+import io from 'socket.io-client';
 
 var $ = require('jquery');
 
-import io from 'socket.io-client';
 let socket = io('http://' + document.domain + ':' + location.port + '/');
 
 /**
-* DatabaseSelectorView class contains the functiaonlity and the U.I for the
-* two database creation methods.
-*/
+ * DatabaseSelectorView class contains the functiaonlity and the U.I for the
+ * two database creation methods.
+ */
 class SettingsView extends Component {
 
-  constructor(props){
-    super(props)
+    constructor(props) {
+        super(props)
 
-    this.state = {
-      minion_read_location: '/dev/null',
-      app_location: '/dev/null',
-      queries: [],
-      alertInfo: {
-        phone_number: '',
-        email_address: '',
-        alert_sequence_threshold: 100,
+        this.state = {
+            minion_read_location: '/dev/null',
+            app_location: '/dev/null',
+            queries: [],
+            alertInfo: {
+                phone_number: '',
+                email_address: '',
+                alert_sequence_threshold: 100,
         alert_sequences: [],
         all_alert_sequences: []
       },
@@ -108,8 +106,8 @@ class SettingsView extends Component {
       url: window.location.href + 'validate_locations',
       data: location_data,
       success: (data) => {
-        data = JSON.parse(data);
-        validityCheck = data.code == 0 ? true : false;
+          data = JSON.parse(data);
+          validityCheck = data.code === 0;
       },
       async:false
     });
@@ -120,28 +118,28 @@ class SettingsView extends Component {
   * createDatabase -- Creates a new database from the configuration
   * user has provided through the form.
   */
-  createDatabase(e){
-    e.preventDefault();
-    // if user has selected pre-exisiting database
-    if(this.validateLocations() || this.state.currentIDXFile != ""){
-      console.log("Locations are valid.")
-      var dbinfo = {
-        minion: this.state.minion_read_location,
-        app_location: this.state.app_location,
-        bacteria: this.state.preDB.bacteria,
-        archaea: this.state.preDB.archaea,
-        virus: this.state.preDB.virus
-      };
+  createDatabase(e) {
+      e.preventDefault();
+      // if user has selected pre-exisiting database
+      if (this.validateLocations() || this.state.currentIDXFile !== "") {
+          console.log("Locations are valid.")
+          var dbinfo = {
+              minion: this.state.minion_read_location,
+              app_location: this.state.app_location,
+              bacteria: this.state.preDB.bacteria,
+              archaea: this.state.preDB.archaea,
+              virus: this.state.preDB.virus
+          };
 
-      let _url = window.location.href + 'analysis/app_location=' + dbinfo.app_location +
-                 '&minion_location=' + dbinfo.minion;
+          let _url = window.location.href + 'analysis/app_location=' + dbinfo.app_location +
+              '&minion_location=' + dbinfo.minion;
 
-      this.setState({ url: _url })
+          this.setState({url: _url})
 
 
-      var one = socket.emit('download_database', dbinfo, this.state.queries, this.state.alertInfo, this.state.currentIDXFile)
-      // $.post(window.location.href + 'download_database', predb, (data) => {
-      //
+          var one = socket.emit('download_database', dbinfo, this.state.queries, this.state.alertInfo)
+          // $.post(window.location.href + 'download_database', predb, (data) => {
+          //
       // });
     } else {
       console.log("Locations are not valid.")
