@@ -1,13 +1,11 @@
 import React, {useState} from 'react';
 
-import DatabaseSelectionComponent
-    from "./setup-steps/database-selection.component";
-import AlertConfigurationComponent
-    from "./setup-steps/alert-configuration.component";
+import AlertConfigurationComponent from "./setup-steps/alert-configuration.component";
 
 import {ISteps} from './setup.interfaces'
 
 import './setup.component.css'
+import DatabaseSetupComponent from "./setup-steps/database-setup/database-setup.component";
 
 const SetupComponent = () => {
     const [stepNumber, setStepNumber] = useState(0);
@@ -28,7 +26,7 @@ const SetupComponent = () => {
     const steps: ISteps[] = [
         {
             name: "Database Selection",
-            component: DatabaseSelectionComponent,
+            component: DatabaseSetupComponent,
         },
         {
             name: "Alert Configuration",
