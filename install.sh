@@ -94,7 +94,7 @@ debug "$setup_tools_cmd"
 echo "$setup_tools_cmd" | bash
 
 debug "Step 6: Installing Python requirements"
-req_cmd="pip3 install -r $(dirname "$0")/server/requirements.txt"
+req_cmd="pip3 install -r $(dirname "$0")/server/requirements.txt --ignore-installed PyYAML"
 debug "$req_cmd"
 echo "$req_cmd" | bash
 
