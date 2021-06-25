@@ -91,6 +91,9 @@ echo "$req_cmd" | bash
 STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing frontend dependencies"
+if ! hash npm; then
+  fatal_error "Node.js (npm) is needed to run MICAS"
+fi
 fend_dep_cmd="npm install --prefix $(dirname "$0")/static $(dirname "$0")/static"
 debug "$fend_dep_cmd"
 echo "$fend_dep_cmd" | bash
@@ -102,7 +105,7 @@ echo "$build_cmd" | bash
 STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing redis"
-if command -v redis-server &>/dev/null; then
+if hash redis-server; then
   debug "Redis is installed"
 else
   if [ "$URL_CMD" = "curl" ]; then
