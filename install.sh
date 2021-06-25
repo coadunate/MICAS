@@ -30,12 +30,14 @@ DEBUG=2
 #################
 
 debug "Step 1: Figuring out environment command"
-if command -v virtualenv &>/dev/null; then
-  ENVIRONMENT_CMD=virtualenv
-  debug "Envrionment command: virtualenv"
-elif command -v conda &>/dev/null; then
+#if command -v virtualenv &>/dev/null; then
+#  ENVIRONMENT_CMD=virtualenv
+#  debug "Envrionment command: virtualenv"
+if command -v conda &>/dev/null; then
   ENVIRONMENT_CMD=conda
   debug "Environment command: conda"
+else
+  fatal_error "Conda is needed to run MICAS"
 fi
 
 debug "Step 2: Creating server environment"
@@ -64,11 +66,11 @@ if [ "$ENVIRONMENT_CMD" = "virtualenv" ]; then
   echo "$src_cmd" | bash
 
 elif [ "$ENVIRONMENT_CMD" = "conda" ]; then
-  # TODO: The conda activate command does not work properly and this is
-  #  required for installing server dependencies in the following step.
-  activate_conda_cmd="conda activate micas_env"
-  debug "$activate_conda_cmd"
-  echo "$activate_conda_cmd" | bash
+  # activate_conda_cmd="conda activate micas_env"
+  # init_conda_cmd="conda init --reverse --all"
+  eval "$($(which conda)  'shell.bash' 'hook')"
+  conda activate "micas_env"
+  debug "Now in $CONDA_DEFAULT_ENV"
 fi
 
 debug "Step 4: Installing server dependencies"
