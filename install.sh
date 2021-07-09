@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -i
 #####################################################################
 #---------------- MICAS DEPENDENCIES INSTALLATION SCRIPT ------------#
 #####################################################################
@@ -24,10 +24,21 @@ fatal_error() {
 ENVIRONMENT_CMD=""
 DEBUG=2
 STEP=1
+OS_TYPE=""
 
 #################
 ## MAIN SCRIPT ##
 #################
+
+debug "Step $STEP: Checking OS"
+if [ "$(uname)" == "Darwin" ]; then
+    OS_TYPE="OSX"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    OS_TYPE="LINUX"
+else
+    fatal_error "Currently, the operating system you are using is unsupported by MICAS. Please use either Mac OS X or Linux"
+fi
+STEP=$(($STEP+1))
 
 debug "Step $STEP: Figuring out environment command"
 if command -v conda &>/dev/null; then
@@ -40,7 +51,8 @@ STEP=$(($STEP+1))
 
 debug "Step $STEP: Creating server environment"
 if [ "$ENVIRONMENT_CMD" = "conda" ]; then
-  create_conda_env_cmd="conda create -n micas_env python=3.6 -y -q"
+  # create_conda_env_cmd="conda create -n micas_env python=3.6 -y -q"
+  create_conda_env_cmd="conda env create -f ./server/environment.yml" # Uncomment for YAML build
   debug "$create_conda_env_cmd"
   echo "$create_conda_env_cmd" | bash
 else
@@ -51,7 +63,7 @@ STEP=$(($STEP+1))
 
 debug "Step $STEP: Sourcing to the environment"
 
-eval "$($(which conda)  'shell.bash' 'hook')"
+eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
 conda activate "micas_env"
 debug "Now in $CONDA_DEFAULT_ENV"
 STEP=$(($STEP+1))
@@ -78,17 +90,17 @@ else
 fi
 STEP=$(($STEP+1))
 
-debug "Step $STEP: Installing setup tools"
-setup_tools_cmd="pip install --upgrade setuptools"
-debug "$setup_tools_cmd"
-echo "$setup_tools_cmd" | bash
-STEP=$(($STEP+1))
-
-debug "Step $STEP: Installing python requirements"
-req_cmd="pip3 install -r $(dirname "$0")/server/requirements.txt --ignore-installed PyYAML"
-debug "$req_cmd"
-echo "$req_cmd" | bash
-STEP=$(($STEP+1))
+#debug "Step $STEP: Installing setup tools"
+#setup_tools_cmd="pip install --upgrade setuptools"
+#debug "$setup_tools_cmd"
+#echo "$setup_tools_cmd" | bash
+#STEP=$(($STEP+1))
+#
+#debug "Step $STEP: Installing python requirements"
+#req_cmd="pip3 install -r $(dirname "$0")/server/requirements.txt --ignore-installed PyYAML"
+#debug "$req_cmd"
+#echo "$req_cmd" | bash
+#STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing frontend dependencies"
 if ! hash npm; then
@@ -115,12 +127,28 @@ else
   fi
   debug "$url_dload_cmd"
   echo "$url_dload_cmd" | bash
+  debug "making redis...."
+  echo "make -C ./redis-stable/  " | bash
 fi
 STEP=$(($STEP+1))
 
 debug "Step $STEP: Checking if centrifuge is installed"
 if hash centrifuge-build; then
   debug "Centrifuge is installed"
+else
+  if [ "$URL_CMD" = "curl" ]; then
+    url_dload_cent_cmd="$URL_CMD -L https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx"
+  else
+    url_dload_cent_cmd="$URL_CMD -O - https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx"
+  fi
+  debug "$url_dload_cent_cmd"
+  echo "$url_dload_cent_cmd" | bash
+fi
+STEP=$(($STEP+1))
+
+debug "Step $STEP: Checking if R-lang is installed"
+if hash R; then
+  debug "R-lang is installed"
 else
   if [ "$URL_CMD" = "curl" ]; then
     url_dload_cent_cmd="$URL_CMD -L https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx"
