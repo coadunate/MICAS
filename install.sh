@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash
 #####################################################################
 #---------------- MICAS DEPENDENCIES INSTALLATION SCRIPT ------------#
 #####################################################################
@@ -31,7 +31,7 @@ OS_TYPE=""
 #################
 
 debug "Step $STEP: Checking OS"
-if [ "$(uname)" == "Darwin" ]; then
+if [ "$(uname)" = "Darwin" ]; then
     OS_TYPE="OSX"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     OS_TYPE="LINUX"
@@ -52,7 +52,7 @@ STEP=$(($STEP+1))
 debug "Step $STEP: Creating server environment"
 if [ "$ENVIRONMENT_CMD" = "conda" ]; then
   # create_conda_env_cmd="conda create -n micas_env python=3.6 -y -q"
-  create_conda_env_cmd="conda env create -f ./server/environment.yml" # Uncomment for YAML build
+  create_conda_env_cmd="conda env create -n micas_env python=3.9 -q -f ./server/environment.yml" # Uncomment for YAML build
   debug "$create_conda_env_cmd"
   echo "$create_conda_env_cmd" | bash
 else
@@ -80,7 +80,7 @@ STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing server dependencies"
 if [ "$URL_CMD" = "curl" ]; then
-  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py | python3"
+  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py | python"
   debug "$pip_get_cmd"
   echo "$pip_get_cmd"| bash
 else
@@ -89,18 +89,6 @@ else
   echo "$pip_get_cmd"| bash
 fi
 STEP=$(($STEP+1))
-
-#debug "Step $STEP: Installing setup tools"
-#setup_tools_cmd="pip install --upgrade setuptools"
-#debug "$setup_tools_cmd"
-#echo "$setup_tools_cmd" | bash
-#STEP=$(($STEP+1))
-#
-#debug "Step $STEP: Installing python requirements"
-#req_cmd="pip3 install -r $(dirname "$0")/server/requirements.txt --ignore-installed PyYAML"
-#debug "$req_cmd"
-#echo "$req_cmd" | bash
-#STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing frontend dependencies"
 if ! hash npm; then
@@ -143,6 +131,9 @@ else
   fi
   debug "$url_dload_cent_cmd"
   echo "$url_dload_cent_cmd" | bash
+  debug "making Centrifuge...."
+  echo "sudo make -C ./centrifuge-1.0.3/ install prefix=/usr/local" | bash
+
 fi
 STEP=$(($STEP+1))
 
@@ -150,12 +141,17 @@ debug "Step $STEP: Checking if R-lang is installed"
 if hash R; then
   debug "R-lang is installed"
 else
-  if [ "$URL_CMD" = "curl" ]; then
-    url_dload_cent_cmd="$URL_CMD -L https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx"
-  else
-    url_dload_cent_cmd="$URL_CMD -O - https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx"
-  fi
-  debug "$url_dload_cent_cmd"
-  echo "$url_dload_cent_cmd" | bash
+  fatal_error "R-Language is needed to run MICAS"
 fi
 STEP=$(($STEP+1))
+
+
+echo "Would you like to run the start script immediately?"
+select yn in "Yes" "No"; do
+case $yn in
+    Yes ) echo "./start.sh" | bash; break;;
+    No ) exit;;
+esac
+done
+
+
