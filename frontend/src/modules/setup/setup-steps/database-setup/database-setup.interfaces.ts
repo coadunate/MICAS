@@ -4,16 +4,22 @@ import React from "react";
 
 type IDatabaseSelectionConfig = {
     ncbi: INCBIDatabases,
-    queries: IAdditionalSequences[]
+}
+
+type IDatabseSetupInput = {
+    ncbi: INCBIDatabases,
+    queries: IAdditionalSequences
 }
 
 type IDatabaseSetupConstituent = {
-    initialConfig: INCBIDatabases | IAdditionalSequences[],
-    updateConfig: React.Dispatch<React.SetStateAction<IDatabaseSelectionConfig>>
+    initialConfig: INCBIDatabases | IAdditionalSequences,
+    updateConfig: React.Dispatch<React.SetStateAction<IDatabaseSelectionConfig>> |
+        React.Dispatch<React.SetStateAction<IAdditionalSequences>>
 }
 
 
 export type {
     IDatabaseSelectionConfig,
-    IDatabaseSetupConstituent
+    IDatabaseSetupConstituent,
+    IDatabseSetupInput
 }

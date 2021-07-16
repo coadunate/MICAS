@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {IDatabaseSetupConstituent} from "../database-setup.interfaces";
+import {IDatabaseSelectionConfig, IDatabaseSetupConstituent} from "../database-setup.interfaces";
 import {INCBIDatabases} from "./ncbi-db-selection.interfaces";
 
 const NcbiDbSelectionComponent: FunctionComponent<IDatabaseSetupConstituent> = ({initialConfig, updateConfig}) => {
@@ -17,7 +17,7 @@ const NcbiDbSelectionComponent: FunctionComponent<IDatabaseSetupConstituent> = (
     }
 
     useEffect(() => {
-        updateConfig((prevState) => ({
+        updateConfig((prevState: any) => ({
             ...prevState,
             ncbi: ncbiDbs
         }))
@@ -26,7 +26,7 @@ const NcbiDbSelectionComponent: FunctionComponent<IDatabaseSetupConstituent> = (
     return (
         <>
             <h4>Add NCBI databases</h4>
-            <div className="vspacer-20 border-black"/>
+            <div className="vspacer-20 "/>
             <div className="form-check">
                 <input className="form-check-input" type="checkbox"
                        id="chBacteria" checked={ncbiDbs.bacteria}

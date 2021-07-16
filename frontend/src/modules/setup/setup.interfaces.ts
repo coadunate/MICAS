@@ -1,18 +1,31 @@
-import {FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
+import {IDatabaseSelectionConfig, IDatabseSetupInput} from './setup-steps/database-setup/database-setup.interfaces'
+import {IAlertConfig} from "./setup-steps/alert-configuration/alert-configuration.interfaces";
 
-type ISetupComponentProps = {
+type IAlertConfigSetupProps = {
     advanceStep: () => void,
-    update: () => void,
+    update: React.Dispatch<React.SetStateAction<IAlertConfig>>,
+}
+
+type IDatabaseSetupProps = {
+    advanceStep: () => void,
+    update: React.Dispatch<React.SetStateAction<IDatabseSetupInput>>,
+
+}
+
+type IDatabaseSetupConfig = {
+    database_setup_input : IDatabaseSelectionConfig,
 
 }
 
 type ISteps = {
     name: string,
-    component: FunctionComponent<ISetupComponentProps>
+    component: React.ReactElement<IDatabaseSetupProps> | React.ReactElement<IAlertConfigSetupProps>
 }
 
 export type {
-    ISetupComponentProps,
+    IDatabaseSetupProps,
+    IAlertConfigSetupProps,
     ISteps
 }
 

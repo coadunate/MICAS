@@ -19,7 +19,7 @@ const micas_config: IMicas = {
 
 const HomeComponent: FunctionComponent = () => {
     return (
-        <div className="container-fluid border-black text-center">
+        <div className="container-fluid text-center">
             <div className="vspacer-20"/>
             <h1 className="font-weight-bold">{micas_config.title} -
                 v{micas_config.version}</h1>
@@ -33,7 +33,7 @@ const HomeComponent: FunctionComponent = () => {
             </div>
             <div className="vspacer-100"/>
             <div
-                className="container d-flex flex-column col-lg-2 border-blue">
+                className="container d-flex flex-column col-lg-2">
                 <button onClick={() => gotoLoc('/setup')}
                         className="btn btn-info mb-2">Setup
                 </button>

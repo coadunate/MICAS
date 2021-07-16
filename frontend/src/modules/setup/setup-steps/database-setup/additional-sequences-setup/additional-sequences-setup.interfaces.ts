@@ -1,9 +1,15 @@
 type IAdditionalSequences = {
+    queries : IQuery[]
+}
+
+type IQuery = {
     name: string,
+    file : string,
     parent: string,
-    alert: boolean
+    alert: false,
 }
 
 export type {
-    IAdditionalSequences
+    IAdditionalSequences,
+    IQuery
 }
