@@ -8,12 +8,19 @@ type IDatabaseSelectionConfig = {
 
 type IDatabseSetupInput = {
     ncbi: INCBIDatabases,
-    queries: IAdditionalSequences
+    queries: IAdditionalSequences,
+    locations: ILocationConfig
 }
 
+type ILocationConfig = {
+    minionLocation: string,
+    micasLocation: string
+}
+
+
 type IDatabaseSetupConstituent = {
-    initialConfig: INCBIDatabases | IAdditionalSequences,
-    updateConfig: React.Dispatch<React.SetStateAction<IDatabaseSelectionConfig>> |
+    initialConfig: INCBIDatabases | IAdditionalSequences | ILocationConfig,
+    updateConfig: React.Dispatch<React.SetStateAction<ILocationConfig>> | React.Dispatch<React.SetStateAction<IDatabaseSelectionConfig>> |
         React.Dispatch<React.SetStateAction<IAdditionalSequences>>
 }
 
@@ -21,5 +28,6 @@ type IDatabaseSetupConstituent = {
 export type {
     IDatabaseSelectionConfig,
     IDatabaseSetupConstituent,
-    IDatabseSetupInput
+    IDatabseSetupInput,
+    ILocationConfig
 }

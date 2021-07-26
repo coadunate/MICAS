@@ -8,7 +8,7 @@ import SummaryComponent from "./setup-steps/summary/summary.component";
 import AlertConfigurationComponent from "./setup-steps/alert-configuration/alert-configuration.component";
 import {IDatabseSetupInput} from "./setup-steps/database-setup/database-setup.interfaces";
 import {IAlertConfig} from "./setup-steps/alert-configuration/alert-configuration.interfaces";
-import {IAdditionalSequences, IQuery} from "./setup-steps/database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
+import {IAdditionalSequences} from "./setup-steps/database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
 
 const qrs : IAdditionalSequences = {
     queries: [
@@ -18,15 +18,16 @@ const qrs : IAdditionalSequences = {
 
 const initial_db_setup_input : IDatabseSetupInput = {
     queries: qrs,
-    ncbi: { bacteria: false, archaea: false, virus: false}
+    ncbi: {bacteria: false, archaea: false, virus: false},
+    locations: {minionLocation: "", micasLocation: ""}
 
 }
 
 const initial_alert_config_input : IAlertConfig = {
-    phone : "",
-    email : "",
-    alert_sequence_threshold : 0,
-    alert_status : "no"
+    phone_number: "",
+    email: "",
+    alert_sequence_threshold: 0,
+    alert_status: "no"
 }
 
 const SetupComponent = () => {
@@ -39,7 +40,6 @@ const SetupComponent = () => {
 
         // if we still have steps left
         if (stepNumber < (steps.length-1)) {
-            console.log("StepNumber: ", stepNumber);
             setStepNumber((prev) => prev + 1)
         }
     }
@@ -81,8 +81,7 @@ const SetupComponent = () => {
             <div className="container p-0">
                 {
                     steps.map((s, i) => {
-                        console.log("I:", i)
-                        console.log("StepNumber: ", stepNumber)
+                        console.log("I: ", i, "StepNumber: ", stepNumber)
                         return stepNumber === i && <div key={i}>{s.component}</div>
                     })
                 }

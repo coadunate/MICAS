@@ -1,13 +1,14 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useState} from 'react';
 import AdditionalSequencesSetupComponent from "./additional-sequences-setup/additional-sequences-setup.component";
 import NcbiDbSelectionComponent from "./ncbi-db-setup/ncbi-db-selection.component";
-import {IDatabaseSelectionConfig, IDatabseSetupInput} from "./database-setup.interfaces";
+import {IDatabaseSelectionConfig, ILocationConfig} from "./database-setup.interfaces";
 import {IAdditionalSequences} from "./additional-sequences-setup/additional-sequences-setup.interfaces";
-import {IAlertConfig} from "../alert-configuration/alert-configuration.interfaces";
 import {IDatabaseSetupProps} from '../../setup.interfaces';
+import LocationsSetupComponent from "./locations-setup/locations-setup.component";
 
 const initial_db_selection_config: IDatabaseSelectionConfig = {
-    ncbi: { bacteria: false, archaea: false, virus: false,
+    ncbi: {
+        bacteria: false, archaea: false, virus: false,
     }
 }
 
@@ -15,15 +16,21 @@ const initial_additional_sequences_config: IAdditionalSequences = {
     queries: []
 }
 
+const initial_location_config: ILocationConfig = {
+    minionLocation: "",
+    micasLocation: ""
+}
+
 const DatabaseSetupComponent:
     FunctionComponent<IDatabaseSetupProps> = ({advanceStep, update}) => {
 
     const [dbSelectionConfig, setDBSelectionConfig] = useState(initial_db_selection_config)
     const [additionalSequences, setAdditionalSequences] = useState(initial_additional_sequences_config)
+    const [locationConfig, setLocationConfig] = useState(initial_location_config);
 
     const updateDatabaseSetupConfiguration = () => {
 
-        update({ncbi: dbSelectionConfig.ncbi, queries: additionalSequences})
+        update({ncbi: dbSelectionConfig.ncbi, queries: additionalSequences, locations: locationConfig})
 
         advanceStep();
     }
@@ -38,6 +45,10 @@ const DatabaseSetupComponent:
             <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config}
                                                updateConfig={setAdditionalSequences}
             />
+            <br/>
+            <div className="vspacer-50"/>
+            <div className="twline"><span>DONT FORGET</span></div>
+            <LocationsSetupComponent initialConfig={initial_location_config} updateConfig={setLocationConfig}/>
             <br/>
             <div className="container text-center">
                 <button className="btn btn-success col-lg-2 mx-auto"

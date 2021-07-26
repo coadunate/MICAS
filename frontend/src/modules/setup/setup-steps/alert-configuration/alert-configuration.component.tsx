@@ -3,10 +3,10 @@ import {IAlertConfigSetupProps} from "../../setup.interfaces";
 import {IAlertConfig} from "./alert-configuration.interfaces";
 
 const initial_alert_config: IAlertConfig = {
-    alert_sequence_threshold: 0, email: "", alert_status: "no", phone: ""
+    alert_sequence_threshold: 0, email: "", alert_status: "no", phone_number: ""
 }
 
-type IKeys = "email" | "phone" | "alert_seq_thres" | "alert_status";
+type IKeys = "email" | "phone_number" | "alert_seq_thres" | "alert_status";
 
 
 const AlertConfigurationComponent:
@@ -18,7 +18,6 @@ const AlertConfigurationComponent:
 
         const new_config = {...alertConfig, [key]: evt.target.value}
         setAlertConfig(new_config);
-        console.log(JSON.stringify(new_config));
 
     }
 
@@ -27,7 +26,6 @@ const AlertConfigurationComponent:
     },[alertConfig])
 
     const updateAlertConfigurationSetup = () => {
-        console.log(alertConfig);
         advanceStep()
     }
 
@@ -47,7 +45,7 @@ const AlertConfigurationComponent:
                         <b className="pr-5 pt-2">Phone Number</b>
                         <div className="row ml-auto">
                             <input className="form-control" placeholder="Phone" type="text"
-                                   onChange={handleDataChange("phone")}/>
+                                   onChange={handleDataChange("phone_number")}/>
                         </div>
                     </div>
                     <br/>
@@ -63,7 +61,7 @@ const AlertConfigurationComponent:
                         <b className="pr-5 pt-2">Alert Status</b>
                         <div className="row ml-auto">
                             <select className="custom-select ml-5 mr-5" onChange={handleDataChange("alert_status")}>
-                                <option selected>Enable alerts?</option>
+                                <option defaultValue="no">Enable alerts?</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
