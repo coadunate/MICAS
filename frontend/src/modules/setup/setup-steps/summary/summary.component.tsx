@@ -1,69 +1,179 @@
-import React, {FunctionComponent} from 'react';
-import {IAlertConfigSetupProps} from "../../setup.interfaces";
-import {IDatabaseSelectionConfig, IDatabseSetupInput} from "../database-setup/database-setup.interfaces";
+import React, {FunctionComponent, useEffect, useState} from 'react';
+import {IDatabseSetupInput, ILocationConfig} from "../database-setup/database-setup.interfaces";
+import {INCBIDatabases} from '../database-setup/ncbi-db-setup/ncbi-db-selection.interfaces'
 import {IAlertConfig} from "../alert-configuration/alert-configuration.interfaces";
+import {IQuery} from "../database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
+import axios from "axios";
+import {socket} from "../../../../app.component";
+
+
+const VALIDATION_STATES = {
+    NOT_STARTED: 0,
+    PENDING: 1,
+    VALIDATED: 2,
+    NOT_VALID: 3
+}
 
 type ISummaryComponentProps = {
     databaseSetupInput: IDatabseSetupInput,
     alertConfigInput: IAlertConfig
 }
 
-const SummaryComponent : FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput, alertConfigInput}) => {
+
+const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
+    let queryFiles = ""
+    queries.map(query => {
+        queryFiles += query.file + ';'
+    })
+    let locationData = new FormData();
+    locationData.append('minION', locations.minionLocation);
+    locationData.append('App', locations.micasLocation);
+    locationData.append('Queries', queryFiles);
+
+    return axios({
+        method: 'POST',
+        url: 'http://localhost:5000/validate_locations',
+        data: locationData,
+        headers: {"Content-Type": "multipart/form-data"},
+    })
+}
+
+const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput, alertConfigInput}) => {
+
+    console.log(socket);
+
+    const [success, setSuccess] = useState("");
+    const [error, setError] = useState("");
+    const [validationState, setValidationState] = useState(VALIDATION_STATES.NOT_STARTED);
+    const [started, setStarted] = useState(false);
+
+    // get all the selected NCBI databases
+    const ncbi_databases = Object.keys(databaseSetupInput.ncbi).filter((val: string) => {
+        type NCBIKey = keyof INCBIDatabases
+        const key_val = val as NCBIKey
+        return databaseSetupInput.ncbi[key_val]
+    })
+    const ncbi_databases_str = ncbi_databases.join(", ")
+
+    // additional databases
+    const num_additional_databases = databaseSetupInput.queries.queries.length
+    const add_databases = databaseSetupInput.queries.queries
+
+    useEffect(() => {
+        (async () => {
+            const res = await validateLocations(add_databases, databaseSetupInput.locations)
+            console.log(res);
+            const v_code = res.data.code
+            setValidationState(v_code === 0 ? VALIDATION_STATES.VALIDATED : VALIDATION_STATES.NOT_VALID);
+        })();
+
+    }, [started])
+
+
+    const initiateDatabaseCreation = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+
+        setStarted(prev => !prev);
+
+        if (validationState === VALIDATION_STATES.VALIDATED) {
+            console.log("Locations are valid")
+            var dbinfo = {
+                minion: databaseSetupInput.locations.minionLocation,
+                app_location: databaseSetupInput.locations.micasLocation,
+                bacteria: databaseSetupInput.ncbi.bacteria,
+                archaea: databaseSetupInput.ncbi.archaea,
+                virus: databaseSetupInput.ncbi.virus
+            };
+
+            socket.emit('download_database', dbinfo, add_databases, alertConfigInput, () => {
+                console.log("SUCC")
+            })
+            setSuccess("Creating database...")
+
+            // var one = socket.emit('download_database', dbinfo, this.state.queries, this.state.alertInfo)
+        } else {
+            setError("Locations are not valid")
+        }
+
+
+    }
+
+    console.log(databaseSetupInput);
+
     return (
         <div className="container text-center">
+            <div className="vspacer-20"/>
+            {
+                success !== "" ? <div className="alert alert-success text-left">SUCCESS –– {success}</div> : ""
+            }
+            {
+                error !== "" ? <div className="alert alert-danger text-left">ERROR –– {error}</div> : ""
+            }
             Here is the information you provided:
-            <br /><br />
+            <br/><br/>
             <table className="table">
                 <thead>
-                    <tr>
-                        <th scope="col" colSpan={3}>Database Selection</th>
-                    </tr>
+                <tr>
+                    <th scope="col" colSpan={3}>Database Selection</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th>NCBI Databases</th>
-                        <td>bacteria, archaea, fungi</td>
-                    </tr>
-                    <tr>
-                        <th rowSpan={4}>Additional Sequences</th>
-                    </tr>
-                    <tr>
-                        <td>Name: Eschericia Coli</td>
-                    </tr>
-                    <tr>
-                        <td>Name: Eschericia Coli</td>
-                    </tr>
-                    <tr>
-                        <td>Name: Malus Domestica</td>
-                    </tr>
+                <tr>
+                    <th>NCBI Databases</th>
+                    <td>{ncbi_databases_str === "" ? "None" : ncbi_databases_str}</td>
+                </tr>
+                <tr>
+                    <th rowSpan={num_additional_databases}>Additional Sequences</th>
+                </tr>
+                {
+                    add_databases.length > 0 && add_databases.map((query, idx) => {
+                        if (idx === 0) {
+                            return (
+                                <tr key={idx}>
+                                    <td>Name: {query.name} (PID: {query.parent})</td>
+                                    <td/>
+                                </tr>
+                            )
+                        } else {
+                            return (
+                                <tr key={idx}>
+                                    <td/>
+                                    <td>Name: {query.name} (PID: {query.parent})</td>
+                                </tr>
+                            )
+                        }
+                    })
+                }
                 </tbody>
                 <thead>
-                    <tr>
-                        <th colSpan={3}>Alert Configuration</th>
-                    </tr>
+                <tr>
+                    <th colSpan={3}>Alert Configuration</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th>Email</th>
-                        <td>isoomro.t@gmail.com</td>
-                    </tr>
-                    <tr>
-                        <th>Phone</th>
-                        <td>+1 (306) 443-2342</td>
-                    </tr>
-                    <tr>
-                        <th>Phone</th>
-                        <td>+1 (306) 443-2342</td>
-                    </tr>
-                    <tr>
-                        <th>Enable Alert</th>
-                        <td>Yes</td>
-                    </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{alertConfigInput.email ? "" : "Not provided"}</td>
+                </tr>
+                <tr>
+                    <th>Phone</th>
+                    <td>{alertConfigInput.phone_number ? "" : "Not provided"}</td>
+                </tr>
+                <tr>
+                    <th>Alert Sequence Threshold</th>
+                    <td>{alertConfigInput.alert_sequence_threshold ? "" : "Not provided"}</td>
+                </tr>
+                <tr>
+                    <th>Enable Alert</th>
+                    <td>{alertConfigInput.alert_status ? "Yes" : "No"}</td>
+                </tr>
                 </tbody>
             </table>
-            <hr />
-            <div className="vspacer-20" />
-            <button className="btn btn-info">Initiate Database Creation Process</button>
+            <hr/>
+            <div className="vspacer-20"/>
+            <button className="btn btn-info" onClick={(e) => initiateDatabaseCreation(e)}>Initiate Database Creation
+                Process
+            </button>
         </div>
     );
 }
