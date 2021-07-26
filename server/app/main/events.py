@@ -36,6 +36,9 @@ def run_fastq_watcher(app_loc,minion_loc):
 
 ###############------------------###############
 
+@socketio.on('connect')
+def test_connect():
+    emit('tayab', {'data': 'Connected'})
 
 @socketio.on('connect',namespace="/analysis")
 def analysis_connected():
@@ -116,11 +119,10 @@ def download_database(dbinfo,queries,alertInfo):
 
     with open(app_location + 'alertinfo.cfg','w+') as alert_config_file:
         phone_number = '""' if not alertInfo['phone_number'] else alertInfo['phone_number']
-        email_address = '""' if not alertInfo['email_address'] else alertInfo['email_address']
+        email_address = '""' if not alertInfo['email'] else alertInfo['email']
         alert_config_file.write('phone_number = ' + phone_number + '\n')
         alert_config_file.write('email_address = ' + email_address + '\n')
         alert_config_file.write('alert_sequence_threshold = ' + str(alertInfo['alert_sequence_threshold']) + '\n')
-        alert_config_file.write('alert_sequences = ' + str(alertInfo['alert_sequences']) + '\n')
         alert_config_file.write('already_alerted = []\n')
 
     # Create database directory.
