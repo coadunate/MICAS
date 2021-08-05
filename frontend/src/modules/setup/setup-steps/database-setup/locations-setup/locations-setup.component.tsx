@@ -3,8 +3,9 @@ import {IDatabaseSetupConstituent, ILocationConfig} from "../database-setup.inte
 
 type IKeys = "micasLocation" | "minionLocation"
 const initial_location_config: ILocationConfig = {
-    minionLocation: "",
-    micasLocation: ""
+    // TODO: Change this to empty
+    minionLocation: "/Users/tayabsoomro/Documents/Projects/Files-MICAS/minion",
+    micasLocation: "/Users/tayabsoomro/Documents/Projects/Files-MICAS/micas_data"
 }
 
 const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({updateConfig}) => {

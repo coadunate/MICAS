@@ -4,6 +4,7 @@ import HomeComponent from "../home/home.component";
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 import {IRoutes} from "./routes.interfaces";
 import SetupComponent from "../setup/setup.component";
+import AnalysisComponent from "../analysis/analysis-component";
 
 const MainRoutes: IRoutes[] = [
     {
@@ -17,12 +18,16 @@ const MainRoutes: IRoutes[] = [
         path: "/setup",
         exact: true,
         component: <SetupComponent/>
+    },
+    {
+        name: "Analysis",
+        path: "/analysis/:id",
+        exact: true,
+        component: <AnalysisComponent />
     }
 ]
 
 const RoutesComponent = () => {
-
-
     return (
         <Router>
             {

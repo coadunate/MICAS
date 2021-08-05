@@ -65,7 +65,7 @@ const SetupComponent = () => {
             <div className="container text-center ">
                 <h3 className="font-weight-bold">New MICAS Setup</h3>
             </div>
-            <div className="vspacer-20 "/>
+            <div className="vspacer-20" />
             <div className="module-stepbar d-flex ">
                 <ul className="steps six clearfix justify-content-center"
                     id="step-buttons">
@@ -81,11 +81,11 @@ const SetupComponent = () => {
             <div className="container p-0">
                 {
                     steps.map((s, i) => {
-                        console.log("I: ", i, "StepNumber: ", stepNumber)
                         return stepNumber === i && <div key={i}>{s.component}</div>
                     })
                 }
             </div>
+            <div className="vspacer-20" />
         </div>
     );
 }

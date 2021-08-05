@@ -90,12 +90,16 @@ def on_raw_message(message):
 
 
 @socketio.on('download_database', namespace="/")
-def download_database(dbinfo,queries,alertInfo):
-
-    print("IN DOWNLOAD_DATABASE")
+def download_database(dbinfo,queries,alertInfo, uid):
 
     # Location for the applicaiton data directory
     app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
+
+    # add the uid to the micas cache file
+    micas_cache_file = os.getenv('HOME') + '/.micas'
+    entry = str(uid) + '\t' + str(dbinfo['app_location']) + '\t' +  str(dbinfo['minion'])
+    with open(micas_cache_file, 'a') as cache_fs:
+        cache_fs.write(entry)
 
     # Firstly, we need to remove any existing files that might exist inside
     # our app data folder, as it is supposed to be empty to begin with.
@@ -115,15 +119,8 @@ def download_database(dbinfo,queries,alertInfo):
     # Create an file to indicate that the download is in progress
     download_in_progress = open(app_location + '.download_in_progress','a')
 
-    print(alertInfo)
-
     with open(app_location + 'alertinfo.cfg','w+') as alert_config_file:
-        phone_number = '""' if not alertInfo['phone_number'] else alertInfo['phone_number']
-        email_address = '""' if not alertInfo['email'] else alertInfo['email']
-        alert_config_file.write('phone_number = ' + phone_number + '\n')
-        alert_config_file.write('email_address = ' + email_address + '\n')
-        alert_config_file.write('alert_sequence_threshold = ' + str(alertInfo['alert_sequence_threshold']) + '\n')
-        alert_config_file.write('already_alerted = []\n')
+        alert_config_file.write(str(alertInfo))
 
     # Create database directory.
     print("DOWNLOAD_DATABADE: Creating database directory.")

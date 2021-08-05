@@ -46,6 +46,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
     const [error, setError] = useState("");
     const [validationState, setValidationState] = useState(VALIDATION_STATES.NOT_STARTED);
     const [started, setStarted] = useState(false);
+    const [uid, setUID] = useState("");
 
     // get all the selected NCBI databases
     const ncbi_databases = Object.keys(databaseSetupInput.ncbi).filter((val: string) => {
@@ -62,8 +63,8 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
     useEffect(() => {
         (async () => {
             const res = await validateLocations(add_databases, databaseSetupInput.locations)
-            console.log(res);
             const v_code = res.data.code
+            setUID(res.data.uid);
             setValidationState(v_code === 0 ? VALIDATION_STATES.VALIDATED : VALIDATION_STATES.NOT_VALID);
         })();
 
@@ -77,7 +78,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
 
         if (validationState === VALIDATION_STATES.VALIDATED) {
             console.log("Locations are valid")
-            var dbinfo = {
+            let dbInfo = {
                 minion: databaseSetupInput.locations.minionLocation,
                 app_location: databaseSetupInput.locations.micasLocation,
                 bacteria: databaseSetupInput.ncbi.bacteria,
@@ -85,12 +86,12 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 virus: databaseSetupInput.ncbi.virus
             };
 
-            socket.emit('download_database', dbinfo, add_databases, alertConfigInput, () => {
-                console.log("SUCC")
-            })
-            setSuccess("Creating database...")
+            socket.emit('download_database', dbInfo, add_databases, alertConfigInput, uid, () => {
+                console.log("Creating database...")
 
-            // var one = socket.emit('download_database', dbinfo, this.state.queries, this.state.alertInfo)
+            })
+            let _url = 'http://' + window.location.hostname + ":" + window.location.port + '/analysis/' + uid;
+            setSuccess("Creating database... You can view the analysis <a href='" + _url + "'>here</a>")
         } else {
             setError("Locations are not valid")
         }
@@ -98,13 +99,11 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
 
     }
 
-    console.log(databaseSetupInput);
-
     return (
         <div className="container text-center">
             <div className="vspacer-20"/>
             {
-                success !== "" ? <div className="alert alert-success text-left">SUCCESS –– {success}</div> : ""
+                success !== "" ? <div className="alert alert-success text-left" dangerouslySetInnerHTML={{__html: "SUCCESS -- " + success}} /> : ""
             }
             {
                 error !== "" ? <div className="alert alert-danger text-left">ERROR –– {error}</div> : ""
@@ -124,20 +123,25 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 </tr>
                 <tr>
                     <th rowSpan={num_additional_databases}>Additional Sequences</th>
+                    {
+                        add_databases.length > 0 && add_databases.map((query, idx) => {
+                            if (idx === 0) {
+                                return (
+                                    <td>Name: {query.name} (PID: {query.file})</td>
+                                )
+                            }
+                        })
+                    }
+                    <td />
                 </tr>
                 {
                     add_databases.length > 0 && add_databases.map((query, idx) => {
                         if (idx === 0) {
-                            return (
-                                <tr key={idx}>
-                                    <td>Name: {query.name} (PID: {query.parent})</td>
-                                    <td/>
-                                </tr>
-                            )
+                            return;
                         } else {
                             return (
                                 <tr key={idx}>
-                                    <td/>
+                                    <td />
                                     <td>Name: {query.name} (PID: {query.parent})</td>
                                 </tr>
                             )
