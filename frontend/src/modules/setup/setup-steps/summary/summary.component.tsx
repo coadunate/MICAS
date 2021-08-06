@@ -40,8 +40,6 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
 
 const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput, alertConfigInput}) => {
 
-    console.log(socket);
-
     const [success, setSuccess] = useState("");
     const [error, setError] = useState("");
     const [validationState, setValidationState] = useState(VALIDATION_STATES.NOT_STARTED);
