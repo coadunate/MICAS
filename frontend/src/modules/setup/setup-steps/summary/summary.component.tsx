@@ -97,6 +97,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
 
     }
 
+    console.log(alertConfigInput.email)
     return (
         <div className="container text-center">
             <div className="vspacer-20"/>
@@ -155,15 +156,15 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 <tbody>
                 <tr>
                     <th>Email</th>
-                    <td>{alertConfigInput.email ? "" : "Not provided"}</td>
+                    <td>{alertConfigInput.email === "" ? "Not provided" : alertConfigInput.email}</td>
                 </tr>
                 <tr>
                     <th>Phone</th>
-                    <td>{alertConfigInput.phone_number ? "" : "Not provided"}</td>
+                    <td>{alertConfigInput.phone_number === "" ? "Not provided" : alertConfigInput.phone_number}</td>
                 </tr>
                 <tr>
                     <th>Alert Sequence Threshold</th>
-                    <td>{alertConfigInput.alert_sequence_threshold ? "" : "Not provided"}</td>
+                    <td>{alertConfigInput.alert_sequence_threshold}</td>
                 </tr>
                 <tr>
                     <th>Enable Alert</th>
