@@ -81,10 +81,14 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 app_location: databaseSetupInput.locations.micasLocation,
                 bacteria: databaseSetupInput.ncbi.bacteria,
                 archaea: databaseSetupInput.ncbi.archaea,
-                virus: databaseSetupInput.ncbi.virus
+                virus: databaseSetupInput.ncbi.virus,
+                queries: add_databases,
+                ...alertConfigInput
             };
 
-            socket.emit('download_database', dbInfo, add_databases, alertConfigInput, uid, () => {
+            console.log(dbInfo);
+
+            socket.emit('download_database', dbInfo, uid, () => {
                 console.log("Creating database...")
 
             })
@@ -93,11 +97,9 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
         } else {
             setError("Locations are not valid")
         }
-
-
     }
 
-    console.log(alertConfigInput.email)
+
     return (
         <div className="container text-center">
             <div className="vspacer-20"/>
