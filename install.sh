@@ -94,13 +94,13 @@ debug "Step $STEP: Installing frontend dependencies"
 if ! hash npm; then
   fatal_error "Node.js (npm) is needed to run MICAS"
 fi
-fend_dep_cmd="npm install --prefix $(dirname "$0")/static $(dirname "$0")/static"
+fend_dep_cmd="npm install --prefix $(dirname "$0")/frontend $(dirname "$0")/frontend"
 debug "$fend_dep_cmd"
 echo "$fend_dep_cmd" | bash
 STEP=$(($STEP+1))
 
 debug "Step $STEP: Building the front-end reactJS application"
-build_cmd="npm run build --prefix $(dirname "$0")/static"
+build_cmd="npm run build --prefix $(dirname "$0")/frontend"
 echo "$build_cmd" | bash
 STEP=$(($STEP+1))
 
@@ -108,16 +108,18 @@ debug "Step $STEP: Installing redis"
 if hash redis-server; then
   debug "Redis is installed"
 else
-  if [ "$URL_CMD" = "curl" ]; then
-    url_dload_cmd="$URL_CMD -L http://download.redis.io/redis-stable.tar.gz | tar zx -o"
-  else
-    url_dload_cmd="$URL_CMD -O - http://download.redis.io/redis-stable.tar.gz | tar zx -o"
-  fi
-  debug "$url_dload_cmd"
-  echo "$url_dload_cmd" | bash
-  debug "making redis...."
-  echo "make clean -C ./redis-stable/" | bash
-  echo "make -C ./redis-stable/" | bash
+  fatal_error "Please ensure redis is installed, either through brew or apt-get"
+#TODO Update based on OS or remove
+#  if [ "$URL_CMD" = "curl" ]; then
+#    url_dload_cmd="$URL_CMD -L http://download.redis.io/redis-stable.tar.gz | tar zx -o"
+#  else
+#    url_dload_cmd="$URL_CMD -O - http://download.redis.io/redis-stable.tar.gz | tar zx -o"
+#  fi
+#  debug "$url_dload_cmd"
+#  echo "$url_dload_cmd" | bash
+#  debug "making redis...."
+#  echo "make clean -C ./redis-stable/" | bash
+#  echo "make -C ./redis-stable/" | bash
 fi
 STEP=$(($STEP+1))
 

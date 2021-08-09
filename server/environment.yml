@@ -23,8 +23,9 @@ dependencies:
       - ete3
       - eventlet
       - Flask
-      - Flask-SocketIO
+      - Flask-SocketIO==4.3.1
       - Flask-WTF
+      - Flask_cors
       - greenlet
       - idna
       - importlib-metadata
@@ -45,8 +46,8 @@ dependencies:
       - pyparsing
       - PySocks
       - pytest
-      - python-engineio
-      - python-socketio
+      - python-engineio==3.13.2
+      - python-socketio==4.6.0
       - pytz
       - PyYAML
       - redis
