@@ -65,13 +65,47 @@ After the installation has finished, you should be ready to start using MICAS.
 # 3. Running MICAS
 
 Once you have successfully installed MICAS and are ready to run it, you can run
-the pre-made script called `run_micas.sh`, which should run the necessary 
+the pre-made script called `start.sh`, which should run the necessary 
 programs and serve the webpage at:`http://127.0.0.1:5000/`. When you subscribe to
 the above URL on your favourite web browser, you'll land on setup page. This
 indicates that MICAS installation was successful and you are ready to do
 science.
 
-## 3.1. MICAS Setup
+## 3.1. Running MICAS For Debugging
+
+Occasionally, one may feel inclined to run each of the individual portions of MICAS within
+there own terminals, for easier error hanbdling. This can be achieved by running the following
+commands, in any order:
+
+### Start Redis server
+```sh
+redis-server
+```
+This step could fail if redis is not installed.
+
+### Start Celery
+```sh
+cd ./server/app/main/utils
+celery -A tasks worker --loglevel=INFO
+```
+This step could fail if celery is not installed.
+
+### Start Front End
+```sh
+cd ./frontend
+npm run start
+```
+
+### Start MICAS Server
+```sh
+python server/micas.py
+```
+
+With all the above running in seperate terminals, you can now delight in viewing each applications
+error streams with relative ease. **NOTE:** The above is completely optional, and use of start.sh is reccomended
+for most users.
+
+## 3.2. MICAS Setup
 
 The setup page is meant to setup the alerting system for a particular organism for
 a particular MinION run. There are three components of the setup page which need 
@@ -100,7 +134,7 @@ have to provide an empty directory where MICAS can store its database and other
 temporary files.
 
 
-## 3.2. MICAS Analysis
+## 3.3. MICAS Analysis
 
 # 4. Example Workflow
 
