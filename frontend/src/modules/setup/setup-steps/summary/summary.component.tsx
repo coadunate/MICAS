@@ -128,7 +128,11 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                         add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
                                 return (
+<<<<<<< HEAD
                                     <td key={idx}>Name: {query.name} (PID: {query.file})</td>
+=======
+                                    <td>Name: {query.name} (PID: {query.file})</td>
+>>>>>>> f7f0070f5bc6ef33e17c5bd36a20fdd52c04e3b1
                                 )
                             }
                         })

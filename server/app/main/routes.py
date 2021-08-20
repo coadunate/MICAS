@@ -14,6 +14,7 @@ import subprocess
 import os
 import ast
 import re
+import random, string
 
 from .utils.parse import krakenReadCount
 from .utils.notification import send_email, send_sms
@@ -177,6 +178,66 @@ def get_alert_info():
     else:
         return json.dumps({ 'status': 400 })
 
+def get_uid():
+    # generate a random unique id
+    uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
+
+    # check to see if this id already exists
+    micas_cache_file = os.getenv('HOME') + "/.micas"
+    cache_dict = {"ids": [], "micas_paths": [], "minion_paths": []}
+    with open(micas_cache_file) as cache_fs:
+        for line in cache_fs:
+            rec = line.split("\t")
+            cache_dict["ids"].append(rec[0])
+            cache_dict["micas_paths"].append(rec[1])
+            cache_dict["minion_paths"].append(rec[2])
+
+    # keep generating the uid until its unique
+    while uid in cache_dict["ids"]:
+        uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
+
+    return uid
+
+
+@main.route('/get_analysis_info', methods=['GET'])
+def get_analysis_info():
+    if( request.method == 'GET'):
+        uid = request.args.get('uid')
+
+        # get minion and micas location
+        micas_path = ""
+        minion_path = ""
+        micas_cache_file = os.getenv("HOME") + '/.micas'
+        with open(micas_cache_file, 'r') as cache_fs:
+            found = False
+            for line in cache_fs:
+                entry = line.split("\t")
+                entry_id = entry[0]
+                entry_micas_path = entry[1]
+                entry_minion_path = entry[2]
+                if uid == entry_id:
+                    micas_path = entry_micas_path
+                    minion_path = entry_minion_path
+                    found = True
+                    break
+
+        if found == False:
+            return json.dumps({ 'status': 404, 'message': "Couldn't find the analysis data with UID: " + uid })
+        else:
+
+
+            print(get_alert_info("sup"))
+
+            return json.dumps({
+                'status': 200,
+                'data': {
+                    "minion_path": minion_path,
+                    "micas_path": micas_path,
+                }
+            })
+
+    else:
+        return "Unexpected request method. Expected a GET request."
 
 @main.route('/analysis',methods=['GET'])
 def analysis():
@@ -233,6 +294,8 @@ def analysis():
     return json.dumps(error)
 
 
+
+
 @main.route('/validate_locations', methods=['POST','GET'])
 def validate_locations():
     if( request.method == 'POST'):
@@ -265,6 +328,7 @@ def validate_locations():
         print("query_output = " + str(query_output))
         print("centrifuge_output = " + str(centrifuge_output))
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 
         if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
@@ -276,6 +340,13 @@ def validate_locations():
             uid = get_uid()
             return json.dumps({ "code": 0, "message": "SUCCESS", "uid": uid })
 >>>>>>> Stashed changes
+=======
+        uid = get_uid()
+
+
+        if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
+            return json.dumps({ "code": 0, "message": "SUCCESS", "uid": uid })
+>>>>>>> f7f0070f5bc6ef33e17c5bd36a20fdd52c04e3b1
         else:
             if minION_output == 1:
                 return json.dumps([{ "code": 1, "message": "Invalid minION location"}])

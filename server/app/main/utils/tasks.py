@@ -2,6 +2,7 @@ from celery import Celery
 import subprocess, os, shutil, random
 from celery.exceptions import SoftTimeLimitExceeded
 from flask_socketio import emit
+import json
 
 from Bio import Entrez
 
@@ -53,7 +54,7 @@ def int_download_database(self,db_data,queries):
     else:
         print("DOWNLOAD DATABASE: Entering queries into taxonomy files.")
         self.update_state(state="PROGRESS", meta={'percent-done': 30, 'message': 'Entering queries into taxonomy files.'})
-        for query in queries:
+        for i,query in enumerate(queries):
             query_file = open(query['file'],'r')
 
             # Generate non-existant tax_id from the given parent tax_id
@@ -70,24 +71,13 @@ def int_download_database(self,db_data,queries):
 
             NCBI_id = "sequence_" + str(proposed_tax_id) # Sequence ID for seqid2taxid.map file
 
-            # Update alertconfig file with the new proposed tax_id.
-            import ast
-            other_info = ""
-            list_of_sequences = ""
-            line_number = -1
-            with open(app_location + 'alertinfo.cfg','r') as read_file:
-                for idx,line in enumerate(read_file):
-                    if "alert_sequences" not in line:
-                        other_info += line
-                    else:
-                        list_of_sequences = line.split("=")[1]
+            data = None
+            with open(app_location + 'alertinfo.cfg') as alert_fs:
+                data = json.loads(alert_fs.read())
+                data["queries"][i]["tax_id"] = proposed_tax_id
 
-            list_of_sequences = ast.literal_eval(list_of_sequences.strip())
-            list_of_sequences.append(str(proposed_tax_id))
-            new_list_of_sequences = "alert_sequences = " + str(list_of_sequences)
             with open(app_location + 'alertinfo.cfg','w') as write_file:
-                write_file.write(other_info)
-                write_file.write(new_list_of_sequences)
+                write_file.write(json.dumps(data))
 
 
             # Add an entry in seqid2taxid with NCBI's id and the tax_id

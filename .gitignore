@@ -132,3 +132,4 @@ server/app/config/
 server/app/main/utils/.listing
 static/node_modules/
 .idea
+dump.rdb
