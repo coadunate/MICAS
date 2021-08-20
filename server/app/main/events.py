@@ -47,7 +47,6 @@ def analysis_disconnected():
     subprocess.call(['rm',session.get('app_location') + 'analysis_busy'])
     print("DISCONNECTED FROM ANALYSIS")
 
-@socketio.on('start_fastq_file_listener', namespace='/analysis')
 def start_fastq_file_listener(app_location,minion_location):
     # need visibility of the global thread object
     print("Starting FASTQ File Listener")
@@ -75,8 +74,6 @@ def update_sankey_filter(app_location, value):
 
 
 def on_raw_message(message):
-
-
     status = message['status']
     if(status == "PROGRESS"):
         percent_done = message['result']['percent-done']
@@ -84,6 +81,13 @@ def on_raw_message(message):
 
         socketReturn = emit('download_database_status',{'percent_done': percent_done, 'status_message': status_message}, namespace="/analysis")
         print(str(percent_done) + "% [" + status_message + "]")
+    if status == "SUCCESS":
+        minion = message['result']['minion']
+        app_location = message['result']['app_location']
+        print("Database download successful and now the locs are MinION: " + minion + " MICAS: " + app_location)
+        start_fastq_file_listener(app_location, minion)
+
+
 
 
 @socketio.on('download_database', namespace="/")
@@ -91,9 +95,20 @@ def download_database(dbinfo,queries,alertInfo):
 
     print("IN DOWNLOAD_DATABASE")
 
-    # Location for the applicaiton data directory
+    # Location for the application data directory
     app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
 
+<<<<<<< Updated upstream
+=======
+    queries = dbinfo["queries"]
+
+    # add the uid to the micas cache file
+    micas_cache_file = os.getenv('HOME') + '/.micas'
+    entry = str(uid) + '\t' + str(dbinfo['app_location']) + '\t' +  str(dbinfo['minion'])
+    with open(micas_cache_file, 'a') as cache_fs:
+        cache_fs.write(entry + "\n")
+
+>>>>>>> Stashed changes
     # Firstly, we need to remove any existing files that might exist inside
     # our app data folder, as it is supposed to be empty to begin with.
     for file in os.listdir(app_location):
@@ -132,4 +147,6 @@ def download_database(dbinfo,queries,alertInfo):
     os.makedirs(app_location + 'centrifuge/runs')
 
     res = int_download_database.apply_async(args=(dbinfo,queries))
+    print("Tayab Test")
+    print(res)
     print(res.get(on_message=on_raw_message, propagate=False))

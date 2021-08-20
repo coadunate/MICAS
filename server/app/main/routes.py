@@ -265,9 +265,17 @@ def validate_locations():
         print("query_output = " + str(query_output))
         print("centrifuge_output = " + str(centrifuge_output))
 
+<<<<<<< Updated upstream
 
         if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
             return json.dumps({ "code": 0, "message": "SUCCESS" })
+=======
+
+
+        if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
+            uid = get_uid()
+            return json.dumps({ "code": 0, "message": "SUCCESS", "uid": uid })
+>>>>>>> Stashed changes
         else:
             if minION_output == 1:
                 return json.dumps([{ "code": 1, "message": "Invalid minION location"}])

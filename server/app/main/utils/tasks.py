@@ -12,6 +12,7 @@ Entrez.email = 'tayab.soomro@usask.ca'
 @celery.task(bind=True,name='app.main.tasks.int_download_database')
 def int_download_database(self,db_data,queries):
     app_location = db_data['app_location']
+    minion = db_data['minion']
     bacteria = db_data['bacteria']
     archaea = db_data['archaea']
     virus = db_data['virus']
@@ -46,8 +47,6 @@ def int_download_database(self,db_data,queries):
 
     print("DOWNLOAD DATABASE: Created seqid2taxid.map file")
     self.update_state(state="PROGRESS", meta={'percent-done': 20, 'message': 'Creating seqid2taxid.map file'})
-
-    tmp = "NO_OUTPUT"
 
     if len(queries) == 0:
         print("DOWNLOAD DATABASE: No queries provided, skipping.")
@@ -179,12 +178,13 @@ def int_download_database(self,db_data,queries):
 
     print("DOWNLOAD_DATABASE: Building the index.")
     self.update_state(state="PROGRESS", meta={'percent-done': 98, 'message': "Building the index."})
+    dbname = app_location_database + str(now.year) + str(now.month) + str(now.day) + str(now.hour) + \
+             str(now.minute) + str(now.second)
     index_cmd = ['centrifuge-build --conversion-table ' + app_location_database + \
            'seqid2taxid.map --taxonomy-tree ' + app_location_database + \
            'taxonomy/nodes.dmp --name-table ' + app_location_database + \
            'taxonomy/names.dmp ' + app_location_database + 'input_sequences.fa' + \
-           ' ' + str(now.year) + str(now.month) + str(now.day) + str(now.hour) + \
-           str(now.minute) + str(now.second)
+           ' ' + dbname
           ]
     print("IDX CMD: ")
     print(index_cmd)
@@ -209,4 +209,4 @@ def int_download_database(self,db_data,queries):
         self.update_state(state="PROGRESS", meta={'percent-done': 100, 'message': "Database has successfully been downloaded and built."})
 
 
-    return tmp
+    return {"minion": minion, "app_location": app_location}
