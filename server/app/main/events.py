@@ -19,6 +19,9 @@ from watchdog.observers import Observer
 
 import json
 
+# for Logger
+# from .utils.Logger import Logger
+
 fileListenerThread = Thread()
 thread_stop_event = Event()
 
@@ -76,8 +79,6 @@ def update_sankey_filter(app_location, value):
     with open(app_location + 'centrifuge/sankey.data','w') as sankey_data_file:
         sankey_data_file.write(str(krakenParse(app_location + 'centrifuge/sankey.filter', app_location + 'centrifuge/final.out.kraken')) + "\n")
 
-
-
 def on_raw_message(message):
 
 
@@ -134,3 +135,31 @@ def download_database(dbinfo, uid):
 
     res = int_download_database.apply_async(args=(dbinfo,queries))
     print(res.get(on_message=on_raw_message, propagate=False))
+
+###############- Logger Hooks -###############
+
+#     @socketio.on('log')
+#     def log(self, msg):
+#         Logger.__LOGGER.log(msg)
+#
+#     @socketio.on('info')
+#     def info(self, msg):
+#         Logger.__LOGGER.info(msg)
+#
+#     @socketio.on('warning')
+#     def warning(self, msg):
+#         Logger.__LOGGER.warning(msg)
+#
+#     @socketio.on('error')
+#     def error(self, msg):
+#         Logger.__LOGGER.warning(msg)
+#
+#     @socketio.on('critical')
+#     def critical(self, msg):
+#         Logger.__LOGGER.critical(msg)
+#
+#     @socketio.on('exception')
+#     def exception(self, msg):
+#         Logger.__LOGGER.exception(msg)
+
+
