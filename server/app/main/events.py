@@ -100,25 +100,14 @@ def download_database(dbinfo, uid):
     # Location for the application data directory
     app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> f7f0070f5bc6ef33e17c5bd36a20fdd52c04e3b1
     queries = dbinfo["queries"]
 
     # add the uid to the micas cache file
     micas_cache_file = os.getenv('HOME') + '/.micas'
     entry = str(uid) + '\t' + str(dbinfo['app_location']) + '\t' +  str(dbinfo['minion'])
     with open(micas_cache_file, 'a') as cache_fs:
-<<<<<<< HEAD
         cache_fs.write(entry + "\n")
 
->>>>>>> Stashed changes
-=======
-        cache_fs.write(entry)
-
->>>>>>> f7f0070f5bc6ef33e17c5bd36a20fdd52c04e3b1
     # Firstly, we need to remove any existing files that might exist inside
     # our app data folder, as it is supposed to be empty to begin with.
     for file in os.listdir(app_location):
