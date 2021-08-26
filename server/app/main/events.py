@@ -105,7 +105,7 @@ def download_database(dbinfo, uid):
     # add the uid to the micas cache file
     micas_cache_file = os.getenv('HOME') + '/.micas'
     entry = str(uid) + '\t' + str(dbinfo['app_location']) + '\t' +  str(dbinfo['minion'])
-    with open(micas_cache_file, 'a') as cache_fs:
+    with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
 
     # Firstly, we need to remove any existing files that might exist inside
