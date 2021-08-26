@@ -95,18 +95,12 @@ def on_raw_message(message):
 
 
 @socketio.on('download_database', namespace="/")
-def download_database(dbinfo, uid):
+def download_database(dbinfo):
 
     # Location for the application data directory
     app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
 
     queries = dbinfo["queries"]
-
-    # add the uid to the micas cache file
-    micas_cache_file = os.getenv('HOME') + '/.micas'
-    entry = str(uid) + '\t' + str(dbinfo['app_location']) + '\t' +  str(dbinfo['minion'])
-    with open(micas_cache_file, 'a+') as cache_fs:
-        cache_fs.write(entry + "\n")
 
     # Firstly, we need to remove any existing files that might exist inside
     # our app data folder, as it is supposed to be empty to begin with.

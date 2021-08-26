@@ -178,25 +178,41 @@ def get_alert_info():
     else:
         return json.dumps({ 'status': 400 })
 
+@main.route('/get_uid', methods=["POST"])
 def get_uid():
+
+    if request.method == "GET":
+         return "Unexpected request method. Expected a GET request."
+
+    # get the data
+    minION_location = request.form['minION']
+    app_location = request.form['App']
+
     # generate a random unique id
     uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # check to see if this id already exists
     micas_cache_file = os.getenv('HOME') + "/.micas"
     cache_dict = {"ids": [], "micas_paths": [], "minion_paths": []}
-    with open(micas_cache_file) as cache_fs:
-        for line in cache_fs:
-            rec = line.split("\t")
-            cache_dict["ids"].append(rec[0])
-            cache_dict["micas_paths"].append(rec[1])
-            cache_dict["minion_paths"].append(rec[2])
+    if os.path.exists(micas_cache_file):
+        with open(micas_cache_file) as cache_fs:
+            for line in cache_fs:
+                rec = line.split("\t")
+                cache_dict["ids"].append(rec[0])
+                cache_dict["micas_paths"].append(rec[1])
+                cache_dict["minion_paths"].append(rec[2])
 
-    # keep generating the uid until its unique
-    while uid in cache_dict["ids"]:
-        uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
+        # keep generating the uid until its unique
+        while uid in cache_dict["ids"]:
+            uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
-    return uid
+    # save the UI and MICAS to cache file
+    micas_cache_file = os.getenv('HOME') + '/.micas'
+    entry = str(uid) + '\t' + str(minION_location) + '\t' +  str(app_location)
+    with open(micas_cache_file, 'a+') as cache_fs:
+        cache_fs.write(entry + "\n")
+
+    return json.dumps({ 'uid': uid })
 
 
 @main.route('/get_analysis_info', methods=['GET'])
@@ -329,8 +345,7 @@ def validate_locations():
         print("centrifuge_output = " + str(centrifuge_output))
 
         if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
-            uid = get_uid()
-            return json.dumps({ "code": 0, "message": "SUCCESS", "uid": uid })
+            return json.dumps({ "code": 0, "message": "SUCCESS" })
         else:
             if minION_output == 1:
                 return json.dumps([{ "code": 1, "message": "Invalid minION location"}])

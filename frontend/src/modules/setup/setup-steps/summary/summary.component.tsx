@@ -38,6 +38,19 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
     })
 }
 
+const getUniqueUID = (locations: ILocationConfig) => {
+    let locationData = new FormData();
+    locationData.append('minION', locations.minionLocation);
+    locationData.append('App', locations.micasLocation);
+
+    return axios({
+        method: "POST",
+        url: 'http://localhost:5000/get_uid',
+        data: locationData,
+        headers: {'Content-Type': 'multipart/form-data'}
+    })
+}
+
 const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput, alertConfigInput}) => {
 
     const [success, setSuccess] = useState("");
@@ -62,8 +75,14 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
         (async () => {
             const res = await validateLocations(add_databases, databaseSetupInput.locations)
             const v_code = res.data.code
-            setUID(res.data.uid);
-            setValidationState(v_code === 0 ? VALIDATION_STATES.VALIDATED : VALIDATION_STATES.NOT_VALID);
+
+            if (v_code === 0) {
+                const res_uid = await getUniqueUID(databaseSetupInput.locations)
+                setUID(res_uid.data.uid)
+                setValidationState(VALIDATION_STATES.VALIDATED)
+            } else {
+                setValidationState(VALIDATION_STATES.NOT_VALID)
+            }
         })();
 
     }, [started])
@@ -88,7 +107,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
 
             console.log(dbInfo);
 
-            socket.emit('download_database', dbInfo, uid, () => {
+            socket.emit('download_database', dbInfo, () => {
                 console.log("Creating database...")
 
             })
@@ -104,7 +123,8 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
         <div className="container text-center">
             <div className="vspacer-20"/>
             {
-                success !== "" ? <div className="alert alert-success text-left" dangerouslySetInnerHTML={{__html: "SUCCESS -- " + success}} /> : ""
+                success !== "" ? <div className="alert alert-success text-left"
+                                      dangerouslySetInnerHTML={{__html: "SUCCESS -- " + success}}/> : ""
             }
             {
                 error !== "" ? <div className="alert alert-danger text-left">ERROR –– {error}</div> : ""
@@ -128,12 +148,13 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                         add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
                                 return (
-                                    <td key={idx}>Name: {query.name} (PID: {query.file})</td>
+                                    <td key={idx}>Name: {query.name} (<abbr title="Parent ID">PID</abbr>: {query.parent})
+                                    </td>
                                 )
                             }
                         })
                     }
-                    <td />
+                    <td/>
                 </tr>
                 {
                     add_databases.length > 0 && add_databases.map((query, idx) => {
@@ -142,7 +163,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                         } else {
                             return (
                                 <tr key={idx}>
-                                    <td />
+                                    <td/>
                                     <td>Name: {query.name} (PID: {query.parent})</td>
                                 </tr>
                             )
