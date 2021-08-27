@@ -6,6 +6,5 @@ from app.main.utils.Logger import *
 app = create_app(debug=True)
 
 if __name__ == '__main__':
-    test_logger = Logger()
-    test_logger.log('This is a test')
+
     socketio.run(app)

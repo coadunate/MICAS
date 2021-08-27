@@ -20,7 +20,8 @@ from watchdog.observers import Observer
 import json
 
 # for Logger
-# from .utils.Logger import Logger
+from .utils.Logger import Logger
+logger = Logger()
 
 fileListenerThread = Thread()
 thread_stop_event = Event()
@@ -138,28 +139,10 @@ def download_database(dbinfo):
 
 ###############- Logger Hooks -###############
 
-#     @socketio.on('log')
-#     def log(self, msg):
-#         Logger.__LOGGER.log(msg)
-#
-#     @socketio.on('info')
-#     def info(self, msg):
-#         Logger.__LOGGER.info(msg)
-#
-#     @socketio.on('warning')
-#     def warning(self, msg):
-#         Logger.__LOGGER.warning(msg)
-#
-#     @socketio.on('error')
-#     def error(self, msg):
-#         Logger.__LOGGER.warning(msg)
-#
-#     @socketio.on('critical')
-#     def critical(self, msg):
-#         Logger.__LOGGER.critical(msg)
-#
-#     @socketio.on('exception')
-#     def exception(self, msg):
-#         Logger.__LOGGER.exception(msg)
+    @socketio.on('log')
+    def log(msg, lvl):
+        logger.__LOGGER.log(msg, Level(lvl))
+
+
 
 
