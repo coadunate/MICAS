@@ -23,7 +23,7 @@ try:
     with open(email_config_path) as json_email_file:
         email_data = json.load(json_email_file)
 except:
-    print("[WARNING] Configuration not set")
+    logger.log("Configuration not set", 'WARNING')
 
 def send_sms(alert_name,num_reads,phone_number):
     """
@@ -37,7 +37,7 @@ def send_sms(alert_name,num_reads,phone_number):
       from_=str(twilio_data['from_ph_number']),
       to=str(phone_number)
     )
-    print("Message sent successfully, SID: " + str(message.sid))
+    logger.log("Message sent successfully, SID: " + str(message.sid), 'INFO')
 
 def send_email(alert_name, num_reads,email_address):
     """
@@ -64,8 +64,8 @@ def send_email(alert_name, num_reads,email_address):
         text = msg.as_string()
         server.sendmail(email_data['from_email'], email_address, text)
         server.quit()
-        print("Email sent to '" + email_address + "' successfully!")
+        logger.log("Email sent to '" + email_address + "' successfully!", "INFO")
     except Exception as error:
-        print("An error occurred! The email configuration mustn't have been set \
-        properly")
-        print(error)
+        logger.log("An error occurred! The email configuration mustn't have been set \
+        properly", "ERROR")
+        logger.log(error, "ERROR")

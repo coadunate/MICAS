@@ -6,6 +6,8 @@ import json
 
 from Bio import Entrez
 
+from micas import logger
+
 celery = Celery('tasks', broker='redis://localhost',backend='redis')
 
 Entrez.email = 'tayab.soomro@usask.ca'
@@ -25,7 +27,7 @@ def int_download_database(self,db_data,queries):
     app_location_database = app_location + 'database/'
 
     # Download taxonomy
-    print("DOWNLOAD DATABASE: Downloading taxonomy files")
+    logger.log("DOWNLOAD DATABASE: Downloading taxonomy files", "INFO")
     self.update_state(state="PROGRESS", meta={'percent-done': 10, 'message': 'Downloading taxonomy files'})
 
     tax_cmd = ['centrifuge-download -o ' + app_location_database + 'taxonomy taxonomy']
@@ -34,11 +36,11 @@ def int_download_database(self,db_data,queries):
         tax_cmd_output.communicate()
         tax_cmd_output.wait()
     except (OSError, subprocess.CalledProcessError) as exception:
-            print(str(exception))
+            logger.log(str(exception), "ERROR")
             self.update_state(state="FAILURE", meta={'percent-done': 10, 'message': 'ERROR: ' + str(exception) })
             return "ER0"
     else:
-        print("DOWNLOAD DATABASE: Successfully downloaded taxonomy files")
+        logger.log("DOWNLOAD DATABASE: Successfully downloaded taxonomy files", "INFO")
 
 
     # Create seqid2taxid.map file
@@ -46,13 +48,13 @@ def int_download_database(self,db_data,queries):
     seqid2taxid_file = open(app_location_database + 'seqid2taxid.map','a+')
     seqid2taxid_file.write('\n')
 
-    print("DOWNLOAD DATABASE: Created seqid2taxid.map file")
+    logger.log("DOWNLOAD DATABASE: Created seqid2taxid.map file", "INFO")
     self.update_state(state="PROGRESS", meta={'percent-done': 20, 'message': 'Creating seqid2taxid.map file'})
 
     if len(queries) == 0:
-        print("DOWNLOAD DATABASE: No queries provided, skipping.")
+        logger.log("DOWNLOAD DATABASE: No queries provided, skipping.", "INFO")
     else:
-        print("DOWNLOAD DATABASE: Entering queries into taxonomy files.")
+        logger.log("DOWNLOAD DATABASE: Entering queries into taxonomy files.", "INFO")
         self.update_state(state="PROGRESS", meta={'percent-done': 30, 'message': 'Entering queries into taxonomy files.'})
         for i,query in enumerate(queries):
             query_file = open(query['file'],'r')
@@ -81,7 +83,7 @@ def int_download_database(self,db_data,queries):
 
 
             # Add an entry in seqid2taxid with NCBI's id and the tax_id
-            print("DOWNLOAD_DATABASE: Added " + query['name'] + " entry in seqid2taxid.map file")
+            logger.log("DOWNLOAD_DATABASE: Added " + query['name'] + " entry in seqid2taxid.map file", "INFO")
             self.update_state(state="PROGRESS", meta={'percent-done': 35, 'message': "Added " + query['name'] + " entry in seqid2taxid.map file"})
             seqid2taxid_file.write(str(NCBI_id) + '\t' + str(proposed_tax_id) + '\n')
 
@@ -89,14 +91,14 @@ def int_download_database(self,db_data,queries):
             entry = str(proposed_tax_id) + '\t|\t' + str(query['parent']) + '\t|\t' + 'species\t|\n'
             with open(app_location_database + 'taxonomy/nodes.dmp','a+') as nodes_dmp:
                 nodes_dmp.write(entry)
-            print("DOWNLOAD_DATABASE: Added " + query['name'] + " entry in nodes.map file")
+            logger.log("DOWNLOAD_DATABASE: Added " + query['name'] + " entry in nodes.map file", "INFO")
             self.update_state(state="PROGRESS", meta={'percent-done': 40, 'message': "Added " + query['name'] + " entry in nodes.dmp file"})
 
             # Add an entry in names.dmp with tax_id, sci_name, empty unique name, name_class (scientific name)
             entry = str(proposed_tax_id) + '\t|\t' + str(query['name']) + '\t|\t \t|\t' + 'scientific name \t|\n'
             with open(app_location_database + 'taxonomy/names.dmp','a+') as names_dmp:
                 names_dmp.write(entry)
-            print("DOWNLOAD_DATABASE: Added " + query['name'] + " entry in names.map file")
+            logger.log("DOWNLOAD_DATABASE: Added " + query['name'] + " entry in names.map file", "INFO")
             self.update_state(state="PROGRESS", meta={'percent-done': 45, 'message': "Added " + query['name'] + " entry in names.dmp file"})
 
             # Putting all the query sequences in one, input_sequences file.
@@ -104,7 +106,7 @@ def int_download_database(self,db_data,queries):
                 input_sequences.write('\n')
             with open(query['file'], 'rb') as query_file, open(app_location_database + 'input_sequences.fa','ab+') as input_sequences:
                 shutil.copyfileobj(query_file, input_sequences)
-            print("DOWNLOAD_DATABASE: Merged " + query['file'] + " sequence into input_sequences.fa file.")
+            logger.log("DOWNLOAD_DATABASE: Merged " + query['file'] + " sequence into input_sequences.fa file.", "INFO")
 
             self.update_state(state="PROGRESS", meta={'percent-done': 50, 'message': "Merged " + query['file'] + " sequence into input_sequences.fa file."})
 
@@ -126,11 +128,10 @@ def int_download_database(self,db_data,queries):
 
         db_string = ",".join([str(x) for x in db_list])
 
-        print("DOWNLOAD_DATABASE: Downloading " + db_string + " database(s) from NCBI")
+        logger.log("DOWNLOAD_DATABASE: Downloading " + db_string + " database(s) from NCBI", "INFO")
         self.update_state(state="PROGRESS", meta={'percent-done': 55, 'message': "Downloading " + db_string + " database(s) from NCBI"})
         cmd = ['centrifuge-download -o ' + app_location_database + 'library -m -d ' + db_string + ' refseq']
-        print("CMD: ")
-        print(cmd)
+        logger.log(f"CMD:\n {cmd}", "INFO")
         outfile = open(app_location_database + 'seqid2taxid.map','a+')
         errfile = open(app_location_database + 'download_err.txt','w+')
         try:
@@ -145,17 +146,17 @@ def int_download_database(self,db_data,queries):
             download_bacteria_output.wait()
 
         except (OSError, subprocess.CalledProcessError) as exception:
-            print(str(exception))
+            logger.log(str(exception), "ERROR")
             return "ER1"
 
         else:
-            print("DOWNLOAD_DATABASE: Successfully downloaded " + db_string + " database(s) from NCBI")
+            logger.log("DOWNLOAD_DATABASE: Successfully downloaded " + db_string + " database(s) from NCBI", "INFO")
             self.update_state(state="PROGRESS", meta={'percent-done': 90, 'message': "Successfully downloaded " + db_string + " database(s) from NCBI"})
 
             import glob
 
             # Putting all the query sequences in one, input_sequences file.
-            print("DOWNLOAD_DATABASE: Concatinating all the sequnce files.")
+            logger.log("DOWNLOAD_DATABASE: Concatinating all the sequnce files.", "INFO")
             self.update_state(state="PROGRESS", meta={'percent-done': 95, 'message': "Concatinating all the sequnce files."})
             with open(app_location_database + 'input_sequences.fa', 'wb') as outfile:
                 for filename in glob.glob(app_location_database + 'library/*/*.fna'):
@@ -166,7 +167,7 @@ def int_download_database(self,db_data,queries):
     import datetime
     now = datetime.datetime.now()
 
-    print("DOWNLOAD_DATABASE: Building the index.")
+    logger.log("DOWNLOAD_DATABASE: Building the index.", "INFO")
     self.update_state(state="PROGRESS", meta={'percent-done': 98, 'message': "Building the index."})
     dbname = app_location_database + str(now.year) + str(now.month) + str(now.day) + str(now.hour) + \
              str(now.minute) + str(now.second)
@@ -176,8 +177,7 @@ def int_download_database(self,db_data,queries):
            'taxonomy/names.dmp ' + app_location_database + 'input_sequences.fa' + \
            ' ' + dbname
           ]
-    print("IDX CMD: ")
-    print(index_cmd)
+    logger.log("IDX CMD: \n{index_cmd}", "INFO")
     building_index_output = open(app_location_database + 'building_index.txt','w+')
     try:
         # Download the database.
@@ -191,11 +191,11 @@ def int_download_database(self,db_data,queries):
         download_bacteria_output.wait()
 
     except (OSError, subprocess.CalledProcessError) as exception:
-        print(str(exception))
+        logger.log(str(exception), "ERROR")
         return "ER1"
 
     else:
-        print("DOWNLOAD_DATABASE: Database has successfully been downloaded and built.")
+        logger.log("DOWNLOAD_DATABASE: Database has successfully been downloaded and built.", "INFO")
         self.update_state(state="PROGRESS", meta={'percent-done': 100, 'message': "Database has successfully been downloaded and built."})
 
 

@@ -32,7 +32,6 @@ class Logger():
                     raise
 
         self.__LOGGER = logging.getLogger()
-        print(type(self.__LOGGER))
         logging.basicConfig(filename=self.__LOG_PATH, level=logging.INFO, format=self.__FORMATTER)
 
         # For to dual to console and file logging
