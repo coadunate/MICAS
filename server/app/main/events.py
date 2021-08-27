@@ -21,7 +21,7 @@ import json
 
 # for Logger
 from .utils.Logger import Logger
-logger = Logger()
+
 
 fileListenerThread = Thread()
 thread_stop_event = Event()

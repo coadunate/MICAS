@@ -4,13 +4,16 @@ from datetime import datetime
 from enum import Enum, auto
 import os, subprocess, sys, logging
 
+class AutoName(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name
 
-class Level(Enum):
-    INFO = 0
-    DEBUG = 1
-    WARNING = 2
-    ERROR = 3
-    CRITICAL = 4
+class Level(AutoName):
+    INFO = auto()
+    DEBUG = auto()
+    WARNING = auto()
+    ERROR = auto()
+    CRITICAL = auto()
 
 # All the code in logger is not contained in class to emulate singleton functionality
 class Logger():
@@ -40,6 +43,8 @@ class Logger():
         self.__LOGGER.addHandler(console)
 
     def log(self, msg, lvl=Level.INFO):
+        if type(lvl) != Level:
+            lvl = Level(lvl)
         if lvl is Level.INFO:
             self.__LOGGER.info(msg)
         elif lvl is Level.DEBUG:

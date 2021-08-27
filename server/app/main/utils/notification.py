@@ -4,17 +4,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from twilio.rest import Client
-
+import socketio
 import os
 sms_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/sms_config.json')
 email_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/email_config.json')
+
+from micas import logger
 
 twilio_data = None
 try:
    with open(sms_config_path) as json_sms_file:
        twilio_data = json.load(json_sms_file)
 except:
-   print("[WARNING] Configuration not set")
+   logger.log("Configuration not set", 'WARNING')
 
 email_data = None
 try:

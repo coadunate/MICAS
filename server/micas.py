@@ -3,6 +3,7 @@
 from app import create_app, socketio
 from app.main.utils.Logger import *
 
+logger = Logger()
 app = create_app(debug=True)
 
 if __name__ == '__main__':
