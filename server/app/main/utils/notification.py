@@ -64,6 +64,6 @@ def send_email(alert_name, num_reads,email_address):
         server.quit()
         print("Email sent to '" + email_address + "' successfully!")
     except Exception as error:
-        print("An error occured! The email configuration mustn't have been set \
+        print("An error occurred! The email configuration mustn't have been set \
         properly")
         print(error)

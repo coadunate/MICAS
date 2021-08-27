@@ -46,6 +46,7 @@ def krakenParse(kraken_file):
 
 
     sankey_data  = build_sankey_network(report)
+    print(sankey_data)
 
     output1 = toJSONArray( tbl_df_strip(sankey_data[0]) )[0]
     output2 = toJSONArray( tbl_df_strip(sankey_data[1]) )[0]
