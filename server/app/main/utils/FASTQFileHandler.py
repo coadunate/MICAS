@@ -7,12 +7,14 @@ import os, subprocess, sys
 
 from .parse import krakenParse
 
-from micas import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FASTQFileHandler(FileSystemEventHandler):
 
     def __init__(self,app_loc):
-        logger.log("FASTQ FILE HANDLER INITIATED", "INFO")
+        logger.info("FASTQ FILE HANDLER INITIATED")
         self.app_loc = app_loc
         self.num_files_classified = 0
 
@@ -21,7 +23,7 @@ class FASTQFileHandler(FileSystemEventHandler):
         #if fastq file is created
         if event.src_path.endswith(".fasta"):
 
-            logger.log('event type: ' + event.event_type + 'path: ' + event.src_path + 'num files classified: ' + self.num_files_classified, "INFO")
+            logger.info('event type: ' + event.event_type + 'path: ' + event.src_path + 'num files classified: ' + self.num_files_classified)
 
             # paths for centrifuge out file and centrifuge report file
             centrifuge_output = self.app_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.out.centrifuge'
@@ -40,25 +42,25 @@ class FASTQFileHandler(FileSystemEventHandler):
             index_file = ""
 
             if len(indices) < 1:
-                logger.log("ERROR: Database not found!", "ERROR")
+                logger.error("ERROR: Database not found!")
                 sys.exit(1)
             else:
                 index_file = indices[0].split(".")[0]
 
-            logger.log(index_file, "DEBUG")
+            logger.debug(index_file, "DEBUG")
 
             cmd = 'centrifuge -x ' + index_file + ' -U ' + event.src_path  + ' -f -S ' + centrifuge_output + ' --report-file ' + centrifuge_report
-            logger.log(cmd, "DEBUG")
+            logger.debug(cmd, "DEBUG")
 
 
             proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
             (output,err) = proc.communicate()
             proc.wait()
-            logger.log("COMMAND OUTPUT: " + str(output), "DEBUG")
+            logger.debug("COMMAND OUTPUT: " + str(output), "DEBUG")
 
 
             # if running centrifuge was successful
-            logger.log("RUN CENT WAS SUCCESSFUL", "INFO")
+            logger.info("RUN CENT WAS SUCCESSFUL")
             # if the final report and output files already exist, append to them
             if subprocess.call(['ls',final_output]) == 0 and \
                subprocess.call(['ls',final_report]) == 0:
@@ -75,7 +77,7 @@ class FASTQFileHandler(FileSystemEventHandler):
             else:
                 subprocess.call(['mv',centrifuge_output,final_output])
                 subprocess.call(['mv',centrifuge_report,final_report])
-                logger.log("MOVING FILES", "INFO")
+                logger.info("MOVING FILES")
 
             # Re-create the centrifuge kraken-style report
             run_kreport = subprocess.call([ \
@@ -93,7 +95,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                 proc = subprocess.Popen(kraken_sankey_report_cmd,shell=True,stdout=subprocess.PIPE, universal_newlines=True)
                 (output,err) = proc.communicate()
                 proc.wait()
-                logger.log("SANKEY KRAKEN COMMAND OUTPUT: " + str(output), "INFO")
+                logger.info("SANKEY KRAKEN COMMAND OUTPUT: " + str(output))
                 sankey_data_file.write(output)
 
 

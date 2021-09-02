@@ -9,21 +9,23 @@ import os
 sms_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/sms_config.json')
 email_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/app/config/email_config.json')
 
-from micas import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 twilio_data = None
 try:
    with open(sms_config_path) as json_sms_file:
        twilio_data = json.load(json_sms_file)
 except:
-   logger.log("Configuration not set", 'WARNING')
+   logger.warning("Configuration not set")
 
 email_data = None
 try:
     with open(email_config_path) as json_email_file:
         email_data = json.load(json_email_file)
 except:
-    logger.log("Configuration not set", 'WARNING')
+    logger.warning("Configuration not set")
 
 def send_sms(alert_name,num_reads,phone_number):
     """
@@ -37,7 +39,7 @@ def send_sms(alert_name,num_reads,phone_number):
       from_=str(twilio_data['from_ph_number']),
       to=str(phone_number)
     )
-    logger.log("Message sent successfully, SID: " + str(message.sid), 'INFO')
+    logger.info("Message sent successfully, SID: " + str(message.sid))
 
 def send_email(alert_name, num_reads,email_address):
     """
@@ -64,8 +66,8 @@ def send_email(alert_name, num_reads,email_address):
         text = msg.as_string()
         server.sendmail(email_data['from_email'], email_address, text)
         server.quit()
-        logger.log("Email sent to '" + email_address + "' successfully!", "INFO")
+        logger.info("Email sent to '" + email_address + "' successfully!")
     except Exception as error:
-        logger.log("An error occurred! The email configuration mustn't have been set \
-        properly", "ERROR")
-        logger.log(error, "ERROR")
+        logger.error("An error occurred! The email configuration mustn't have been set \
+        properly")
+        logger.error(error)

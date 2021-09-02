@@ -20,8 +20,9 @@ from watchdog.observers import Observer
 import json
 
 # for Logger
-from .utils.Logger import Logger
-from micas import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 fileListenerThread = Thread()
 thread_stop_event = Event()
@@ -32,7 +33,7 @@ REDIRECTION_EXECUTED = False
 ############### HELPER FUNCTIONS ###############
 
 def run_fastq_watcher(app_loc,minion_loc):
-    logger.log("RUNNING FASTQ WATCHER", "INFO")
+    logger.info("RUNNING FASTQ WATCHER")
     event_handler = FASTQFileHandler(app_loc)
     observer = Observer()
     observer.schedule(event_handler, path=minion_loc, recursive=False)
@@ -43,28 +44,28 @@ def run_fastq_watcher(app_loc,minion_loc):
 
 @socketio.on('connect',namespace="/analysis")
 def analysis_connected():
-    logger.log("CONNECTED TO ANALYSIS", "INFO")
+    logger.info("CONNECTED TO ANALYSIS")
 
 @socketio.on('disconnect',namespace="/analysis")
 def analysis_disconnected():
     # delete the analysis_busy file
     subprocess.call(['rm',session.get('app_location') + 'analysis_busy'])
-    logger.log("DISCONNECTED FROM ANALYSIS", "INFO")
+    logger.info("DISCONNECTED FROM ANALYSIS")
 
 def start_fastq_file_listener(app_location,minion_location):
     # need visibility of the global thread object
-    logger.log("Starting FASTQ File Listener", "INFO")
+    logger.info("Starting FASTQ File Listener")
     global fileListenerThread
 
     if not fileListenerThread.isAlive():
-        logger.log("Starting the FASTQ file listener thread", "INFO")
+        logger.info("Starting the FASTQ file listener thread")
         fileListenerThread = Thread(target=run_fastq_watcher(app_location,minion_location))
         fileListenerThread.daemon = True
         fileListenerThread.start()
 
 @socketio.on('update_sankey_filter', namespace="/analysis")
 def update_sankey_filter(app_location, value):
-    logger.log("update_sankey_filter", "INFO")
+    logger.info("update_sankey_filter")
 
     app_location = app_location if app_location.endswith('/') else app_location + '/'
     analysis_filter_file_path = app_location + 'centrifuge/sankey.filter'
@@ -82,11 +83,11 @@ def on_raw_message(message):
         status_message = message['result']['message']
 
         socketReturn = emit('download_database_status',{'percent_done': percent_done, 'status_message': status_message}, namespace="/analysis")
-        logger.log(str(percent_done) + "% [" + status_message + "]", "INFO")
+        logger.info(str(percent_done) + "% [" + status_message + "]")
     if status == "SUCCESS":
         minion = message['result']['minion']
         app_location = message['result']['app_location']
-        logger.log("Database download successful and now the locs are MinION: " + minion + " MICAS: " + app_location, "INFO")
+        logger.info("Database download successful and now the locs are MinION: " + minion + " MICAS: " + app_location)
         start_fastq_file_listener(app_location, minion)
 
 
@@ -107,12 +108,12 @@ def download_database(dbinfo):
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
-                logger.log("DOWNLOAD_DATABASE: Deleting " + file + " file.", "INFO")
+                logger.info("DOWNLOAD_DATABASE: Deleting " + file + " file.")
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
-                logger.log("DOWNLOAD_DATABASE: Deleting " + file + " directory.", "INFO")
+                logger.info("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
         except Exception as e:
-            logger.log(e, "ERROR")
+            logger.error(e)
 
     # Create an file to indicate that the download is in progress
     download_in_progress = open(app_location + '.download_in_progress','a')
@@ -121,16 +122,16 @@ def download_database(dbinfo):
         alert_config_file.write(json.dumps(dbinfo))
 
     # Create database directory.
-    logger.log("DOWNLOAD_DATABADE: Creating database directory.", "INFO")
+    logger.info("DOWNLOAD_DATABADE: Creating database directory.")
     os.makedirs(app_location + 'database')
 
     # Create centrifuge/runs directory
-    logger.log("DOWNLOAD_DATABASE: Creating centrifuge/runs directory.", "INFO")
+    logger.info("DOWNLOAD_DATABASE: Creating centrifuge/runs directory.")
     os.makedirs(app_location + 'centrifuge/runs')
 
     res = int_download_database.apply_async(args=(dbinfo,queries))
-    logger.log(res, "DEBUG")
-    logger.log(res.get(on_message=on_raw_message, propagate=False), "DEBUG")
+    logger.debug(res, "DEBUG")
+    logger.debug(res.get(on_message=on_raw_message, propagate=False), "DEBUG")
 
 ###############- Logger Hooks -###############
 
