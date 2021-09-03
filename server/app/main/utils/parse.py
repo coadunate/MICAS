@@ -44,12 +44,19 @@ def krakenParse(kraken_file):
 
     report = read_report(kraken_file)
 
+    print("REPORT")
+    print(report)
+
 
     sankey_data  = build_sankey_network(report)
     print(sankey_data)
+    print(tbl_df_strip(sankey_data))
 
-    output1 = toJSONArray( tbl_df_strip(sankey_data[0]) )[0]
-    output2 = toJSONArray( tbl_df_strip(sankey_data[1]) )[0]
+#     output1 = toJSONArray( tbl_df_strip(sankey_data[0]) )[0]
+#     output2 = toJSONArray( tbl_df_strip(sankey_data[1]) )[0]
+
+    print(output1)
+    print(output2)
 
     import json
     output = (json.loads(output1),json.loads(output2))

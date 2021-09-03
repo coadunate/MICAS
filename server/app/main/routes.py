@@ -311,6 +311,12 @@ def analysis():
 
 
 
+@main.route('/convey_alert', methods=["POST"])
+def convey_alert():
+    if request.method == "POST":
+        send_email('SARS-CoV-2', 500, '...email..here...')
+
+
 
 @main.route('/validate_locations', methods=['POST','GET'])
 def validate_locations():

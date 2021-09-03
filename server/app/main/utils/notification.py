@@ -37,7 +37,7 @@ def send_sms(alert_name,num_reads,phone_number):
     )
     print("Message sent successfully, SID: " + str(message.sid))
 
-def send_email(alert_name, num_reads,email_address):
+def send_email(alert_name, num_reads, email_address):
     """
         Sends an email about the alerts to given email_address.
     """

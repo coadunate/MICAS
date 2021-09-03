@@ -12,8 +12,9 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
     const handleDataChange = (idx: number, key : IKeys) => (evt: React.ChangeEvent<HTMLInputElement>) => {
         const newQueries = queries.map((query, sidx) => {
             if (idx !== sidx) return query;
-            return { ...query, [key]: evt.target.value };
+            return key === "alert" ? { ...query, [key]: parseInt(evt.target.value) != 0 } : { ...query, [key]: evt.target.value }
         });
+        console.log(JSON.stringify(newQueries))
         setQueries(newQueries);
     }
 
@@ -60,7 +61,7 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                                placeholder="Scientific Name (eg. Streptococcus pneumoniae)"
                                                className="form-control"/>
                                     </div>
-                                    <div className="col-sm-3">
+                                    <div className="col-sm-2">
                                         <input placeholder="Parent Scientific Name"
                                                aria-autocomplete="list"
                                                type="number"
@@ -69,13 +70,13 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                                autoComplete="nope"
                                                className="form-control"/>
                                     </div>
-                                    <div className="col-sm-1">
+                                    <div className="col-sm-2">
                                         <div className="btn-group-toggle" data-toggle="buttons">
-                                            <label className="btn btn-primary active">
-                                                <input type="checkbox" checked
-                                                       autoComplete="off"
+                                            <label className="">
+                                                <input placeholder="Alert? 1/0"
+                                                       type="number"
                                                        onChange={handleDataChange(i, "alert")}
-                                                /> Alert
+                                                       className="form-control"/>
                                             </label>
                                         </div>
                                     </div>
