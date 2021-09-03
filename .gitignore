@@ -133,3 +133,4 @@ server/app/main/utils/.listing
 static/node_modules/
 .idea
 dump.rdb
+frontend/node_modules/
