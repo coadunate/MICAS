@@ -135,9 +135,18 @@ def download_database(dbinfo):
 
 ###############- Logger Hooks -###############
 
-    @socketio.on('log')
-    def log(msg, lvl):
-        logger.__LOGGER.log(msg, Level(lvl))
+@socketio.on('log')
+def log(msg, lvl):
+    if str(lvl).upper() == "INFO":
+        logger.info(msg)
+    elif str(lvl).upper() == "DEBUG":
+        logger.debug(msg)
+    elif str(lvl).upper() == "WARNING":
+        logger.warning(msg)
+    elif str(lvl).upper() == "ERROR":
+        logger.error(msg)
+    elif str(lvl).upper() == "CRITICAL":
+        logger.critical(msg)
 
 
 
