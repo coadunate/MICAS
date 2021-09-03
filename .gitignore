@@ -134,3 +134,4 @@ static/node_modules/
 .idea
 dump.rdb
 frontend/node_modules/
+/frontend/node_modules/
