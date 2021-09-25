@@ -19,6 +19,11 @@ from watchdog.observers import Observer
 
 import json
 
+# for Logger
+import logging
+
+logger = logging.getLogger(__name__)
+
 fileListenerThread = Thread()
 thread_stop_event = Event()
 
@@ -28,7 +33,7 @@ REDIRECTION_EXECUTED = False
 ############### HELPER FUNCTIONS ###############
 
 def run_fastq_watcher(app_loc,minion_loc):
-    print("RUNNING FASTQ WATCHER")
+    logger.info("RUNNING FASTQ WATCHER")
     event_handler = FASTQFileHandler(app_loc)
     observer = Observer()
     observer.schedule(event_handler, path=minion_loc, recursive=False)
@@ -37,34 +42,30 @@ def run_fastq_watcher(app_loc,minion_loc):
 
 ###############------------------###############
 
-@socketio.on('connect')
-def test_connect():
-    emit('tayab', {'data': 'Connected'})
-
 @socketio.on('connect',namespace="/analysis")
 def analysis_connected():
-    print("CONNECTED TO ANALYSIS")
+    logger.info("CONNECTED TO ANALYSIS")
 
 @socketio.on('disconnect',namespace="/analysis")
 def analysis_disconnected():
     # delete the analysis_busy file
     subprocess.call(['rm',session.get('app_location') + 'analysis_busy'])
-    print("DISCONNECTED FROM ANALYSIS")
+    logger.info("DISCONNECTED FROM ANALYSIS")
 
 def start_fastq_file_listener(app_location,minion_location):
     # need visibility of the global thread object
-    print("Starting FASTQ File Listener")
+    logger.info("Starting FASTQ File Listener")
     global fileListenerThread
 
     if not fileListenerThread.isAlive():
-        print("Starting the FASTQ file listener thread")
+        logger.info("Starting the FASTQ file listener thread")
         fileListenerThread = Thread(target=run_fastq_watcher(app_location,minion_location))
         fileListenerThread.daemon = True
         fileListenerThread.start()
 
 @socketio.on('update_sankey_filter', namespace="/analysis")
 def update_sankey_filter(app_location, value):
-    print("update_sankey_filter")
+    logger.info("update_sankey_filter")
 
     app_location = app_location if app_location.endswith('/') else app_location + '/'
     analysis_filter_file_path = app_location + 'centrifuge/sankey.filter'
@@ -75,8 +76,6 @@ def update_sankey_filter(app_location, value):
     with open(app_location + 'centrifuge/sankey.data','w') as sankey_data_file:
         sankey_data_file.write(str(krakenParse(app_location + 'centrifuge/sankey.filter', app_location + 'centrifuge/final.out.kraken')) + "\n")
 
-
-
 def on_raw_message(message):
     status = message['status']
     if(status == "PROGRESS"):
@@ -84,11 +83,11 @@ def on_raw_message(message):
         status_message = message['result']['message']
 
         socketReturn = emit('download_database_status',{'percent_done': percent_done, 'status_message': status_message}, namespace="/analysis")
-        print(str(percent_done) + "% [" + status_message + "]")
+        logger.info(str(percent_done) + "% [" + status_message + "]")
     if status == "SUCCESS":
         minion = message['result']['minion']
         app_location = message['result']['app_location']
-        print("Database download successful and now the locs are MinION: " + minion + " MICAS: " + app_location)
+        logger.info("Database download successful and now the locs are MinION: " + minion + " MICAS: " + app_location)
         start_fastq_file_listener(app_location, minion)
 
 
@@ -109,12 +108,12 @@ def download_database(dbinfo):
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
-                print("DOWNLOAD_DATABASE: Deleting " + file + " file.")
+                logger.info("DOWNLOAD_DATABASE: Deleting " + file + " file.")
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
-                print("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
+                logger.info("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     # Create an file to indicate that the download is in progress
     download_in_progress = open(app_location + '.download_in_progress','a')
@@ -123,14 +122,32 @@ def download_database(dbinfo):
         alert_config_file.write(json.dumps(dbinfo))
 
     # Create database directory.
-    print("DOWNLOAD_DATABADE: Creating database directory.")
+    logger.info("DOWNLOAD_DATABADE: Creating database directory.")
     os.makedirs(app_location + 'database')
 
     # Create centrifuge/runs directory
-    print("DOWNLOAD_DATABASE: Creating centrifuge/runs directory.")
+    logger.info("DOWNLOAD_DATABASE: Creating centrifuge/runs directory.")
     os.makedirs(app_location + 'centrifuge/runs')
 
     res = int_download_database.apply_async(args=(dbinfo,queries))
-    print("Tayab Test")
-    print(res)
-    print(res.get(on_message=on_raw_message, propagate=False))
+    logger.debug(res, "DEBUG")
+    logger.debug(res.get(on_message=on_raw_message, propagate=False), "DEBUG")
+
+###############- Logger Hooks -###############
+
+@socketio.on('log')
+def log(msg, lvl):
+    if str(lvl).upper() == "INFO":
+        logger.info(msg)
+    elif str(lvl).upper() == "DEBUG":
+        logger.debug(msg)
+    elif str(lvl).upper() == "WARNING":
+        logger.warning(msg)
+    elif str(lvl).upper() == "ERROR":
+        logger.error(msg)
+    elif str(lvl).upper() == "CRITICAL":
+        logger.critical(msg)
+
+
+
+

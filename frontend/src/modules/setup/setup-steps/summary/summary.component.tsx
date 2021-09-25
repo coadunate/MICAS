@@ -90,11 +90,10 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
 
     const initiateDatabaseCreation = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
-
         setStarted(prev => !prev);
 
         if (validationState === VALIDATION_STATES.VALIDATED) {
-            console.log("Locations are valid")
+            socket.emit('log', "Locations are valid", "INFO");
             let dbInfo = {
                 minion: databaseSetupInput.locations.minionLocation,
                 app_location: databaseSetupInput.locations.micasLocation,
@@ -105,11 +104,10 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 ...alertConfigInput
             };
 
-            console.log(dbInfo);
+            socket.emit('log', dbInfo, "DEBUG");
 
             socket.emit('download_database', dbInfo, () => {
-                console.log("Creating database...")
-
+                socket.emit('log', "Creating database...", "INFO")
             })
             let _url = 'http://' + window.location.hostname + ":" + window.location.port + '/analysis/' + uid;
             setSuccess("Creating database... You can view the analysis <a href='" + _url + "'>here</a>")

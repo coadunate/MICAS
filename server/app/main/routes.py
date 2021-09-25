@@ -19,7 +19,9 @@ import random, string
 from .utils.parse import krakenReadCount
 from .utils.notification import send_email, send_sms
 
+import logging
 
+logger = logging.getLogger(__name__)
 
 @main.route('/')
 def index():
@@ -80,8 +82,8 @@ def get_sankey_data():
                         jsonRecord = ast.literal_eval(lines)
                         return json.dumps({ 'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1] })
                     except:
-                        print("TAYAB! TAKE A LOOK!")
-                        print(lines)
+                        logger.error("Exception in JSON literal eval in get_sankey_data")
+                        logger.error(lines)
                         return json.dumps({ 'status': 404 })
         else:
             return json.dumps({ 'status': 404 })
@@ -242,7 +244,7 @@ def get_analysis_info():
         else:
 
 
-            print(get_alert_info("sup"))
+            logger.info(get_alert_info("sup"))
 
             return json.dumps({
                 'status': 200,
@@ -294,8 +296,8 @@ def analysis():
                             d = datetime.datetime.utcnow()
                             for_js = int(time.mktime(d.timetuple())) * 1000
                             analysis_started_date = for_js
-                            print("D: " + str(d))
-                            print("FOR_JS: " + str(for_js))
+                            logger.info("D: " + str(d))
+                            logger.info("FOR_JS: " + str(for_js))
                             with open(app_location + 'analysis_started','w') as f:
                                 f.write(str(analysis_started_date))
 
@@ -321,7 +323,7 @@ def convey_alert():
 @main.route('/validate_locations', methods=['POST','GET'])
 def validate_locations():
     if( request.method == 'POST'):
-        print("INSIDE VALIDATE_LOCATIONS")
+        logger.info("INSIDE VALIDATE_LOCATIONS")
         minION_location = request.form['minION']
         app_location = request.form['App']
         queries = request.form['Queries']
@@ -345,10 +347,10 @@ def validate_locations():
                             subprocess.call(['which', 'centrifuge-build'])
 
 
-        print("minION_output = " + str(minION_output))
-        print("app_output = " + str(app_output))
-        print("query_output = " + str(query_output))
-        print("centrifuge_output = " + str(centrifuge_output))
+        logger.info("minION_output = " + str(minION_output))
+        logger.info("app_output = " + str(app_output))
+        logger.info("query_output = " + str(query_output))
+        logger.info("centrifuge_output = " + str(centrifuge_output))
 
         if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
             return json.dumps({ "code": 0, "message": "SUCCESS" })

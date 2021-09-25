@@ -2,7 +2,14 @@
 
 from app import create_app, socketio
 
+# Logger Setup
+import logging
+import logging.config
+from os import path
+log_file_path = path.join(path.dirname(path.abspath(__file__)), 'logging.ini')
+logging.config.fileConfig(log_file_path)
+
 app = create_app(debug=True)
 
 if __name__ == '__main__':
-	socketio.run(app)
+    socketio.run(app)
