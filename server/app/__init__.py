@@ -8,7 +8,7 @@ socketio = SocketIO()
 
 def create_app(debug=False):
     """Create an application."""
-    app = Flask(__name__,static_folder='../../static/dist', template_folder='../../static')
+    app = Flask(__name__)
     CORS(app)
     app.debug = debug
     app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
