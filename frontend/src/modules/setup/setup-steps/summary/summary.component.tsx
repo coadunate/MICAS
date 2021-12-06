@@ -146,8 +146,12 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                         add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
                                 return (
+<<<<<<< Updated upstream
                                     <td key={idx}>Name: {query.name} (<abbr title="Parent ID">PID</abbr>: {query.parent})
                                     </td>
+=======
+                                    <td key={idx}>Name: {query.name} (PID: {query.file})</td>
+>>>>>>> Stashed changes
                                 )
                             }
                         })

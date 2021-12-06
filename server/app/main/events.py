@@ -1,4 +1,4 @@
-from flask import url_for, session
+rom flask import url_for, session
 from flask_socketio import emit, send
 from .. import socketio
 
@@ -147,7 +147,4 @@ def log(msg, lvl):
         logger.error(msg)
     elif str(lvl).upper() == "CRITICAL":
         logger.critical(msg)
-
-
-
 

@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import {useParams} from 'react-router-dom';
 import {IParams} from "./analysis.interfaces";
+import {socket} from "../../app.component";
 
 const AnalysisComponent = () => {
 
