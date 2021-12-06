@@ -64,12 +64,14 @@ After the installation has finished, you should be ready to start using MICAS.
 
 # 3. Running MICAS
 
-Once you have successfully installed MICAS and are ready to run it, you can run
+~~Once you have successfully installed MICAS and are ready to run it, you can run
 the pre-made script called `start.sh`, which should run the necessary 
 programs and serve the webpage at:`http://127.0.0.1:5000/`. When you subscribe to
 the above URL on your favourite web browser, you'll land on setup page. This
 indicates that MICAS installation was successful and you are ready to do
-science.
+science.~~ 
+
+**NOTE**: Unfortunately, the `start.sh` script currently does not function, and needs to be fixed. Please use the bellow instructions regarding *"Running MICAS For Debugging"*.
 
 ## 3.1. Running MICAS For Debugging
 
