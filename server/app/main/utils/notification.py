@@ -11,7 +11,7 @@ email_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')),'server/
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 twilio_data = None
 try:
@@ -39,7 +39,7 @@ def send_sms(alert_name,num_reads,phone_number):
       from_=str(twilio_data['from_ph_number']),
       to=str(phone_number)
     )
-    logger.info("Message sent successfully, SID: " + str(message.sid))
+    print("Message sent successfully, SID: " + str(message.sid))
 
 def send_email(alert_name, num_reads, email_address):
     """
@@ -66,8 +66,8 @@ def send_email(alert_name, num_reads, email_address):
         text = msg.as_string()
         server.sendmail(email_data['from_email'], email_address, text)
         server.quit()
-        logger.info("Email sent to '" + email_address + "' successfully!")
+        print("Email sent to '" + email_address + "' successfully!")
     except Exception as error:
-        logger.error("An error occurred! The email configuration mustn't have been set \
+        print("An error occurred! The email configuration mustn't have been set \
         properly")
-        logger.error(error)
+        print(error)

@@ -6,7 +6,6 @@ import {IQuery} from "../database-setup/additional-sequences-setup/additional-se
 import axios from "axios";
 import {socket} from "../../../../app.component";
 
-
 const VALIDATION_STATES = {
     NOT_STARTED: 0,
     PENDING: 1,
@@ -58,6 +57,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
     const [validationState, setValidationState] = useState(VALIDATION_STATES.NOT_STARTED);
     const [started, setStarted] = useState(false);
     const [uid, setUID] = useState("");
+    const [progress, setProgress] = useState("");
 
     // get all the selected NCBI databases
     const ncbi_databases = Object.keys(databaseSetupInput.ncbi).filter((val: string) => {
@@ -76,13 +76,20 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
             const res = await validateLocations(add_databases, databaseSetupInput.locations)
             const v_code = res.data.code
 
-            if (v_code === 0) {
+            if (v_code === 0) { // if locations are valid
                 const res_uid = await getUniqueUID(databaseSetupInput.locations)
                 setUID(res_uid.data.uid)
                 setValidationState(VALIDATION_STATES.VALIDATED)
             } else {
                 setValidationState(VALIDATION_STATES.NOT_VALID)
             }
+
+            // accumulate the progress
+            socket.on('download_database_status',(data: any) => {
+                setProgress(data)
+                console.log(data)
+            })
+
         })();
 
     }, [started])
@@ -101,6 +108,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 archaea: databaseSetupInput.ncbi.archaea,
                 virus: databaseSetupInput.ncbi.virus,
                 queries: add_databases,
+                projectId: uid,
                 ...alertConfigInput
             };
 
@@ -111,6 +119,9 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
             })
             let _url = 'http://' + window.location.hostname + ":" + window.location.port + '/analysis/' + uid;
             setSuccess("Creating database... You can view the analysis <a href='" + _url + "'>here</a>")
+
+
+
         } else {
             setError("Locations are not valid")
         }
@@ -146,13 +157,10 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                         add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
                                 return (
-<<<<<<< Updated upstream
-                                    <td key={idx}>Name: {query.name} (<abbr title="Parent ID">PID</abbr>: {query.parent})
-                                    </td>
-=======
                                     <td key={idx}>Name: {query.name} (PID: {query.file})</td>
->>>>>>> Stashed changes
                                 )
+                            } else {
+                                return;
                             }
                         })
                     }
@@ -199,7 +207,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
             </table>
             <hr/>
             <div className="vspacer-20"/>
-            <button className="btn btn-info" onClick={(e) => initiateDatabaseCreation(e)}>Initiate Database Creation
+            <button className="btn btn-info" disabled={started} onClick={(e) => initiateDatabaseCreation(e)}>Initiate Database Creation
                 Process
             </button>
         </div>

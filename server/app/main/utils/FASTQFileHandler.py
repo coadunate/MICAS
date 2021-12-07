@@ -9,93 +9,73 @@ from .parse import krakenParse
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
+
 
 
 class FASTQFileHandler(FileSystemEventHandler):
 
     def __init__(self, app_loc):
-        logger.info("FASTQ FILE HANDLER INITIATED")
+        print("FASTQ FILE HANDLER INITIATED")
         self.app_loc = app_loc
         self.num_files_classified = 0
 
     def on_created(self, event):
 
-        # if fastq file is created
+        # if fasta file is created
         if event.src_path.endswith(".fasta"):
 
-            logger.info(
-                'event type: ' + event.event_type + 'path: ' + event.src_path + 'num files classified: ' + self.num_files_classified)
+            print(
+                'event type: ' + str(event.event_type) + 'path: ' + str(
+                    event.src_path) + 'num files classified: ' + str(self.num_files_classified))
 
-            # paths for centrifuge out file and centrifuge report file
-            centrifuge_output = self.app_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.out.centrifuge'
-            centrifuge_report = self.app_loc + 'centrifuge/runs/' + os.path.basename(event.src_path) + '.report.tsv'
+            # paths for minimap2 out file and minimap2 report file
+            minimap2_output = self.app_loc + 'minimap2/runs/' + os.path.basename(event.src_path) + '.out.paf'
+            minimap2_report = self.app_loc + 'minimap2/runs/' + os.path.basename(event.src_path) + '.report.tsv'
 
             # paths for final output file and final report file
-            final_output = self.app_loc + 'centrifuge/final.out.centrifuge'
-            final_report = self.app_loc + 'centrifuge/final.report.tsv'
-            final_kreport = open(self.app_loc + 'centrifuge/final.out.kraken', 'w')
+            final_output = self.app_loc + 'minimap2/final.out.paf'
+            final_kreport = open(self.app_loc + 'minimap2/final.out.kraken', 'w')
 
             # figuring out the index name
             import glob
             files = glob.glob(self.app_loc + 'database/*')
-            indices = [x for x in files if x.endswith('cf')]
+            indices = [x for x in files if x.endswith('mmi')]
             index_file = ""
 
             if len(indices) < 1:
-                logger.error("ERROR: Database not found!")
+                print("ERROR: Database not found!")
                 sys.exit(1)
             else:
-                index_file = indices[0].split(".")[0]
+                index_file = indices[0]
 
-            logger.debug(index_file, "DEBUG")
-
-            cmd = 'centrifuge -x ' + index_file + ' -U ' + event.src_path + ' -f -S ' + centrifuge_output + ' --report-file ' + centrifuge_report
+            cmd = 'minimap2 ' + index_file + ' ' + event.src_path + ' -o ' + minimap2_output
             logger.debug(cmd, "DEBUG")
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
             (output, err) = proc.communicate()
             proc.wait()
-            logger.debug("COMMAND OUTPUT: " + str(output), "DEBUG")
+            print("COMMAND OUTPUT: " + str(output), "DEBUG")
 
-            # if running centrifuge was successful
-            logger.info("RUN CENT WAS SUCCESSFUL")
-            # if the final report and output files already exist, append to them
-            if subprocess.call(['ls', final_output]) == 0 and \
-              subprocess.call(['ls', final_report]) == 0:
+            # if running minimap2 was successful
+            print("Running minimap2 was successful")
+            # if the final output files already exist, append to them
+            if subprocess.call(['ls', final_output]) == 0:
 
-                open(final_output, "a").writelines([l for l in open(centrifuge_output).readlines()[1:]])
-                open(final_report, "a").writelines([l for l in open(centrifuge_report).readlines()[1:]])
+                open(final_output, "a").writelines([l for l in open(minimap2_output).readlines()[1:]])
 
-                subprocess.call(['rm', centrifuge_output])
-                subprocess.call(['rm', centrifuge_report])
+                subprocess.call(['rm', minimap2_output])
+                subprocess.call(['rm', minimap2_report])
 
-            # if final report and output files do not exist, move the already
-            # generated report and output files to the appropriate location,
-            # also rename them as final report and output respectively.
+            # if final output files do not exist, move the already
+            # generated output files to the appropriate location,
+            # also rename them as final output respectively.
             else:
-                subprocess.call(['mv', centrifuge_output, final_output])
-                subprocess.call(['mv', centrifuge_report, final_report])
-                logger.info("MOVING FILES")
-
-            # Re-create the centrifuge kraken-style report
-            run_kreport = subprocess.call([ \
-                'centrifuge-kreport',
-                '-x', index_file, \
-                final_output,
-            ], stdout=final_kreport, stderr=subprocess.DEVNULL)
-
-            # Generate Sankey JSON data
-            kraken_output = None
-            with open(self.app_loc + 'centrifuge/sankey.data', 'w') as sankey_data_file:
-                kraken_output = self.app_loc + 'centrifuge/final.out.kraken'
-                kraken_sankey_report_cmd = ['/Users/tayabsoomro/software/SankeyReport.R ' + kraken_output]
-                proc = subprocess.Popen(kraken_sankey_report_cmd, shell=True, stdout=subprocess.PIPE,
-                                        universal_newlines=True)
-                (output, err) = proc.communicate()
-                proc.wait()
-                logger.info("SANKEY KRAKEN COMMAND OUTPUT: " + str(output))
-                sankey_data_file.write(output)
+                subprocess.call(['mv', minimap2_output, final_output])
+                print(
+                    "Renaming the minimap2_output and minimap2_report files to final_output and "
+                    "respectively "
+                )
 
             # increase the # of files it has classified
             self.num_files_classified += 1
@@ -106,5 +86,4 @@ class FASTQFileHandler(FileSystemEventHandler):
 
             # Update the analysis.timeline file
             with open(self.app_loc + 'analysis.timeline', 'w') as analysis_timeline:
-                analysis_timeline.write(str(num_files_minion_reads) + \
-                                        '\t' + str(self.num_files_classified))
+                analysis_timeline.write(str(num_files_minion_reads) + '\t' + str(self.num_files_classified))

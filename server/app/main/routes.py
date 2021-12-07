@@ -4,7 +4,6 @@ from . import main
 # for analysis
 from flask_socketio import emit
 
-
 # for scientific_names, validate_locations
 import json
 
@@ -21,11 +20,17 @@ from .utils.notification import send_email, send_sms
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
+
 
 @main.route('/')
 def index():
     return render_template('index.html')
+
+
+@main.route('/version', methods=['GET'])
+def version():
+    return json.dumps({"version": "v0.0.1", "name": "MICAS PoC"})
 
 
 @main.route('/is_database_downloaded', methods=['GET'])
@@ -34,36 +39,35 @@ def is_database_downloaded():
         app_location = request.args.get('app_location')
         app_location = app_location if app_location.endswith('/') else app_location + '/'
 
-        if subprocess.call(['ls',app_location + '.download_in_progress']) == 0:
-            return json.dumps({ 'status': 200 })
+        if subprocess.call(['ls', app_location + '.download_in_progress']) == 0:
+            return json.dumps({'status': 200})
         else:
-            return json.dumps({ 'status': 404 })
+            return json.dumps({'status': 404})
     else:
-        return json.dumps({ 'status': 400 })
+        return json.dumps({'status': 400})
 
-@main.route('/get_timeline_info',methods=["GET"])
+
+@main.route('/get_timeline_info', methods=["GET"])
 def get_timeline_info():
     if request.method == 'GET':
         app_location = request.args.get('app_location')
         app_location = app_location if app_location.endswith('/') else app_location + '/'
 
-        if subprocess.call(['ls',app_location + 'analysis.timeline']) == 0:
-            with open(app_location + 'analysis.timeline','r') as analysis_timeline:
+        if subprocess.call(['ls', app_location + 'analysis.timeline']) == 0:
+            with open(app_location + 'analysis.timeline', 'r') as analysis_timeline:
                 try:
                     line = analysis_timeline.readline()
-                    (num_total_reads,num_classified_reads) = line.split("\t")
+                    (num_total_reads, num_classified_reads) = line.split("\t")
 
                     return json.dumps( \
                         { \
                             'status': 200, \
                             'num_total_reads': int(num_total_reads), \
                             'num_classified_reads': int(num_classified_reads) \
-                        })
+                            })
 
                 except:
-                    return json.dumps({ 'status': 404 })
-
-
+                    return json.dumps({'status': 404})
 
 
 @main.route('/get_sankey_data', methods=['GET'])
@@ -72,23 +76,24 @@ def get_sankey_data():
         app_location = request.args.get('app_location')
         app_location = app_location if app_location.endswith('/') else app_location + '/'
 
-        if subprocess.call(['ls',app_location + 'centrifuge/sankey.data']) == 0:
-            with open(app_location + 'centrifuge/sankey.data','r') as sankey_file:
+        if subprocess.call(['ls', app_location + 'centrifuge/sankey.data']) == 0:
+            with open(app_location + 'centrifuge/sankey.data', 'r') as sankey_file:
                 lines = sankey_file.read()
                 if "None" in lines:
-                    return json.dumps({ 'status': 204 })
+                    return json.dumps({'status': 204})
                 else:
                     try:
                         jsonRecord = ast.literal_eval(lines)
-                        return json.dumps({ 'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1] })
+                        return json.dumps({'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1]})
                     except:
-                        logger.error("Exception in JSON literal eval in get_sankey_data")
-                        logger.error(lines)
-                        return json.dumps({ 'status': 404 })
+                        print("Exception in JSON literal eval in get_sankey_data")
+                        print(lines)
+                        return json.dumps({'status': 404})
         else:
-            return json.dumps({ 'status': 404 })
+            return json.dumps({'status': 404})
     else:
-        return json.dumps({ 'status': 400 })
+        return json.dumps({'status': 400})
+
 
 @main.route('/get_alert_info', methods=['GET'])
 def get_alert_info():
@@ -96,14 +101,13 @@ def get_alert_info():
         app_location = request.args.get('app_location')
         app_location = app_location if app_location.endswith('/') else app_location + '/'
 
-
-        if subprocess.call(['ls',app_location + 'alertinfo.cfg']) == 0:
+        if subprocess.call(['ls', app_location + 'alertinfo.cfg']) == 0:
             alert_sequences_list = ""
             already_alerted_list = ""
             alert_sequences_threshold = 100
             email_address = None
             phone_number = None
-            with open(app_location + 'alertinfo.cfg','r') as config_file:
+            with open(app_location + 'alertinfo.cfg', 'r') as config_file:
                 for line in config_file:
                     if "alert_sequences" in line:
                         alert_sequences_list = line
@@ -119,8 +123,6 @@ def get_alert_info():
             finalList = []
             otherFinalList = []
 
-
-
             alert_sequences_list = alert_sequences_list.split("=")[1].strip()
             alert_sequences_list = ast.literal_eval(alert_sequences_list)
 
@@ -128,8 +130,8 @@ def get_alert_info():
             already_alerted_list = ast.literal_eval(already_alerted_list)
 
             for alert in alert_sequences_list:
-                krakenResult = krakenReadCount(app_location + 'centrifuge/final.out.kraken',int(alert))
-                if(krakenResult == None):
+                krakenResult = krakenReadCount(app_location + 'centrifuge/final.out.kraken', int(alert))
+                if (krakenResult == None):
 
                     # with open(os.path.abspath('./app/main/data/scientific_names.json'),'r') as f:
                     #     for line in f:
@@ -138,26 +140,26 @@ def get_alert_info():
                     #             int_dict = {"tax_id": int(alert), "name": alert, "num_reads": 0 }
                     #             otherFinalList.append(int_dict)
                     #             break
-                    int_dict = {"tax_id": int(alert), "name": alert, "num_reads": 0 }
+                    int_dict = {"tax_id": int(alert), "name": alert, "num_reads": 0}
                     otherFinalList.append(int_dict)
                 else:
                     # taxid, num_reads, name
-                    int_dict = {"tax_id": int(alert), "name": krakenResult[2].rstrip(), "num_reads": krakenResult[1] }
+                    int_dict = {"tax_id": int(alert), "name": krakenResult[2].rstrip(), "num_reads": krakenResult[1]}
                     finalList.append(int_dict)
 
                     # Send an email if the # of reads are greater than the alert_sequence_threshold
                     if int(krakenResult[1]) >= alert_sequences_threshold and (alert not in already_alerted_list):
                         if email_address is not None:
-                            send_email(krakenResult[2].strip(), krakenResult[1],email_address)
+                            send_email(krakenResult[2].strip(), krakenResult[1], email_address)
                         if phone_number is not None:
-                            send_sms(krakenResult[2].strip(), krakenResult[1],phone_number)
+                            send_sms(krakenResult[2].strip(), krakenResult[1], phone_number)
 
                         # Update alertconfig file for already_alerted sequences.
                         other_info = ""
                         list_of_sequences = ""
                         line_number = -1
-                        with open(app_location + 'alertinfo.cfg','r') as read_file:
-                            for idx,line in enumerate(read_file):
+                        with open(app_location + 'alertinfo.cfg', 'r') as read_file:
+                            for idx, line in enumerate(read_file):
                                 if "already_alerted" not in line:
                                     other_info += line
                                 else:
@@ -166,32 +168,33 @@ def get_alert_info():
                         list_of_sequences = ast.literal_eval(list_of_sequences.strip())
                         list_of_sequences.append(str(alert))
                         new_list_of_sequences = "already_alerted = " + str(list_of_sequences)
-                        with open(app_location + 'alertinfo.cfg','w') as write_file:
+                        with open(app_location + 'alertinfo.cfg', 'w') as write_file:
                             write_file.write(other_info)
                             write_file.write(new_list_of_sequences)
 
-
-            if(len(finalList) > 0):
-                return json.dumps({ 'status': 200, 'alerts': finalList, 'alert_sequences_threshold': alert_sequences_threshold })
-            elif(len(otherFinalList) > 0):
-                return json.dumps({ 'status': 200, 'alerts': otherFinalList, 'alert_sequences_threshold': alert_sequences_threshold  })
+            if (len(finalList) > 0):
+                return json.dumps(
+                    {'status': 200, 'alerts': finalList, 'alert_sequences_threshold': alert_sequences_threshold})
+            elif (len(otherFinalList) > 0):
+                return json.dumps(
+                    {'status': 200, 'alerts': otherFinalList, 'alert_sequences_threshold': alert_sequences_threshold})
         else:
-            return json.dumps({ 'status': 404 })
+            return json.dumps({'status': 404})
     else:
-        return json.dumps({ 'status': 400 })
+        return json.dumps({'status': 400})
+
 
 @main.route('/get_uid', methods=["POST"])
 def get_uid():
-
     if request.method == "GET":
-         return "Unexpected request method. Expected a GET request."
+        return "Unexpected request method. Expected a GET request."
 
     # get the data
     minION_location = request.form['minION']
     app_location = request.form['App']
 
     # generate a random unique id
-    uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
+    uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # check to see if this id already exists
     micas_cache_file = os.getenv('HOME') + "/.micas"
@@ -206,20 +209,20 @@ def get_uid():
 
         # keep generating the uid until its unique
         while uid in cache_dict["ids"]:
-            uid  = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
+            uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # save the UI and MICAS to cache file
     micas_cache_file = os.getenv('HOME') + '/.micas'
-    entry = str(uid) + '\t' + str(minION_location) + '\t' +  str(app_location)
+    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(app_location)
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
 
-    return json.dumps({ 'uid': uid })
+    return json.dumps({'uid': uid})
 
 
 @main.route('/get_analysis_info', methods=['GET'])
 def get_analysis_info():
-    if( request.method == 'GET'):
+    if request.method == 'GET':
         uid = request.args.get('uid')
 
         # get minion and micas location
@@ -239,12 +242,11 @@ def get_analysis_info():
                     found = True
                     break
 
-        if found == False:
-            return json.dumps({ 'status': 404, 'message': "Couldn't find the analysis data with UID: " + uid })
+        if not found:
+            return json.dumps({'status': 404, 'message': "Couldn't find the analysis data with UID: " + uid})
         else:
 
-
-            logger.info(get_alert_info("sup"))
+            print(get_alert_info("sup"))
 
             return json.dumps({
                 'status': 200,
@@ -257,9 +259,9 @@ def get_analysis_info():
     else:
         return "Unexpected request method. Expected a GET request."
 
-@main.route('/analysis',methods=['GET'])
-def analysis():
 
+@main.route('/analysis', methods=['GET'])
+def analysis():
     if (request.method == 'GET'):
 
         app_location = request.args.get('app_location')
@@ -273,36 +275,36 @@ def analysis():
         # Location for the applicaiton data directory
         app_location = app_location if app_location.endswith('/') else app_location + '/'
 
-
         # check if app_location is valid
-        if subprocess.call(['ls',app_location]) == 0:
+        if subprocess.call(['ls', app_location]) == 0:
             # if app_location exists
-            if subprocess.call(['ls',app_location + 'alertinfo.cfg']) == 0:
+            if subprocess.call(['ls', app_location + 'alertinfo.cfg']) == 0:
                 # if minion location exists
-                if subprocess.call(['ls',minion]) == 0:
+                if subprocess.call(['ls', minion]) == 0:
                     # locations are valid
 
                     # is another user already on that page? If so, bounce this user
-                    if subprocess.call(['ls',app_location + 'analysis_busy']) == 0 and False:
+                    if subprocess.call(['ls', app_location + 'analysis_busy']) == 0 and False:
                         error.append({'message': 'This route is busy. Please try again!'})
                     else:
 
                         analysis_started_date = None
                         if subprocess.call(['ls', app_location + 'analysis_started']) == 0:
-                            with open(app_location + 'analysis_started','r') as f:
+                            with open(app_location + 'analysis_started', 'r') as f:
                                 analysis_started_date = f.readline()
                         else:
                             import datetime, time
                             d = datetime.datetime.utcnow()
                             for_js = int(time.mktime(d.timetuple())) * 1000
                             analysis_started_date = for_js
-                            logger.info("D: " + str(d))
-                            logger.info("FOR_JS: " + str(for_js))
-                            with open(app_location + 'analysis_started','w') as f:
+                            print("D: " + str(d))
+                            print("FOR_JS: " + str(for_js))
+                            with open(app_location + 'analysis_started', 'w') as f:
                                 f.write(str(analysis_started_date))
 
-                        subprocess.call(['touch',app_location + 'analysis_busy'])
-                        return render_template('analysis.html',app_loc=app_location,minion_loc=minion,start_time=analysis_started_date)
+                        subprocess.call(['touch', app_location + 'analysis_busy'])
+                        return render_template('analysis.html', app_loc=app_location, minion_loc=minion,
+                                               start_time=analysis_started_date)
                 else:
                     error.append({'message': 'MinION location is not valid.'})
             else:
@@ -312,28 +314,30 @@ def analysis():
     return json.dumps(error)
 
 
-
-@main.route('/convey_alert', methods=["POST"])
+@main.route('/convey_alert', methods=["POST", "GET"])
 def convey_alert():
-    if request.method == "POST":
+    if (request.method == "GET"):
+        print("YE!@")
         send_email('SARS-CoV-2', 500, '...email..here...')
+        print("DONE!")
+    else:
+        print("A")
 
 
-
-@main.route('/validate_locations', methods=['POST','GET'])
+@main.route('/validate_locations', methods=['POST', 'GET'])
 def validate_locations():
-    if( request.method == 'POST'):
-        logger.info("INSIDE VALIDATE_LOCATIONS")
+    if (request.method == 'POST'):
+        print("INSIDE VALIDATE_LOCATIONS")
         minION_location = request.form['minION']
         app_location = request.form['App']
         queries = request.form['Queries']
 
         _queries = queries.split(';')[:-1]
 
-        if(len(_queries) > 0):
+        if (len(_queries) > 0):
             query_output = -1
             for query in _queries:
-                query_output = subprocess.call(['ls',query])
+                query_output = subprocess.call(['ls', query])
         else:
             query_output = 0
 
@@ -346,19 +350,18 @@ def validate_locations():
                             subprocess.call(['which', 'centrifuge-kreport']) + \
                             subprocess.call(['which', 'centrifuge-build'])
 
+        print("minION_output = " + str(minION_output))
+        print("app_output = " + str(app_output))
+        print("query_output = " + str(query_output))
+        print("centrifuge_output = " + str(centrifuge_output))
 
-        logger.info("minION_output = " + str(minION_output))
-        logger.info("app_output = " + str(app_output))
-        logger.info("query_output = " + str(query_output))
-        logger.info("centrifuge_output = " + str(centrifuge_output))
-
-        if(minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
-            return json.dumps({ "code": 0, "message": "SUCCESS" })
+        if (minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
+            return json.dumps({"code": 0, "message": "SUCCESS"})
         else:
             if minION_output == 1:
-                return json.dumps([{ "code": 1, "message": "Invalid minION location"}])
+                return json.dumps([{"code": 1, "message": "Invalid minION location"}])
             elif app_output == 1:
-                return json.dumps([{ "code": 1, "message": "Invalid App location" }])
-            return json.dumps([{ "code": 1, "message": "Invalid Queries location"}])
+                return json.dumps([{"code": 1, "message": "Invalid App location"}])
+            return json.dumps([{"code": 1, "message": "Invalid Queries location"}])
     else:
         return "N/a"
