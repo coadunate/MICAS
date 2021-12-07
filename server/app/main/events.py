@@ -1,4 +1,4 @@
-rom flask import url_for, session
+from flask import url_for, session
 from flask_socketio import emit, send
 from .. import socketio
 
