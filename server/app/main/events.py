@@ -171,4 +171,3 @@ def log(msg, lvl):
         print(msg)
     elif str(lvl).upper() == "CRITICAL":
         logger.critical(msg)
-summary.component.tsx
