@@ -53,18 +53,19 @@ def analysis_disconnected():
     print("DISCONNECTED FROM ANALYSIS")
 
 
-def tayab():
-    print("TAYAB")
+@socketio.on('start_fastq_file_listener')
+def start_fastq_file_listener(data):
 
+    micas_location = data['micas_location'] if data['micas_location'].endswith('/') else data['micas_location'] + '/'
+    minion_location = data['minion_location']
 
-def start_fastq_file_listener(app_location, minion_location):
     # need visibility of the global thread object
     print("Starting FASTQ File Listener")
     global fileListenerThread
 
     if not fileListenerThread.isAlive():
         print("Starting the FASTQ file listener thread")
-        fileListenerThread = Thread(target=run_fastq_watcher(app_location, minion_location))
+        fileListenerThread = Thread(target=run_fastq_watcher(micas_location, minion_location))
         fileListenerThread.daemon = True
         fileListenerThread.start()
 
