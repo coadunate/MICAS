@@ -21,7 +21,7 @@ const MainRoutes: IRoutes[] = [
     },
     {
         name: "Analysis",
-        path: "/analysis/:id",
+        path: "/analysis/:id?",
         exact: true,
         component: <AnalysisComponent />
     }
