@@ -103,8 +103,7 @@ def on_raw_message(message):
             app_location = message['result']['app_location']
 
             print("Starting the MinION Listener")
-            tayab()
-            start_fastq_file_listener(app_location, minion)
+            # start_fastq_file_listener(app_location, minion)
 
         nsp = "/" + project_id
         print("NSP: " + nsp)
