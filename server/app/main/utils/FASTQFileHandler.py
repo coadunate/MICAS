@@ -7,10 +7,9 @@ import os, subprocess, sys
 
 from .parse import krakenParse
 
-import logging
+import logging, time
 
 logger = logging.getLogger()
-
 
 
 class FASTQFileHandler(FileSystemEventHandler):
@@ -31,11 +30,9 @@ class FASTQFileHandler(FileSystemEventHandler):
 
             # paths for minimap2 out file and minimap2 report file
             minimap2_output = self.app_loc + 'minimap2/runs/' + os.path.basename(event.src_path) + '.out.paf'
-            minimap2_report = self.app_loc + 'minimap2/runs/' + os.path.basename(event.src_path) + '.report.tsv'
 
             # paths for final output file and final report file
             final_output = self.app_loc + 'minimap2/final.out.paf'
-            final_kreport = open(self.app_loc + 'minimap2/final.out.kraken', 'w')
 
             # figuring out the index name
             import glob
@@ -60,12 +57,12 @@ class FASTQFileHandler(FileSystemEventHandler):
             # if running minimap2 was successful
             print("Running minimap2 was successful")
             # if the final output files already exist, append to them
-            if subprocess.call(['ls', final_output]) == 0:
+            if os.path.isfile(final_output):
+                print(f"{final_output} file exits, appending onto it")
 
-                open(final_output, "a").writelines([l for l in open(minimap2_output).readlines()[1:]])
+                open(final_output, "a+").writelines([l for l in open(minimap2_output).readlines()])
 
                 subprocess.call(['rm', minimap2_output])
-                subprocess.call(['rm', minimap2_report])
 
             # if final output files do not exist, move the already
             # generated output files to the appropriate location,
@@ -84,6 +81,4 @@ class FASTQFileHandler(FileSystemEventHandler):
             minion_reads_dir = os.path.abspath(os.path.join(event.src_path, os.pardir))
             num_files_minion_reads = int(os.popen('ls -1 ' + minion_reads_dir + ' | wc -l').read())
 
-            # Update the analysis.timeline file
-            with open(self.app_loc + 'analysis.timeline', 'w') as analysis_timeline:
-                analysis_timeline.write(str(num_files_minion_reads) + '\t' + str(self.num_files_classified))
+
