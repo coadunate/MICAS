@@ -1,43 +1,65 @@
-import React, {useEffect} from "react";
-import {useParams} from 'react-router-dom';
+import React, {useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
 import {IParams} from "./analysis.interfaces";
+import AnalysisListComponent from "./analysis-list/analysis-list.component";
 import {socket} from "../../app.component";
+import axios from "axios";
+import AnalysisDataComponent from "../analysis/analysis-data/analysis-data.component"
+import {IAnalysisData} from "./analysis-data/analysis-data.interfaces";
+
+const initial_analysis_data_state: IAnalysisData = {
+    "status": 404,
+    "data"  : {
+        "minion"      : "",
+        "app_location": "",
+        "bacteria"    : false,
+        "archaea"     : false,
+        "virus"       : false,
+        "queries"     : [],
+        "projectId"   : "",
+        "email"       : ""
+    }
+};
 
 const AnalysisComponent = () => {
+
+    const [data, setData]     = useState(initial_analysis_data_state);
+    const [loaded, setLoaded] = useState(false);
 
     let params: IParams;
 
     params = useParams();
 
     useEffect(() => {
+        (async () => {
+            const res = await get_analysis_info(params.id);
+            console.log(res);
+            setData(res.data);
+            setLoaded(true);
+        })();
+    }, []);
 
-    },[])
+    const get_analysis_info = (uid: string) => {
 
-    return (
-        <div className="container-fluid d-flex flex-column border-red">
-            <div className="vspacer-50 border-orange"/>
-            <div className="container-fluid text-center border-black">
-                <h3 className="font-weight-bold">MICAS Analysis Page</h3>
-            </div>
-            <div className="container border-green d-flex flex-column">
-                <h3>
-                    <span className="font-weight-bold">
-                        <i>a</i>
-                    </span>lert &nbsp;
-                    <span className="font-weight-bold">
-                        <i>i</i>
-                    </span>nformation
-                </h3>
-                <div className="twline"><span>main information</span></div>
-                <span><b>Analysis ID:</b> {params.id}</span>
-                <span><b>MinION Path:</b> </span>
-                <div className="twline"><span>other information</span></div>
-            </div>
-            <div className="container border-black">
-                SANKEY PLOT HERE
-            </div>
-        </div>
-    );
-}
+        return axios({
+            method: "GET",
+            url   : `http://localhost:5000/get_analysis_info?uid=${uid}`
+        });
+    };
+
+
+    return params.id ? (
+        loaded ? (
+            data.status === 200 ? (
+                <AnalysisDataComponent data={data}/>
+            ) : (
+                <div>Invalid project ID</div>
+            )
+        ) : (
+            <div>Loading...</div>
+        )
+
+    ) : <AnalysisListComponent/>;
+};
 
 export default AnalysisComponent;
