@@ -82,3 +82,7 @@ class FASTQFileHandler(FileSystemEventHandler):
             num_files_minion_reads = int(os.popen('ls -1 ' + minion_reads_dir + ' | wc -l').read())
 
 
+            # TODO: Write a python code block which takes the ($10/$7)*100 from PAF file and writes it into the
+            # {micas_data_dir}/alertinfo.cfg
+
+            # TODO: Email if above percent exceeds the threshold
