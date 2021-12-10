@@ -23,6 +23,7 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
     let queryFiles = ""
     queries.map(query => {
         queryFiles += query.file + ';'
+        return null;
     })
     let locationData = new FormData();
     locationData.append('minION', locations.minionLocation);
@@ -57,7 +58,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
     const [validationState, setValidationState] = useState(VALIDATION_STATES.NOT_STARTED);
     const [started, setStarted] = useState(false);
     const [uid, setUID] = useState("");
-    const [progress, setProgress] = useState("");
+    const [, setProgress] = useState("");
 
     // get all the selected NCBI databases
     const ncbi_databases = Object.keys(databaseSetupInput.ncbi).filter((val: string) => {
@@ -157,10 +158,8 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                         add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
                                 return (
-                                    <td key={idx}>Name: {query.name} (PID: {query.file})</td>
+                                    <td key={idx}>Name: {query.name}</td>
                                 )
-                            } else {
-                                return;
                             }
                         })
                     }
@@ -174,7 +173,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                             return (
                                 <tr key={idx}>
                                     <td/>
-                                    <td>Name: {query.name} (PID: {query.parent})</td>
+                                    <td>Name: {query.name}</td>
                                 </tr>
                             )
                         }
@@ -190,18 +189,6 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 <tr>
                     <th>Email</th>
                     <td>{alertConfigInput.email === "" ? "Not provided" : alertConfigInput.email}</td>
-                </tr>
-                <tr>
-                    <th>Phone</th>
-                    <td>{alertConfigInput.phone_number === "" ? "Not provided" : alertConfigInput.phone_number}</td>
-                </tr>
-                <tr>
-                    <th>Alert Sequence Threshold</th>
-                    <td>{alertConfigInput.alert_sequence_threshold}</td>
-                </tr>
-                <tr>
-                    <th>Enable Alert</th>
-                    <td>{alertConfigInput.alert_status ? "Yes" : "No"}</td>
                 </tr>
                 </tbody>
             </table>

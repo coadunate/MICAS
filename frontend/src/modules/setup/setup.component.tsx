@@ -12,7 +12,7 @@ import {IAdditionalSequences} from "./setup-steps/database-setup/additional-sequ
 
 const qrs : IAdditionalSequences = {
     queries: [
-        {name: "", file: "", parent: "", alert: false}
+        {name: "", file: "", threshold: "", alert: false}
     ]
 }
 
@@ -24,10 +24,7 @@ const initial_db_setup_input : IDatabseSetupInput = {
 }
 
 const initial_alert_config_input : IAlertConfig = {
-    phone_number: "",
     email: "",
-    alert_sequence_threshold: 0,
-    alert_status: "no"
 }
 
 const SetupComponent = () => {
