@@ -3,10 +3,10 @@ import {IAlertConfigSetupProps} from "../../setup.interfaces";
 import {IAlertConfig} from "./alert-configuration.interfaces";
 
 const initial_alert_config: IAlertConfig = {
-    alert_sequence_threshold: 0, email: "", alert_status: "no", phone_number: ""
+    email: ""
 }
 
-type IKeys = "email" | "phone_number" | "alert_seq_thres" | "alert_status";
+type IKeys = "email";
 
 
 const AlertConfigurationComponent:
@@ -41,33 +41,7 @@ const AlertConfigurationComponent:
                         </div>
                     </div>
                     <br/>
-                    <div className="row justify-content-start">
-                        <b className="pr-5 pt-2">Phone Number</b>
-                        <div className="row ml-auto">
-                            <input className="form-control" placeholder="Phone" type="text"
-                                   onChange={handleDataChange("phone_number")}/>
-                        </div>
-                    </div>
                     <br/>
-                    <div className="row justify-content-start">
-                        <b className="pr-5 pt-2">Alert Sequences Threshold</b>
-                        <div className="row ml-auto">
-                            <input className="form-control" placeholder="Alert Seq. Thres." type="number"
-                                   onChange={handleDataChange("alert_seq_thres")}/>
-                        </div>
-                    </div>
-                    <br/>
-                    <div className="row justify-content-start">
-                        <b className="pr-5 pt-2">Alert Status</b>
-                        <div className="row ml-auto">
-                            <select className="custom-select ml-5 mr-5" onChange={handleDataChange("alert_status")}>
-                                <option defaultValue="no">Enable alerts?</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                    </div>
                 </div>
             </div>
             <div className="vspacer-20"/>

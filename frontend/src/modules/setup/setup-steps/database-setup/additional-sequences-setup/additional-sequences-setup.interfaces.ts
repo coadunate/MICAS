@@ -5,7 +5,7 @@ type IAdditionalSequences = {
 type IQuery = {
     name: string,
     file : string,
-    parent: string,
+    threshold: string,
     alert: false,
 }
 

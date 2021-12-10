@@ -1,25 +1,25 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IDatabaseSetupConstituent} from "../database-setup.interfaces";
 
-type IKeys = "name" | "file" | "parent" | "alert"
+type IKeys = "name" | "file" | "threshold" | "alert"
 
-const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConstituent> = ({initialConfig, updateConfig}) => {
+const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConstituent> = ({updateConfig}) => {
 
     const [queries, setQueries] = useState([
-        {name: "", file: "", parent: "", alert: false},
+        {name: "", file: "", threshold: "", alert: false},
     ]);
 
     const handleDataChange = (idx: number, key : IKeys) => (evt: React.ChangeEvent<HTMLInputElement>) => {
         const newQueries = queries.map((query, sidx) => {
             if (idx !== sidx) return query;
-            return key === "alert" ? { ...query, [key]: parseInt(evt.target.value) != 0 } : { ...query, [key]: evt.target.value }
+            return key === "alert" ? { ...query, [key]: parseInt(evt.target.value) !== 0 } : { ...query, [key]: evt.target.value }
         });
         console.log(JSON.stringify(newQueries))
         setQueries(newQueries);
     }
 
     const handleAddQuery = () => {
-        setQueries((prev) => [...prev, {name: "", file: "", parent: "", alert: false}])
+        setQueries((prev) => [...prev, {name: "", file: "", threshold: "", alert: false}])
     }
 
     const handleRemoveQuery = (idx : number) => () => {
@@ -62,20 +62,21 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                                className="form-control"/>
                                     </div>
                                     <div className="col-sm-2">
-                                        <input placeholder="Parent Scientific Name"
-                                               aria-autocomplete="list"
-                                               type="number"
-                                               aria-labelledby="downshift-0-label"
-                                               onChange={handleDataChange(i, "parent")}
-                                               autoComplete="nope"
-                                               className="form-control"/>
-                                    </div>
-                                    <div className="col-sm-2">
                                         <div className="btn-group-toggle" data-toggle="buttons">
                                             <label className="">
                                                 <input placeholder="Alert? 1/0"
                                                        type="number"
                                                        onChange={handleDataChange(i, "alert")}
+                                                       className="form-control"/>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-2">
+                                        <div className="btn-group-toggle" data-toggle="buttons">
+                                            <label className="">
+                                                <input placeholder="Threshold (e.g., 98%)"
+                                                       type="number"
+                                                       onChange={handleDataChange(i, "threshold")}
                                                        className="form-control"/>
                                             </label>
                                         </div>
