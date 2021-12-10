@@ -234,8 +234,8 @@ def get_analysis_info():
             for line in cache_fs:
                 entry = line.split("\t")
                 entry_id = entry[0]
-                entry_micas_path = entry[1]
-                entry_minion_path = entry[2]
+                entry_micas_path = entry[2].rstrip()
+                entry_minion_path = entry[1].rstrip()
                 if uid == entry_id:
                     micas_path = entry_micas_path
                     minion_path = entry_minion_path
@@ -246,14 +246,12 @@ def get_analysis_info():
             return json.dumps({'status': 404, 'message': "Couldn't find the analysis data with UID: " + uid})
         else:
 
-            print(get_alert_info("sup"))
+            alert_cfg_file = os.path.join(micas_path,'alertinfo.cfg')
+            alert_cfg_obj = json.load(open(alert_cfg_file))
 
             return json.dumps({
                 'status': 200,
-                'data': {
-                    "minion_path": minion_path,
-                    "micas_path": micas_path,
-                }
+                'data': alert_cfg_obj
             })
 
     else:
