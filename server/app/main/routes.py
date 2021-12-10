@@ -61,8 +61,8 @@ def get_timeline_info():
 
                     return json.dumps( \
                         { \
-                            'status': 200, \
-                            'num_total_reads': int(num_total_reads), \
+                            'status'              : 200, \
+                            'num_total_reads'     : int(num_total_reads), \
                             'num_classified_reads': int(num_classified_reads) \
                             })
 
@@ -220,6 +220,26 @@ def get_uid():
     return json.dumps({'uid': uid})
 
 
+@main.route('/get_all_analyses', methods=['GET'])
+def get_all_analyses():
+    if request.method == "GET":
+        micas_cache_file = os.getenv("HOME") + '/.micas'
+        data = []
+        with open(micas_cache_file, 'r') as cache_fs:
+            for line in cache_fs:
+                [projectId, minion_dir, micas_dir] = line.split("\t")
+                data.append({
+                    "id"        : projectId,
+                    "minion_dir": minion_dir,
+                    "micas_dir" : micas_dir
+                })
+
+        return json.dumps({
+            'status': 200,
+            'data'  : data
+        })
+
+
 @main.route('/get_analysis_info', methods=['GET'])
 def get_analysis_info():
     if request.method == 'GET':
@@ -246,12 +266,12 @@ def get_analysis_info():
             return json.dumps({'status': 404, 'message': "Couldn't find the analysis data with UID: " + uid})
         else:
 
-            alert_cfg_file = os.path.join(micas_path,'alertinfo.cfg')
+            alert_cfg_file = os.path.join(micas_path, 'alertinfo.cfg')
             alert_cfg_obj = json.load(open(alert_cfg_file))
 
             return json.dumps({
                 'status': 200,
-                'data': alert_cfg_obj
+                'data'  : alert_cfg_obj
             })
 
     else:
