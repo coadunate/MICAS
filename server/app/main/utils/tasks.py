@@ -2,10 +2,11 @@ from celery import Celery
 import subprocess, os, shutil, random
 from celery.exceptions import SoftTimeLimitExceeded
 from flask_socketio import emit
-import json
+import json, sys
 
 import logging
 
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 logger = logging.getLogger()
 
 celery = Celery('tasks', broker='redis://localhost', backend='redis')
@@ -36,6 +37,30 @@ def int_download_database(self, db_data, queries):
             with open(app_location_database + 'input_sequences.fa', 'a+') as input_sequences:
                 input_sequences.write('\n')
 
+            # get the fasta header and add it into the alertinfo.cfg file
+            cmd = "grep '^>' " + query['file']
+            fasta_header = os.popen('grep "^>" ' + cmd).read().strip().split(">")[1]
+
+            # update the alertinfo object to include fasta_header
+            alertinfo_cfg_file = os.path.join(app_location, 'alertinfo.cfg')
+            print("Alert info file: " + alertinfo_cfg_file)
+            logger.info("Alert info file: " + alertinfo_cfg_file)
+            with open(alertinfo_cfg_file, 'r') as alertinfo_fs:
+                alertinfo_cfg_obj = json.load(alertinfo_fs)
+                print(alertinfo_cfg_obj)
+                logger.info(alertinfo_cfg_obj)
+                queries = alertinfo_cfg_obj["queries"]
+                for _, q in enumerate(queries):
+                    if q["file"] == query["file"]:
+                        alertinfo_cfg_obj["queries"][i]["header"] = fasta_header
+
+                print(alertinfo_cfg_obj)
+                logger.info(alertinfo_cfg_obj)
+
+            # write the updated object into file
+            json.dump(alertinfo_cfg_obj, open(alertinfo_cfg_file, 'w'))
+
+            # copy the contents of query_file into input_sequences
             with open(query['file'], 'rb') as query_file, open(app_location_database + 'input_sequences.fa',
                                                                'ab+') as input_sequences:
                 shutil.copyfileobj(query_file, input_sequences)
@@ -45,8 +70,8 @@ def int_download_database(self, db_data, queries):
                 state="PROGRESS",
                 meta={
                     'percent-done': 50,
-                    'message': "Merged " + query['file'] + " sequence into input_sequences.fa file.",
-                    'project_id': project_id
+                    'message'     : "Merged " + query['file'] + " sequence into input_sequences.fa file.",
+                    'project_id'  : project_id
                 }
             )
 
@@ -69,8 +94,8 @@ def int_download_database(self, db_data, queries):
             state="PROGRESS",
             meta={
                 'percent-done': 55,
-                'message': "Downloading " + db_string + " database(s) from NCBI",
-                'project_id': project_id
+                'message'     : "Downloading " + db_string + " database(s) from NCBI",
+                'project_id'  : project_id
             }
         )
         cmd = ['centrifuge-download -o ' + app_location_database + 'library -m -d ' + db_string + ' refseq']
@@ -98,18 +123,18 @@ def int_download_database(self, db_data, queries):
                 state="PROGRESS",
                 meta={
                     'percent-done': 90,
-                    'message': "Successfully downloaded " + db_string + "database(s) from NCBI",
-                    'project_id': project_id
+                    'message'     : "Successfully downloaded " + db_string + "database(s) from NCBI",
+                    'project_id'  : project_id
                 }
             )
 
             import glob
 
             # Putting all the query sequences in one, input_sequences file.
-            print("DOWNLOAD_DATABASE: Concatinating all the sequnce files.")
+            print("DOWNLOAD_DATABASE: Concatenating all the sequence files.")
             self.update_state(state="PROGRESS",
                               meta={'percent-done': 95, 'message': "Concatenating all the sequence files.",
-                                    'project_id': project_id}
+                                    'project_id'  : project_id}
                               )
             with open(app_location_database + 'input_sequences.fa', 'wb') as outfile:
                 for filename in glob.glob(app_location_database + 'library/*/*.fna'):
@@ -152,10 +177,10 @@ def int_download_database(self, db_data, queries):
     self.update_state(state="PROGRESS",
                       meta={
                           'percent-done': 100,
-                          'message': "Database has successfully been downloaded and built.",
+                          'message'     : "Database has successfully been downloaded and built.",
                           'app_location': app_location,
-                          'minion': minion,
-                          'project_id': project_id
+                          'minion'      : minion,
+                          'project_id'  : project_id
                       })
 
     return {"minion": minion, "app_location": app_location}
