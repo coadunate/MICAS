@@ -2,6 +2,7 @@ import React, {FunctionComponent, useEffect, useState} from "react";
 import {ListGroup} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import axios from "axios";
+import {IAlertConfig} from "../../setup/setup-steps/alert-configuration/alert-configuration.interfaces";
 
 type IAnalysisMetaData = {
     id: string,
@@ -11,13 +12,40 @@ type IAnalysisMetaData = {
 
 type IListRendererProps = {
     analyses: IAnalysisMetaData[]
+    update: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const initial_analyses_data = [
     {id: "", minion_dir: "", micas_dir: ""}
 ];
 
-const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses}) => {
+const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses, update}) => {
+
+    const deleteAnalyses = async (id: string) => {
+
+        if (id == undefined){
+            console.log("ID: ", id, " is undefined")
+        } else {
+            let uid = new FormData();
+            uid.append('uid', id);
+            const res = await axios({
+                method: 'POST',
+                url: 'http://localhost:5000/delete_analyses',
+                data: uid,
+                headers: {"Content-Type": "multipart/form-data"},
+            })
+            console.log(res)
+            if (res.data.status === 200) {
+                if (res.data.found == true) {
+                    update(true)
+                } else {
+                    console.log("Cannot find id", id, "for deletion")
+                }
+            } else {
+                console.log("Error occured in delete request post for", id, ". Returned status ", res.data.status)
+            }
+        }
+    };
     return (
         <div>
             {
@@ -43,7 +71,7 @@ const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses}) => {
                                         </button>
                                     </Link>
                                     <button className="btn btn-danger mr-3"
-                                            onClick={() => alert("Feature under development")}>
+                                            onClick={() => deleteAnalyses(a.id)}>
                                         Delete
                                     </button>
                                 </div>
@@ -60,6 +88,7 @@ const AnalysisListComponent = () => {
 
     const [analyses, setAnalyses] = useState(initial_analyses_data);
     const [status, setStatus]     = useState("loading");
+    const [trigger, setTrigger]   = useState(false)
 
     const getAllAnalyses = () => {
         return axios({
@@ -85,13 +114,31 @@ const AnalysisListComponent = () => {
         })();
     }, []);
 
+    useEffect(() => {
+        (async () => {
+            const res = await getAllAnalyses();
+            console.log(res);
+
+            if (res.data.status === 200) { // if locations are valid
+                setAnalyses(res.data.data);
+                console.log(res.data.data);
+                if (res.data.data.length > 0) {
+                    setStatus("loaded");
+                } else {
+                    setStatus("notfound");
+                }
+            }
+            setTrigger(false)
+        })();
+    },[trigger]);
+
     let RenderObject = <div>404</div>;
     switch (status) {
         case "loading":
             RenderObject = <div>Loading...</div>;
             break;
         case "loaded":
-            RenderObject = <ListRenderer analyses={analyses} />
+            RenderObject = <ListRenderer analyses={analyses} update={setTrigger} />
             break;
         case "notfound":
             RenderObject = <div>Not found.</div>

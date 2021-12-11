@@ -239,6 +239,30 @@ def get_all_analyses():
             'data'  : data
         })
 
+@main.route('/delete_analyses', methods=['POST'])
+def delete_analyses():
+    if request.method == "GET":
+            return "Unexpected request method. Expected a GET request."
+
+    # Get Post Data
+    uid = request.form['uid']
+    micas_cache_file = os.getenv("HOME") + '/.micas'
+    found = False
+    with open(micas_cache_file, 'r+') as cache_fs:
+        filtered_lines = []
+        for line in cache_fs:
+            if uid not in line:
+                filtered_lines.append(line)
+            else:
+                logger.debug(f"Removed id {uid} from cache", "DEBUG")
+                found = True
+        cache_fs.seek(0)
+        cache_fs.write("".join(filtered_lines))
+        cache_fs.truncate()
+    return json.dumps({
+        'status': 200,
+        'found'  : found
+    })
 
 @main.route('/get_analysis_info', methods=['GET'])
 def get_analysis_info():
@@ -332,14 +356,15 @@ def analysis():
     return json.dumps(error)
 
 
-@main.route('/convey_alert', methods=["POST", "GET"])
-def convey_alert():
-    if (request.method == "GET"):
-        print("YE!@")
-        send_email('SARS-CoV-2', 500, '...email..here...')
-        print("DONE!")
-    else:
-        print("A")
+# TODO: Remove potentially useless test code
+# @main.route('/convey_alert', methods=["POST", "GET"])
+# def convey_alert():
+#     if (request.method == "GET"):
+#         print("YE!@")
+#         send_email('SARS-CoV-2', 500, '...email..here...')
+#         print("DONE!")
+#     else:
+#         print("A")
 
 
 @main.route('/validate_locations', methods=['POST', 'GET'])
