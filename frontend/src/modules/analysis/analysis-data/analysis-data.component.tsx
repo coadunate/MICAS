@@ -1,11 +1,7 @@
 import {Chart} from "react-google-charts";
-import React, {FunctionComponent, useEffect, useState} from "react";
-import {IAnalysisData, IAnalysisDataProps} from "./analysis-data.interfaces";
+import React, {FunctionComponent} from "react";
+import {IAnalysisDataProps} from "./analysis-data.interfaces";
 import {socket} from "../../../app.component";
-
-type IQueryBarData =  {
-
-}
 
 const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) => {
 
@@ -19,12 +15,13 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) =>
     };
 
 
-    let queries_data = [["Name","Ratio","Threshold"]]
-    for(let i = 1; i <= analysis_data.queries.length; i++){
-        let name = analysis_data.queries[i-1].name
-        let thresh = analysis_data.queries[i-1].threshold
+    let queries_data = [["Name", "Ratio", "Threshold"]];
+    for (let i = 1; i <= analysis_data.queries.length; i++) {
+        let name        = analysis_data.queries[i - 1].name;
+        let thresh      = analysis_data.queries[i - 1].threshold;
+        let curr_val    = analysis_data.queries[i - 1].current_value;
         // @ts-ignore
-        queries_data[i] = [name,10,parseInt(thresh)]
+        queries_data[i] = [name, curr_val, parseInt(thresh)];
     }
 
     return (

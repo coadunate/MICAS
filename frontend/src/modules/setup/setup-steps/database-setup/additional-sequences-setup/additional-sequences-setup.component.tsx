@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useEffect, useState} from "react";
 import {IDatabaseSetupConstituent} from "../database-setup.interfaces";
 
 type IKeys = "name" | "file" | "threshold" | "alert"
@@ -6,7 +6,7 @@ type IKeys = "name" | "file" | "threshold" | "alert"
 const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConstituent> = ({updateConfig}) => {
 
     const [queries, setQueries] = useState([
-        {name: "", file: "", threshold: "", alert: false},
+        {name: "", file: "", threshold: "", current_value: 0, alert: false}
     ]);
 
     const handleDataChange = (idx: number, key : IKeys) => (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,7 +19,9 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
     }
 
     const handleAddQuery = () => {
-        setQueries((prev) => [...prev, {name: "", file: "", threshold: "", alert: false}])
+        setQueries((prev) => [...prev, {
+            name: "", file: "", threshold: "", current_value: 0, alert: false
+        }]);
     }
 
     const handleRemoveQuery = (idx : number) => () => {
