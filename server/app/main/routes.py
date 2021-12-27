@@ -1,31 +1,17 @@
-from flask import session, redirect, url_for, render_template, request
-from . import main
-
-# for analysis
-from flask_socketio import emit
-
-# for scientific_names, validate_locations
+import ast
 import json
-
-# for validate_locations
+import logging
+import os
+import random
+import string
 import subprocess
 
-import os
-import ast
-import re
-import random, string
+from flask import session, render_template, request
 
-from .utils.parse import krakenReadCount
-from .utils.notification import send_email, send_sms
+from . import main
 
-import logging
 
 logger = logging.getLogger()
-
-
-@main.route('/')
-def index():
-    return render_template('index.html')
 
 
 @main.route('/version', methods=['GET'])
@@ -95,95 +81,6 @@ def get_sankey_data():
         return json.dumps({'status': 400})
 
 
-@main.route('/get_alert_info', methods=['GET'])
-def get_alert_info():
-    if (request.method == 'GET'):
-        app_location = request.args.get('app_location')
-        app_location = app_location if app_location.endswith('/') else app_location + '/'
-
-        if subprocess.call(['ls', app_location + 'alertinfo.cfg']) == 0:
-            alert_sequences_list = ""
-            already_alerted_list = ""
-            alert_sequences_threshold = 100
-            email_address = None
-            phone_number = None
-            with open(app_location + 'alertinfo.cfg', 'r') as config_file:
-                for line in config_file:
-                    if "alert_sequences" in line:
-                        alert_sequences_list = line
-                    if "alert_sequence_threshold" in line:
-                        alert_sequences_threshold = int(line.split("=")[1].strip())
-                    if "email_address" in line:
-                        email_address = line.split("=")[1].strip()
-                    if "phone_number" in line:
-                        phone_number = line.split("=")[1].strip()
-                    if "already_alerted" in line:
-                        already_alerted_list = line
-
-            finalList = []
-            otherFinalList = []
-
-            alert_sequences_list = alert_sequences_list.split("=")[1].strip()
-            alert_sequences_list = ast.literal_eval(alert_sequences_list)
-
-            already_alerted_list = already_alerted_list.split("=")[1].strip()
-            already_alerted_list = ast.literal_eval(already_alerted_list)
-
-            for alert in alert_sequences_list:
-                krakenResult = krakenReadCount(app_location + 'centrifuge/final.out.kraken', int(alert))
-                if (krakenResult == None):
-
-                    # with open(os.path.abspath('./app/main/data/scientific_names.json'),'r') as f:
-                    #     for line in f:
-                    #         if alert in line:
-                    #             name = re.search(r'\"label\":\W(\"[^"]{1,}\")', line).group(1)
-                    #             int_dict = {"tax_id": int(alert), "name": alert, "num_reads": 0 }
-                    #             otherFinalList.append(int_dict)
-                    #             break
-                    int_dict = {"tax_id": int(alert), "name": alert, "num_reads": 0}
-                    otherFinalList.append(int_dict)
-                else:
-                    # taxid, num_reads, name
-                    int_dict = {"tax_id": int(alert), "name": krakenResult[2].rstrip(), "num_reads": krakenResult[1]}
-                    finalList.append(int_dict)
-
-                    # Send an email if the # of reads are greater than the alert_sequence_threshold
-                    if int(krakenResult[1]) >= alert_sequences_threshold and (alert not in already_alerted_list):
-                        if email_address is not None:
-                            send_email(krakenResult[2].strip(), krakenResult[1], email_address)
-                        if phone_number is not None:
-                            send_sms(krakenResult[2].strip(), krakenResult[1], phone_number)
-
-                        # Update alertconfig file for already_alerted sequences.
-                        other_info = ""
-                        list_of_sequences = ""
-                        line_number = -1
-                        with open(app_location + 'alertinfo.cfg', 'r') as read_file:
-                            for idx, line in enumerate(read_file):
-                                if "already_alerted" not in line:
-                                    other_info += line
-                                else:
-                                    list_of_sequences = line.split("=")[1]
-
-                        list_of_sequences = ast.literal_eval(list_of_sequences.strip())
-                        list_of_sequences.append(str(alert))
-                        new_list_of_sequences = "already_alerted = " + str(list_of_sequences)
-                        with open(app_location + 'alertinfo.cfg', 'w') as write_file:
-                            write_file.write(other_info)
-                            write_file.write(new_list_of_sequences)
-
-            if (len(finalList) > 0):
-                return json.dumps(
-                    {'status': 200, 'alerts': finalList, 'alert_sequences_threshold': alert_sequences_threshold})
-            elif (len(otherFinalList) > 0):
-                return json.dumps(
-                    {'status': 200, 'alerts': otherFinalList, 'alert_sequences_threshold': alert_sequences_threshold})
-        else:
-            return json.dumps({'status': 404})
-    else:
-        return json.dumps({'status': 400})
-
-
 @main.route('/get_uid', methods=["POST"])
 def get_uid():
     if request.method == "GET":
@@ -239,10 +136,11 @@ def get_all_analyses():
             'data'  : data
         })
 
+
 @main.route('/delete_analyses', methods=['POST'])
 def delete_analyses():
     if request.method == "GET":
-            return "Unexpected request method. Expected a GET request."
+        return "Unexpected request method. Expected a GET request."
 
     # Get Post Data
     uid = request.form['uid']
@@ -261,8 +159,9 @@ def delete_analyses():
         cache_fs.truncate()
     return json.dumps({
         'status': 200,
-        'found'  : found
+        'found' : found
     })
+
 
 @main.route('/get_analysis_info', methods=['GET'])
 def get_analysis_info():
