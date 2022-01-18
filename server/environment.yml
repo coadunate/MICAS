@@ -1,9 +1,13 @@
 name: micas_env_yaml
 channels:
   - conda-forge
+  - anaconda
   - defaults
 
 dependencies:
+  - r-base
+  - redis
+  - nodejs
   - python=3.9
   - pip
   - pip:

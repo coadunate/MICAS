@@ -65,30 +65,32 @@ debug "Step $STEP: Sourcing to the environment"
 
 eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
 conda activate "micas_env"
-debug "Now in $CONDA_DEFAULT_ENV"
+debug "Now in conda environment: $CONDA_DEFAULT_ENV"
 STEP=$(($STEP+1))
 
-debug "Step $STEP: Selecting download command"
-if command -v curl &>/dev/null; then
-  URL_CMD="curl"
-elif command -v wget &>/dev/null; then
-  URL_CMD="wget"
-else
-  fatal_error "curl or wget is required to continue"
-fi
+#TODO Look into removing below as curl is no longer used
+#debug "Step $STEP: Selecting download command"
+#if command -v curl &>/dev/null; then
+#  URL_CMD="curl"
+#elif command -v wget &>/dev/null; then
+#  URL_CMD="wget"
+#else
+#  fatal_error "curl or wget is required to continue"
+#fi
 STEP=$(($STEP+1))
 
-debug "Step $STEP: Installing server dependencies"
-if [ "$URL_CMD" = "curl" ]; then
-  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py | python"
-  debug "$pip_get_cmd"
-  echo "$pip_get_cmd"| bash
-else
-  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py"
-  debug "$pip_get_cmd"
-  echo "$pip_get_cmd"| bash
-fi
-STEP=$(($STEP+1))
+#TODO Look into removing as pip is included in conda env
+#debug "Step $STEP: Installing server dependencies"
+#if [ "$URL_CMD" = "curl" ]; then
+#  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py | python"
+#  debug "$pip_get_cmd"
+#  echo "$pip_get_cmd"| bash
+#else
+#  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py"
+#  debug "$pip_get_cmd"
+#  echo "$pip_get_cmd"| bash
+#fi
+#STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing frontend dependencies"
 if ! hash npm; then
@@ -109,34 +111,6 @@ if hash redis-server; then
   debug "Redis is installed"
 else
   fatal_error "Please ensure redis is installed, either through brew or apt-get"
-#TODO Update based on OS or remove
-#  if [ "$URL_CMD" = "curl" ]; then
-#    url_dload_cmd="$URL_CMD -L http://download.redis.io/redis-stable.tar.gz | tar zx -o"
-#  else
-#    url_dload_cmd="$URL_CMD -O - http://download.redis.io/redis-stable.tar.gz | tar zx -o"
-#  fi
-#  debug "$url_dload_cmd"
-#  echo "$url_dload_cmd" | bash
-#  debug "making redis...."
-#  echo "make clean -C ./redis-stable/" | bash
-#  echo "make -C ./redis-stable/" | bash
-fi
-STEP=$(($STEP+1))
-
-debug "Step $STEP: Checking if centrifuge is installed"
-if hash centrifuge-build; then
-  debug "Centrifuge is installed"
-else
-  if [ "$URL_CMD" = "curl" ]; then
-    url_dload_cent_cmd="$URL_CMD -L https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx -o"
-  else
-    url_dload_cent_cmd="$URL_CMD -O - https://codeload.github.com/infphilo/centrifuge/tar.gz/v1.0.3 | tar zx -o"
-  fi
-  debug "$url_dload_cent_cmd"
-  echo "$url_dload_cent_cmd" | bash
-  debug "making Centrifuge...."
-  echo "sudo make -C ./centrifuge-1.0.3/ install prefix=/usr/local" | bash
-
 fi
 STEP=$(($STEP+1))
 
@@ -156,5 +130,3 @@ case $yn in
     No ) exit;;
 esac
 done
-
-
