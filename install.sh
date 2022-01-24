@@ -52,7 +52,8 @@ STEP=$(($STEP+1))
 debug "Step $STEP: Creating server environment"
 if [ "$ENVIRONMENT_CMD" = "conda" ]; then
   # create_conda_env_cmd="conda create -n micas_env python=3.6 -y -q"
-  create_conda_env_cmd="conda env create -n micas_env python=3.9 -q -f ./server/environment.yml" # Uncomment for YAML build
+  curl -fsSL https://raw.githubusercontent.com/coadunate/MICAS/master/server/environment.yml --output env.yml
+  create_conda_env_cmd="conda env create -n micas_env python=3.9 -q -f env.yml" # Uncomment for YAML build
   debug "$create_conda_env_cmd"
   echo "$create_conda_env_cmd" | bash
 else
