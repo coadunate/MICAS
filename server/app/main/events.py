@@ -12,8 +12,6 @@ from time import sleep
 from .utils.FASTQFileHandler import FASTQFileHandler
 from .utils.tasks import int_download_database
 
-from .utils.parse import krakenParse
-
 # for run_fasq_watcher
 from watchdog.observers import Observer
 
@@ -58,7 +56,7 @@ def start_fastq_file_listener(data):
 
     micas_location = data['micas_location'] if data['micas_location'].endswith('/') else data['micas_location'] + '/'
     minion_location = data['minion_location']
-
+    from rpy2.robjects import r
     # need visibility of the global thread object
     print("Starting FASTQ File Listener")
     global fileListenerThread
@@ -78,10 +76,6 @@ def update_sankey_filter(app_location, value):
     analysis_filter_file_path = app_location + 'centrifuge/sankey.filter'
     with open(analysis_filter_file_path, 'w') as analysis_filter_file:
         analysis_filter_file.write(str(value))
-
-    with open(app_location + 'centrifuge/sankey.data', 'w') as sankey_data_file:
-        sankey_data_file.write(str(krakenParse(app_location + 'centrifuge/sankey.filter',
-                                               app_location + 'centrifuge/final.out.kraken')) + "\n")
 
 
 def on_raw_message(message):
