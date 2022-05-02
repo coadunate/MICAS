@@ -47,18 +47,27 @@ mkdir -p Files-MICAS/micas_data
 mkdir -p Files-MICAS/minion_data
 STEP=$(($STEP+1))
 
-debug "Step $STEP: Starting micas server..."
-# Starts micas_env created with the install.sh
-eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
-conda activate "micas_env"
-echo "python ./server/micas.py &" | bash
-STEP=$(($STEP+1))
-
 debug "Step $STEP: Starting redis-server..."
-echo "./redis-stable/src/redis-server &" | bash
+redis-server &
 STEP=$(($STEP+1))
 
-debug "Step $STEP: Starting Celery worker..."
-cd ./server/app/main/utils/
-echo "celery -A tasks worker --loglevel=INFO &" | bash
+debug "Step $STEP: Starting celery..."
+cd ./server/app/main/utils
+celery -A tasks worker --loglevel=INFO &
 STEP=$(($STEP+1))
+
+debug "Step $STEP: Starting front end.."
+cd ../../../../frontend
+npm run start &
+STEP=$(($STEP+1))
+
+debug "Step $STEP: Starting MICAS!"
+cd ..
+python server/micas.py &
+STEP=$(($STEP+1))
+
+# Wait for any process to exit
+wait -n
+  
+# Exit with status of process that exited first
+exit $?

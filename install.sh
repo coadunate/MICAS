@@ -69,30 +69,6 @@ conda activate "micas_env"
 debug "Now in conda environment: $CONDA_DEFAULT_ENV"
 STEP=$(($STEP+1))
 
-#TODO Look into removing below as curl is no longer used
-#debug "Step $STEP: Selecting download command"
-#if command -v curl &>/dev/null; then
-#  URL_CMD="curl"
-#elif command -v wget &>/dev/null; then
-#  URL_CMD="wget"
-#else
-#  fatal_error "curl or wget is required to continue"
-#fi
-STEP=$(($STEP+1))
-
-#TODO Look into removing as pip is included in conda env
-#debug "Step $STEP: Installing server dependencies"
-#if [ "$URL_CMD" = "curl" ]; then
-#  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py | python"
-#  debug "$pip_get_cmd"
-#  echo "$pip_get_cmd"| bash
-#else
-#  pip_get_cmd="$URL_CMD https://bootstrap.pypa.io/get-pip.py"
-#  debug "$pip_get_cmd"
-#  echo "$pip_get_cmd"| bash
-#fi
-#STEP=$(($STEP+1))
-
 debug "Step $STEP: Installing frontend dependencies"
 if ! hash npm; then
   fatal_error "Node.js (npm) is needed to run MICAS"
@@ -122,12 +98,3 @@ else
   fatal_error "R-Language is needed to run MICAS"
 fi
 STEP=$(($STEP+1))
-
-# Temporarily removed to facilitate docker startup.
-# echo "Would you like to run the start script immediately?"
-# select yn in "Yes" "No"; do
-# case $yn in
-#     Yes ) echo "./start.sh" | bash; break;;
-#     No ) exit;;
-# esac
-# done
