@@ -22,27 +22,19 @@ RUN apt-get update
 
 # Install git and other dependancies
 RUN apt-get install -y \
+                apt-utils \
                 git \
-                python-pip \
-                curl \
+                python3-pip \
+                curl
 
 # Install Nodejs and npm
-RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-RUN sudo apt-get install -y \
-                nodejs \
-                npm \
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y \
+                nodejs
 
 # Install R-base
-RUN apt install -y --no-install-recommends \
-                software-properties-common \
-                dirmngr \
-                wget
-
-RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
-
-RUN add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
-
-RUN apt install -y --no-install-recommends \
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y \
                 r-base
 
 # Install redis
@@ -56,6 +48,9 @@ RUN git clone https://github.com/coadunate/MICAS.git
 WORKDIR /MICAS
 
 # Install MICAS requirments
+RUN apt install -y \
+                libffi-dev
+
 RUN pip install -r ./requirements.txt
 
 RUN ./install.sh

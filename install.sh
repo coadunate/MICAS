@@ -40,34 +40,34 @@ else
 fi
 STEP=$(($STEP+1))
 
-debug "Step $STEP: Figuring out environment command"
-if command -v conda &>/dev/null; then
-  ENVIRONMENT_CMD=conda
-  debug "Environment command: conda"
-else
-  fatal_error "Conda is needed to run MICAS"
-fi
-STEP=$(($STEP+1))
+# debug "Step $STEP: Figuring out environment command"
+# if command -v conda &>/dev/null; then
+#   ENVIRONMENT_CMD=conda
+#   debug "Environment command: conda"
+# else
+#   fatal_error "Conda is needed to run MICAS"
+# fi
+# STEP=$(($STEP+1))
 
-debug "Step $STEP: Creating server environment"
-if [ "$ENVIRONMENT_CMD" = "conda" ]; then
-  # create_conda_env_cmd="conda create -n micas_env python=3.6 -y -q"
-  curl -fsSL https://raw.githubusercontent.com/coadunate/MICAS/master/server/environment.yml --output env.yml
-  create_conda_env_cmd="conda env create -n micas_env python=3.9 -q -f env.yml" # Uncomment for YAML build
-  debug "$create_conda_env_cmd"
-  echo "$create_conda_env_cmd" | bash
-else
-  fatal_error "No environment command found" \
-    "Make sure that you have either virtualenv or conda installed"
-fi
-STEP=$(($STEP+1))
+# debug "Step $STEP: Creating server environment"
+# if [ "$ENVIRONMENT_CMD" = "conda" ]; then
+#   # create_conda_env_cmd="conda create -n micas_env python=3.6 -y -q"
+#   curl -fsSL https://raw.githubusercontent.com/coadunate/MICAS/master/server/environment.yml --output env.yml
+#   create_conda_env_cmd="conda env create -n micas_env python=3.9 -q -f env.yml" # Uncomment for YAML build
+#   debug "$create_conda_env_cmd"
+#   echo "$create_conda_env_cmd" | bash
+# else
+#   fatal_error "No environment command found" \
+#     "Make sure that you have either virtualenv or conda installed"
+# fi
+# STEP=$(($STEP+1))
 
-debug "Step $STEP: Sourcing to the environment"
+# debug "Step $STEP: Sourcing to the environment"
 
-eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
-conda activate "micas_env"
-debug "Now in conda environment: $CONDA_DEFAULT_ENV"
-STEP=$(($STEP+1))
+# eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
+# conda activate "micas_env"
+# debug "Now in conda environment: $CONDA_DEFAULT_ENV"
+# STEP=$(($STEP+1))
 
 debug "Step $STEP: Installing frontend dependencies"
 if ! hash npm; then
