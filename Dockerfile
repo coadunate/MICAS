@@ -55,6 +55,4 @@ RUN pip install -r ./requirements.txt
 
 RUN ./install.sh
 
-RUN redis-server
-
 CMD ["./start.sh"]

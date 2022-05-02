@@ -63,7 +63,7 @@ STEP=$(($STEP+1))
 
 debug "Step $STEP: Starting MICAS!"
 cd ..
-python server/micas.py &
+python server/micas.py
 STEP=$(($STEP+1))
 
 # Wait for any process to exit
