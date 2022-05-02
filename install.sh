@@ -123,11 +123,11 @@ else
 fi
 STEP=$(($STEP+1))
 
-
-echo "Would you like to run the start script immediately?"
-select yn in "Yes" "No"; do
-case $yn in
-    Yes ) echo "./start.sh" | bash; break;;
-    No ) exit;;
-esac
-done
+# Temporarily removed to facilitate docker startup.
+# echo "Would you like to run the start script immediately?"
+# select yn in "Yes" "No"; do
+# case $yn in
+#     Yes ) echo "./start.sh" | bash; break;;
+#     No ) exit;;
+# esac
+# done
