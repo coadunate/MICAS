@@ -1,58 +1,28 @@
-# syntax=docker/dockerfile:1
 FROM ubuntu:20.04
 
-ARG BUILD_DATE
-ARG VCS_REF
-ARG BUILD_VERSION
+# initial machine setup
+RUN apt-get update && apt-get install -y python3-distutils python3-apt curl redis-server
+RUN curl https://bootstrap.pypa.io/get-pip.py -o ~/get-pip.py
+RUN python3.8 ~/get-pip.py
+RUN alias python=python3.8
+RUN alias pip=pip3.8
 
+# download MICAS v0.1.0
+RUN mkdir /home/micas
+WORKDIR /home/micas
+RUN curl -kL https://github.com/coadunate/MICAS/archive/refs/tags/v0.1.0.tar.gz --output micas.tar.gz
+RUN tar -xzvf micas.tar.gz
 
-# Labels.
-LABEL maintainer="@s.horovatin@usask.ca"
-LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.build-date=$BUILD_DATE
-LABEL org.label-schema.name="MICAS"
-LABEL org.label-schema.description="An react application that notify's users of user defined thresholds being met on live ONT sequencing runs."
-LABEL org.label-schema.vcs-url="https://github.com/coadunate/MICAS"
-LABEL org.label-schema.vcs-ref=$VCS_REF
-LABEL org.label-schema.version=$BUILD_VERSION
+# install backend dependencies
+WORKDIR /home/micas/MICAS-0.1.0
+RUN pip3.8 install -r requirements.txt
 
+# install NPM 
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+RUN source ~/.bashrc
+RUN nvm install v14.5.0
 
-# Update aptitude with new repo
-RUN apt-get update
-
-# Install baseline dependancies
-RUN apt-get install -y \
-                apt-utils \
-                git \
-                python3-pip \
-                curl
-
-# Install Nodejs and npm
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y \
-                nodejs
-
-# Install R-base
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y \
-                r-base
-
-# Install redis
-RUN apt install -y \
-                redis-server
-
-# Clone MICAS repo
-RUN git clone https://github.com/coadunate/MICAS.git
-
-# Set Work directory to MICAS repo
-WORKDIR /MICAS
-
-# Install MICAS requirments
-RUN apt install -y \
-                libffi-dev
-
-RUN pip install -r ./requirements.txt
-
-RUN ./install.sh
-
-CMD ["./start.sh"]
+# install frontend dependencies
+WORKDIR /home/micas/MICAS-0.1.0/frontend
+RUN rm -rf node_modules
+RUN npm install
