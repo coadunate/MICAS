@@ -20,7 +20,7 @@ LABEL org.label-schema.version=$BUILD_VERSION
 # Update aptitude with new repo
 RUN apt-get update
 
-# Install git and other dependancies
+# Install baseline dependancies
 RUN apt-get install -y \
                 apt-utils \
                 git \

@@ -91,7 +91,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 console.log(data)
             })
 
-        })();
+        })().catch(err=>err);
 
     }, [started])
 
