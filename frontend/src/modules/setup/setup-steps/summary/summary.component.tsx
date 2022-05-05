@@ -32,7 +32,7 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
 
     return axios({
         method: 'POST',
-        url: 'http://localhost:5000/validate_locations',
+        url: 'http://0.0.0.0:5000/validate_locations',
         data: locationData,
         headers: {"Content-Type": "multipart/form-data"},
     })
@@ -45,7 +45,7 @@ const getUniqueUID = (locations: ILocationConfig) => {
 
     return axios({
         method: "POST",
-        url: 'http://localhost:5000/get_uid',
+        url: 'http://0.0.0.0:5000/get_uid',
         data: locationData,
         headers: {'Content-Type': 'multipart/form-data'}
     })

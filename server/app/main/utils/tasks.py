@@ -9,7 +9,7 @@ import logging
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 logger = logging.getLogger()
 
-celery = Celery('tasks', broker='redis://localhost', backend='redis')
+celery = Celery('tasks', broker='redis://0.0.0.0', backend='redis')
 
 
 @celery.task(bind=True, name='app.main.tasks.int_download_database')

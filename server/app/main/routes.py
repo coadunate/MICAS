@@ -269,7 +269,6 @@ def analysis():
 @main.route('/validate_locations', methods=['POST', 'GET'])
 def validate_locations():
     if (request.method == 'POST'):
-        print("INSIDE VALIDATE_LOCATIONS")
         minION_location = request.form['minION']
         app_location = request.form['App']
         queries = request.form['Queries']
