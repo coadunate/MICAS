@@ -285,18 +285,11 @@ def validate_locations():
         minION_output = subprocess.call(['ls', minION_location])
         app_output = subprocess.call(['ls', app_location])
 
-        centrifuge_output = -1
-        centrifuge_output = subprocess.call(['which', 'centrifuge']) + \
-                            subprocess.call(['which', 'centrifuge-download']) + \
-                            subprocess.call(['which', 'centrifuge-kreport']) + \
-                            subprocess.call(['which', 'centrifuge-build'])
-
         print("minION_output = " + str(minION_output))
         print("app_output = " + str(app_output))
         print("query_output = " + str(query_output))
-        print("centrifuge_output = " + str(centrifuge_output))
 
-        if (minION_output == 0 and app_output == 0 and query_output == 0 and centrifuge_output == 0):
+        if (minION_output == 0 and app_output == 0 and query_output == 0):
             return json.dumps({"code": 0, "message": "SUCCESS"})
         else:
             if minION_output == 1:
@@ -305,9 +298,7 @@ def validate_locations():
                 return json.dumps([{"code": 1, "message": f"Invalid App location (err code {app_output})"}])
             elif query_output == 1:
                 return json.dumps([{"code": 1, "message": f"Invalid Queries location (err code {query_output})"}])
-            elif centrifuge_output == 1:
-                return json.dumps([{"code": 1, "message": f"Invalid Centrifuge location (err code {centrifuge_output})"}])
             else:
-                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output}, centrifuge_output: {centrifuge_output})"}])
+                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output})"}])
     else:
         return "N/a"
