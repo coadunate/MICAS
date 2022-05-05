@@ -269,7 +269,6 @@ def analysis():
 @main.route('/validate_locations', methods=['POST', 'GET'])
 def validate_locations():
     if (request.method == 'POST'):
-        print("INSIDE VALIDATE_LOCATIONS")
         minION_location = request.form['minION']
         app_location = request.form['App']
         queries = request.form['Queries']
@@ -304,6 +303,11 @@ def validate_locations():
                 return json.dumps([{"code": 1, "message": "Invalid minION location"}])
             elif app_output == 1:
                 return json.dumps([{"code": 1, "message": "Invalid App location"}])
-            return json.dumps([{"code": 1, "message": "Invalid Queries location"}])
+            elif query_output == 1:
+                return json.dumps([{"code": 1, "message": "Invalid Queries location"}])
+            elif centrifuge_output == 1:
+                return json.dumps([{"code": 1, "message": "Invalid Centrifuge location"}])
+            else:
+                return json.dumps([{"code": 1, "message": "Unknown location error"}])
     else:
         return "N/a"
