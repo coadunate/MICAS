@@ -300,14 +300,14 @@ def validate_locations():
             return json.dumps({"code": 0, "message": "SUCCESS"})
         else:
             if minION_output == 1:
-                return json.dumps([{"code": 1, "message": "Invalid minION location"}])
+                return json.dumps([{"code": 1, "message": f"Invalid minION location (err code {minION_output})"}])
             elif app_output == 1:
-                return json.dumps([{"code": 1, "message": "Invalid App location"}])
+                return json.dumps([{"code": 1, "message": f"Invalid App location (err code {app_output})"}])
             elif query_output == 1:
-                return json.dumps([{"code": 1, "message": "Invalid Queries location"}])
+                return json.dumps([{"code": 1, "message": f"Invalid Queries location (err code {query_output})"}])
             elif centrifuge_output == 1:
-                return json.dumps([{"code": 1, "message": "Invalid Centrifuge location"}])
+                return json.dumps([{"code": 1, "message": f"Invalid Centrifuge location (err code {centrifuge_output})"}])
             else:
-                return json.dumps([{"code": 1, "message": "Unknown location error"}])
+                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output}, centrifuge_output: {centrifuge_output})"}])
     else:
         return "N/a"
