@@ -1,28 +1,44 @@
 FROM ubuntu:20.04
 
+# Labels
+ARG BUILD_DATE
+ARG VCS_REF
+ARG BUILD_VERSION
+LABEL maintainer="@s.horovatin@usask.ca"
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.build-date=$BUILD_DATE
+LABEL org.label-schema.name="MICAS"
+LABEL org.label-schema.description="An react application that notify's users of user defined thresholds being met on live ONT sequencing runs."
+LABEL org.label-schema.vcs-url="https://github.com/coadunate/MICAS"
+LABEL org.label-schema.vcs-ref=$VCS_REF
+LABEL org.label-schema.version=$BUILD_VERSION
+
 # initial machine setup
-RUN apt-get update && apt-get install -y python3-distutils python3-apt curl redis-server
+RUN apt-get update && apt-get install -y git python3-distutils python3-apt curl redis-server
 RUN curl https://bootstrap.pypa.io/get-pip.py -o ~/get-pip.py
 RUN python3.8 ~/get-pip.py
 RUN alias python=python3.8
 RUN alias pip=pip3.8
 
-# download MICAS v0.1.0
-RUN mkdir /home/micas
-WORKDIR /home/micas
-RUN curl -kL https://github.com/coadunate/MICAS/archive/refs/tags/v0.1.0.tar.gz --output micas.tar.gz
-RUN tar -xzvf micas.tar.gz
+# download MICAS master
+RUN git clone https://github.com/coadunate/MICAS.git
 
 # install backend dependencies
-WORKDIR /home/micas/MICAS-0.1.0
-RUN pip3.8 install -r requirements.txt
+WORKDIR /MICAS/
+RUN pip install -r requirements.txt
 
 # install NPM 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-RUN source ~/.bashrc
-RUN nvm install v14.5.0
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y nodejs
 
 # install frontend dependencies
-WORKDIR /home/micas/MICAS-0.1.0/frontend
+WORKDIR /MICAS/frontend
 RUN rm -rf node_modules
 RUN npm install
+
+EXPOSE 3000
+EXPOSE 5000
+EXPOSE 6379
+
+WORKDIR /MICAS/
+CMD ["./start.sh"]
