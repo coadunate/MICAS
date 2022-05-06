@@ -14,7 +14,7 @@ LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.version=$BUILD_VERSION
 
 # initial machine setup
-RUN apt-get update && apt-get install -y git python3-distutils python3-apt curl redis-server
+RUN apt-get update && apt-get install -y git python3-distutils python3-apt python3-dev curl redis-server gcc libffi-dev
 RUN curl https://bootstrap.pypa.io/get-pip.py -o ~/get-pip.py
 RUN python3.8 ~/get-pip.py
 RUN alias python=python3.8
@@ -25,7 +25,8 @@ RUN git clone https://github.com/coadunate/MICAS.git
 
 # install backend dependencies
 WORKDIR /MICAS/
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip
+RUN pip install --default-timeout=100 -r requirements.txt
 
 # install NPM 
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
