@@ -21,7 +21,7 @@ class FASTQFileHandler(FileSystemEventHandler):
     def on_created(self, event):
 
         # if fasta file is created
-        if event.src_path.endswith(".fasta"):
+        if event.src_path.endswith(".fastq") or event.src_path.endswith(".fasta"):
 
             print(
                 'event type: ' + str(event.event_type) + 'path: ' + str(
