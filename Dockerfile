@@ -31,6 +31,12 @@ RUN pip install -r requirements.txt
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
+# install minimap2
+apt install minimap2
+
+# install lsof (for Sam)
+apt install lsof
+
 # install frontend dependencies
 WORKDIR /MICAS/frontend
 RUN rm -rf node_modules
