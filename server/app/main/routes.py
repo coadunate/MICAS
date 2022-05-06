@@ -72,8 +72,8 @@ def get_sankey_data():
                         jsonRecord = ast.literal_eval(lines)
                         return json.dumps({'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1]})
                     except:
-                        print("Exception in JSON literal eval in get_sankey_data")
-                        print(lines)
+                        logger.error("Exception in JSON literal eval in get_sankey_data")
+                        logger.error(lines)
                         return json.dumps({'status': 404})
         else:
             return json.dumps({'status': 404})
@@ -152,7 +152,7 @@ def delete_analyses():
             if uid not in line:
                 filtered_lines.append(line)
             else:
-                logger.debug(f"Removed id {uid} from cache", "DEBUG")
+                logger.debug(f"Removed id {uid} from cache")
                 found = True
         cache_fs.seek(0)
         cache_fs.write("".join(filtered_lines))
@@ -238,8 +238,8 @@ def analysis():
                             d = datetime.datetime.utcnow()
                             for_js = int(time.mktime(d.timetuple())) * 1000
                             analysis_started_date = for_js
-                            print("D: " + str(d))
-                            print("FOR_JS: " + str(for_js))
+                            logger.debug("D: " + str(d))
+                            logger.debug("FOR_JS: " + str(for_js))
                             with open(app_location + 'analysis_started', 'w') as f:
                                 f.write(str(analysis_started_date))
 
@@ -259,11 +259,11 @@ def analysis():
 # @main.route('/convey_alert', methods=["POST", "GET"])
 # def convey_alert():
 #     if (request.method == "GET"):
-#         print("YE!@")
+#         logger.debug("YE!@")
 #         send_email('SARS-CoV-2', 500, '...email..here...')
-#         print("DONE!")
+#         logger.debug("DONE!")
 #     else:
-#         print("A")
+#         logger.debug("A")
 
 
 @main.route('/validate_locations', methods=['POST', 'GET'])
@@ -285,9 +285,9 @@ def validate_locations():
         minION_output = subprocess.call(['ls', minION_location])
         app_output = subprocess.call(['ls', app_location])
 
-        print("minION_output = " + str(minION_output))
-        print("app_output = " + str(app_output))
-        print("query_output = " + str(query_output))
+        logger.debug("minION_output = " + str(minION_output))
+        logger.debug("app_output = " + str(app_output))
+        logger.debug("query_output = " + str(query_output))
 
         if (minION_output == 0 and app_output == 0 and query_output == 0):
             return json.dumps({"code": 0, "message": "SUCCESS"})

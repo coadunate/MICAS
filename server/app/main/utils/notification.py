@@ -52,8 +52,8 @@ def send_email(query, email_address):
         text = msg.as_string()
         server.sendmail(email_data['from_email'], email_address, text)
         server.quit()
-        print("Email sent to '" + email_address + "' successfully!")
+        logger.debug("Email sent to '" + email_address + "' successfully!")
     except Exception as error:
-        print("An error occurred! The email configuration mustn't have been set \
+        logger.error("An error occurred! The email configuration mustn't have been set \
         properly")
-        print(error)
+        logger.error(error)

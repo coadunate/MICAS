@@ -14,7 +14,7 @@ logger = logging.getLogger()
 class FASTQFileHandler(FileSystemEventHandler):
 
     def __init__(self, app_loc):
-        print("FASTQ FILE HANDLER INITIATED")
+        logger.debug("FASTQ FILE HANDLER INITIATED")
         self.app_loc = app_loc
         self.num_files_classified = 0
 
@@ -23,7 +23,7 @@ class FASTQFileHandler(FileSystemEventHandler):
         # if fasta file is created
         if event.src_path.endswith(".fastq") or event.src_path.endswith(".fasta"):
 
-            print(
+            logger.debug(
                 'event type: ' + str(event.event_type) + 'path: ' + str(
                     event.src_path) + 'num files classified: ' + str(self.num_files_classified))
 
@@ -40,7 +40,7 @@ class FASTQFileHandler(FileSystemEventHandler):
             index_file = ""
 
             if len(indices) < 1:
-                print("ERROR: Database not found!")
+                logger.error("ERROR: Database not found!")
                 sys.exit(1)
             else:
                 index_file = indices[0]
@@ -51,7 +51,7 @@ class FASTQFileHandler(FileSystemEventHandler):
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
             (output, err) = proc.communicate()
             proc.wait()
-            print("COMMAND OUTPUT: " + str(output), "DEBUG")
+            logger.debug(f"COMMAND OUTPUT: {str(output)}")
 
             # if running minimap2 was successful
             if os.path.getsize(minimap2_output) <= 0:
@@ -79,9 +79,9 @@ class FASTQFileHandler(FileSystemEventHandler):
                         logger.debug(query)
                         query["current_value"] = percent_match_value
 
-                        print("Threshold: ", query["threshold"])
-                        print("PercentMatchValue: ", percent_match_value)
-                        print(query)
+                        logger.debug("Threshold: ", query["threshold"])
+                        logger.debug("PercentMatchValue: ", percent_match_value)
+                        logger.debug(query)
 
                         # get ready to send an alert if needed
                         if float(query["threshold"]) <= float(percent_match_value):
@@ -90,10 +90,10 @@ class FASTQFileHandler(FileSystemEventHandler):
 
                 json.dump(alertinfo_cfg_data, open(alertinfo_cfg_file, 'w'))
 
-                print("Running minimap2 was successful")
+                logger.debug("Running minimap2 was successful")
                 # if the final output files already exist, append to them
                 if os.path.isfile(final_output):
-                    print(f"{final_output} file exits, appending onto it")
+                    logger.debug(f"{final_output} file exits, appending onto it")
 
                     open(final_output, "a+").writelines([l for l in open(minimap2_output).readlines()])
 
@@ -104,7 +104,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                 # also rename them as final output respectively.
                 else:
                     subprocess.call(['mv', minimap2_output, final_output])
-                    print(
+                    logger.debug(
                         "Renaming the minimap2_output and minimap2_report files to final_output and "
                         "respectively "
                     )

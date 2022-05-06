@@ -28,7 +28,7 @@ def int_download_database(self, db_data, queries):
     app_location_database = app_location + 'database/'
 
     if len(queries) == 0:
-        print("DOWNLOAD DATABASE: No queries provided, skipping.")
+        logger.debug("DOWNLOAD DATABASE: No queries provided, skipping.")
     else:
         for i, query in enumerate(queries):
             query_file = open(query['file'], 'r')
@@ -43,18 +43,18 @@ def int_download_database(self, db_data, queries):
 
             # update the alertinfo object to include fasta_header
             alertinfo_cfg_file = os.path.join(app_location, 'alertinfo.cfg')
-            print("Alert info file: " + alertinfo_cfg_file)
+            logger.debug("Alert info file: " + alertinfo_cfg_file)
             logger.info("Alert info file: " + alertinfo_cfg_file)
             with open(alertinfo_cfg_file, 'r') as alertinfo_fs:
                 alertinfo_cfg_obj = json.load(alertinfo_fs)
-                print(alertinfo_cfg_obj)
+                logger.debug(alertinfo_cfg_obj)
                 logger.info(alertinfo_cfg_obj)
                 queries = alertinfo_cfg_obj["queries"]
                 for _, q in enumerate(queries):
                     if q["file"] == query["file"]:
                         alertinfo_cfg_obj["queries"][i]["header"] = fasta_header
 
-                print(alertinfo_cfg_obj)
+                logger.debug(alertinfo_cfg_obj)
                 logger.info(alertinfo_cfg_obj)
 
             # write the updated object into file
@@ -64,7 +64,7 @@ def int_download_database(self, db_data, queries):
             with open(query['file'], 'rb') as query_file, open(app_location_database + 'input_sequences.fa',
                                                                'ab+') as input_sequences:
                 shutil.copyfileobj(query_file, input_sequences)
-            print("DOWNLOAD_DATABASE: Merged " + query['file'] + " sequence into input_sequences.fa file.")
+            logger.debug("DOWNLOAD_DATABASE: Merged " + query['file'] + " sequence into input_sequences.fa file.")
 
             self.update_state(
                 state="PROGRESS",
@@ -89,7 +89,7 @@ def int_download_database(self, db_data, queries):
 
         db_string = ",".join([str(x) for x in db_list])
 
-        print("DOWNLOAD_DATABASE: Downloading " + db_string + " database(s) from NCBI")
+        logger.debug("DOWNLOAD_DATABASE: Downloading " + db_string + " database(s) from NCBI")
         self.update_state(
             state="PROGRESS",
             meta={
@@ -99,7 +99,7 @@ def int_download_database(self, db_data, queries):
             }
         )
         cmd = ['centrifuge-download -o ' + app_location_database + 'library -m -d ' + db_string + ' refseq']
-        print(f"CMD:\n {cmd}")
+        logger.debug(f"CMD:\n {cmd}")
         outfile = open(app_location_database + 'seqid2taxid.map', 'a+')
         err_file = open(app_location_database + 'download_err.txt', 'w+')
         try:
@@ -114,11 +114,11 @@ def int_download_database(self, db_data, queries):
             download_db_cmd_output.wait()
 
         except (OSError, subprocess.CalledProcessError) as exception:
-            print(str(exception))
+            logger.error(str(exception))
             return "ER1"
 
         else:
-            print("DOWNLOAD_DATABASE: Successfully downloaded " + db_string + " database(s) from NCBI")
+            logger.debug("DOWNLOAD_DATABASE: Successfully downloaded " + db_string + " database(s) from NCBI")
             self.update_state(
                 state="PROGRESS",
                 meta={
@@ -131,7 +131,7 @@ def int_download_database(self, db_data, queries):
             import glob
 
             # Putting all the query sequences in one, input_sequences file.
-            print("DOWNLOAD_DATABASE: Concatenating all the sequence files.")
+            logger.debug("DOWNLOAD_DATABASE: Concatenating all the sequence files.")
             self.update_state(state="PROGRESS",
                               meta={'percent-done': 95, 'message': "Concatenating all the sequence files.",
                                     'project_id'  : project_id}
@@ -145,7 +145,7 @@ def int_download_database(self, db_data, queries):
     import datetime
     now = datetime.datetime.now()
 
-    print("DOWNLOAD_DATABASE: Building the index.")
+    logger.debug("DOWNLOAD_DATABASE: Building the index.")
     self.update_state(state="PROGRESS",
                       meta={'percent-done': 98, 'message': "Building the index.", 'project_id': project_id})
 
@@ -170,10 +170,10 @@ def int_download_database(self, db_data, queries):
         build_idx_cmd_output.wait()
 
     except (OSError, subprocess.CalledProcessError) as exception:
-        print(str(exception))
+        logger.error(str(exception))
         return "ER1"
 
-    print("DOWNLOAD_DATABASE: Database has successfully been downloaded and built.")
+    logger.debug("DOWNLOAD_DATABASE: Database has successfully been downloaded and built.")
     self.update_state(state="PROGRESS",
                       meta={
                           'percent-done': 100,
