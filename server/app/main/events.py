@@ -56,7 +56,6 @@ def start_fastq_file_listener(data):
 
     micas_location = data['micas_location'] if data['micas_location'].endswith('/') else data['micas_location'] + '/'
     minion_location = data['minion_location']
-    from rpy2.robjects import r
     # need visibility of the global thread object
     logger.debug("Starting FASTQ File Listener")
     global fileListenerThread

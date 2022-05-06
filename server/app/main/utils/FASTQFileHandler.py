@@ -22,7 +22,6 @@ class FASTQFileHandler(FileSystemEventHandler):
 
         # if fasta file is created
         if event.src_path.endswith(".fastq") or event.src_path.endswith(".fasta"):
-
             logger.debug(
                 'event type: ' + str(event.event_type) + 'path: ' + str(
                     event.src_path) + 'num files classified: ' + str(self.num_files_classified))
