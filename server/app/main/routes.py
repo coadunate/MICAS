@@ -58,27 +58,8 @@ def get_timeline_info():
 
 @main.route('/get_sankey_data', methods=['GET'])
 def get_sankey_data():
-    if request.method == 'GET':
-        app_location = request.args.get('app_location')
-        app_location = app_location if app_location.endswith('/') else app_location + '/'
-
-        if subprocess.call(['ls', app_location + 'centrifuge/sankey.data']) == 0:
-            with open(app_location + 'centrifuge/sankey.data', 'r') as sankey_file:
-                lines = sankey_file.read()
-                if "None" in lines:
-                    return json.dumps({'status': 204})
-                else:
-                    try:
-                        jsonRecord = ast.literal_eval(lines)
-                        return json.dumps({'status': 200, 'nodes': jsonRecord[0], 'links': jsonRecord[1]})
-                    except:
-                        logger.error("Exception in JSON literal eval in get_sankey_data")
-                        logger.error(lines)
-                        return json.dumps({'status': 404})
-        else:
-            return json.dumps({'status': 404})
-    else:
-        return json.dumps({'status': 400})
+    #TO BE REMOVED
+    return json.dumps({'status': 400})
 
 
 @main.route('/get_uid', methods=["POST"])
@@ -254,18 +235,6 @@ def analysis():
             error.append({'message': 'App location was not found'})
     return json.dumps(error)
 
-
-# TODO: Remove potentially useless test code
-# @main.route('/convey_alert', methods=["POST", "GET"])
-# def convey_alert():
-#     if (request.method == "GET"):
-#         logger.debug("YE!@")
-#         send_email('SARS-CoV-2', 500, '...email..here...')
-#         logger.debug("DONE!")
-#     else:
-#         logger.debug("A")
-
-
 @main.route('/validate_locations', methods=['POST', 'GET'])
 def validate_locations():
     if (request.method == 'POST'):
@@ -301,4 +270,4 @@ def validate_locations():
             else:
                 return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output})"}])
     else:
-        return "N/a"
+        return "N/A"

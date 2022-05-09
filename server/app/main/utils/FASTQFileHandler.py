@@ -114,3 +114,5 @@ class FASTQFileHandler(FileSystemEventHandler):
                 # Get the number of files that are in MinION reads directory
                 minion_reads_dir = os.path.abspath(os.path.join(event.src_path, os.pardir))
                 num_files_minion_reads = int(os.popen('ls -1 ' + minion_reads_dir + ' | wc -l').read())
+        else:
+            logger.debug(f"None Fasta/Fastq generated in MINION location: {event.src_path}")

@@ -66,17 +66,6 @@ def start_fastq_file_listener(data):
         fileListenerThread.daemon = True
         fileListenerThread.start()
 
-
-@socketio.on('update_sankey_filter', namespace="/analysis")
-def update_sankey_filter(app_location, value):
-    logger.debug("update_sankey_filter")
-
-    app_location = app_location if app_location.endswith('/') else app_location + '/'
-    analysis_filter_file_path = app_location + 'centrifuge/sankey.filter'
-    with open(analysis_filter_file_path, 'w') as analysis_filter_file:
-        analysis_filter_file.write(str(value))
-
-
 def on_raw_message(message):
     status = message['status']
     logger.debug("ON_RAW_MESSAGE: " + status)
