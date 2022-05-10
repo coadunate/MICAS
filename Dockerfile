@@ -21,7 +21,7 @@ RUN alias python=python3.8
 RUN alias pip=pip3.8
 
 # download MICAS master
-RUN git clone https://github.com/coadunate/MICAS.git
+RUN git clone -b centriuge_removal https://github.com/coadunate/MICAS.git
 
 # install backend dependencies
 WORKDIR /MICAS/

@@ -17,7 +17,6 @@ const initial_location_config: ILocationConfig = {
 
 const DatabaseSetupComponent:
     FunctionComponent<IDatabaseSetupProps> = ({advanceStep, update}) => {
-
     const [additionalSequences, setAdditionalSequences] = useState(initial_additional_sequences_config)
     const [locationConfig, setLocationConfig] = useState(initial_location_config);
 
