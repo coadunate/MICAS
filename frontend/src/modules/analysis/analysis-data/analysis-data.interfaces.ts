@@ -6,9 +6,6 @@ type IAnalysisData = {
     "data": {
         "minion": string,
         "app_location": string,
-        "bacteria": boolean,
-        "archaea": boolean,
-        "virus": boolean,
         "queries": IQuery[],
         "projectId": string,
         "email": string

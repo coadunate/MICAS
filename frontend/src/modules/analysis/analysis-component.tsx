@@ -12,10 +12,7 @@ const initial_analysis_data_state: IAnalysisData = {
     "data"  : {
         "minion"      : "",
         "app_location": "",
-        "bacteria"    : false,
-        "archaea"     : false,
-        "virus"       : false,
-        "queries"     : [],
+        "queries"     : [],s
         "projectId"   : "",
         "email"       : ""
     }

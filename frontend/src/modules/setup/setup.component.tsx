@@ -24,21 +24,12 @@ const qrs: IAdditionalSequences = {
     ]
 };
 
-const initial_db_setup_input: IDatabseSetupInput = {
-    queries  : qrs,
-    ncbi     : {bacteria: false, archaea: false, virus: false},
-    locations: {minionLocation: "", micasLocation: ""}
-
-};
-
 const initial_alert_config_input : IAlertConfig = {
     email: "",
 }
 
 const SetupComponent = () => {
     const [stepNumber, setStepNumber] = useState(0);
-
-    const [databaseSetupInput, setDatasetSetupInput] = useState(initial_db_setup_input);
     const [alertConfigInput, setAlertConfigInput] = useState(initial_alert_config_input);
 
     const advanceStep = () => {
@@ -51,16 +42,8 @@ const SetupComponent = () => {
 
     const steps: ISteps[] = [
         {
-            name: "Database Selection",
-            component: <DatabaseSetupComponent advanceStep={advanceStep} update={setDatasetSetupInput} />,
-        },
-        {
             name: "Alert Configuration",
             component: <AlertConfigurationComponent advanceStep={advanceStep} update={setAlertConfigInput} />,
-        },
-        {
-            name: "Summary",
-            component: <SummaryComponent databaseSetupInput={databaseSetupInput} alertConfigInput={alertConfigInput}/>
         }
     ]
 
