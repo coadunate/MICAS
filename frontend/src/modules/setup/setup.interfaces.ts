@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {IDatabaseSelectionConfig, IDatabseSetupInput} from './setup-steps/database-setup/database-setup.interfaces'
+import {IDatabseSetupInput} from './setup-steps/database-setup/database-setup.interfaces'
 import {IAlertConfig} from "./setup-steps/alert-configuration/alert-configuration.interfaces";
 
 type IAlertConfigSetupProps = {
@@ -10,11 +10,6 @@ type IAlertConfigSetupProps = {
 type IDatabaseSetupProps = {
     advanceStep: () => void,
     update: React.Dispatch<React.SetStateAction<IDatabseSetupInput>>,
-
-}
-
-type IDatabaseSetupConfig = {
-    database_setup_input : IDatabaseSelectionConfig,
 
 }
 
