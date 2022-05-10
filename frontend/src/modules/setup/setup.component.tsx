@@ -26,7 +26,6 @@ const qrs: IAdditionalSequences = {
 
 const initial_db_setup_input: IDatabseSetupInput = {
     queries  : qrs,
-    ncbi     : {bacteria: false, archaea: false, virus: false},
     locations: {minionLocation: "", micasLocation: ""}
 
 };

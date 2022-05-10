@@ -1,6 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IDatabseSetupInput, ILocationConfig} from "../database-setup/database-setup.interfaces";
-import {INCBIDatabases} from '../database-setup/ncbi-db-setup/ncbi-db-selection.interfaces'
 import {IAlertConfig} from "../alert-configuration/alert-configuration.interfaces";
 import {IQuery} from "../database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
 import axios from "axios";
@@ -60,14 +59,6 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
     const [uid, setUID] = useState("");
     const [, setProgress] = useState("");
 
-    // get all the selected NCBI databases
-    const ncbi_databases = Object.keys(databaseSetupInput.ncbi).filter((val: string) => {
-        type NCBIKey = keyof INCBIDatabases
-        const key_val = val as NCBIKey
-        return databaseSetupInput.ncbi[key_val]
-    })
-    const ncbi_databases_str = ncbi_databases.join(", ")
-
     // additional databases
     const num_additional_databases = databaseSetupInput.queries.queries.length
     const add_databases = databaseSetupInput.queries.queries
@@ -105,9 +96,6 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
             let dbInfo = {
                 minion: databaseSetupInput.locations.minionLocation,
                 app_location: databaseSetupInput.locations.micasLocation,
-                bacteria: databaseSetupInput.ncbi.bacteria,
-                archaea: databaseSetupInput.ncbi.archaea,
-                virus: databaseSetupInput.ncbi.virus,
                 queries: add_databases,
                 projectId: uid,
                 ...alertConfigInput
@@ -148,10 +136,6 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th>NCBI Databases</th>
-                    <td>{ncbi_databases_str === "" ? "None" : ncbi_databases_str}</td>
-                </tr>
                 <tr>
                     <th rowSpan={num_additional_databases}>Additional Sequences</th>
                     {
