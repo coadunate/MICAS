@@ -16,8 +16,7 @@ type ILocationConfig = {
 
 type IDatabaseSetupConstituent = {
     initialConfig:  IAdditionalSequences | ILocationConfig,
-    updateConfig: React.Dispatch<React.SetStateAction<ILocationConfig>> | React.Dispatch<React.SetStateAction<IDatabaseSelectionConfig>> |
-        React.Dispatch<React.SetStateAction<IAdditionalSequences>>
+    updateConfig: React.Dispatch<React.SetStateAction<ILocationConfig>> | React.Dispatch<React.SetStateAction<IAdditionalSequences>>
 }
 
 
