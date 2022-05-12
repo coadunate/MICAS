@@ -22,13 +22,13 @@ const initial_alert_config: IAlertConfig ={
 
 const DatabaseSetupComponent:
     FunctionComponent<IDatabaseSetupProps> = ({advanceStep, update}) => {
-    const [additionalSequences, setAdditionalSequences] = useState(initial_additional_sequences_config)
+    const [additionalSequences, setAdditionalSequences] = useState(initial_additional_sequences_config);
     const [locationConfig, setLocationConfig] = useState(initial_location_config);
     const [alertConfig, setAlertConfig] = useState(initial_alert_config);
 
     const updateDatabaseSetupConfiguration = () => {
 
-        update({queries: additionalSequences, locations: locationConfig, email: alertConfig})
+        update({queries: additionalSequences, locations: locationConfig, email: alertConfig});
 
         advanceStep();
     }

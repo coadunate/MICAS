@@ -1,22 +1,21 @@
 import {IAdditionalSequences} from "./additional-sequences-setup/additional-sequences-setup.interfaces";
+import {IAlertConfig} from "./alert-configuration/alert-configuration.interfaces"
 import React from "react";
-
-
-type IDatabseSetupInput = {
-
-    queries: IAdditionalSequences,
-    locations: ILocationConfig
-}
 
 type ILocationConfig = {
     minionLocation: string,
     micasLocation: string
 }
 
+type IDatabseSetupInput = {
+    queries : IAdditionalSequences,
+    locations: ILocationConfig,
+    email : IAlertConfig
+}
 
 type IDatabaseSetupConstituent = {
     initialConfig:  IAdditionalSequences | ILocationConfig,
-    updateConfig: React.Dispatch<React.SetStateAction<ILocationConfig>> | React.Dispatch<React.SetStateAction<IAdditionalSequences>>
+    updateConfig: React.Dispatch<React.SetStateAction<ILocationConfig>> | React.Dispatch<React.SetStateAction<IAdditionalSequences>> | React.Dispatch<React.SetStateAction<IAlertConfig>>
 }
 
 
