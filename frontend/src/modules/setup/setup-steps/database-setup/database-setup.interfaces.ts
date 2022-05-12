@@ -14,10 +14,9 @@ type IDatabseSetupInput = {
 }
 
 type IDatabaseSetupConstituent = {
-    initialConfig:  IAdditionalSequences | ILocationConfig,
+    initialConfig:  IAdditionalSequences | ILocationConfig | IAlertConfig,
     updateConfig: React.Dispatch<React.SetStateAction<ILocationConfig>> | React.Dispatch<React.SetStateAction<IAdditionalSequences>> | React.Dispatch<React.SetStateAction<IAlertConfig>>
 }
-
 
 export type {
     IDatabaseSetupConstituent,
