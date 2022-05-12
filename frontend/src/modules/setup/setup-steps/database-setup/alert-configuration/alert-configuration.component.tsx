@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {IAlertConfigSetupProps} from "../../setup.interfaces";
+import {IAlertConfigSetupProps} from "../../../setup.interfaces";
 import {IAlertConfig} from "./alert-configuration.interfaces";
 
 const initial_alert_config: IAlertConfig = {
@@ -43,12 +43,6 @@ const AlertConfigurationComponent:
                     <br/>
                     <br/>
                 </div>
-            </div>
-            <div className="vspacer-20"/>
-            <div className="container-fluid text-center">
-                <button className="btn btn-success col-lg-2 mx-auto"
-                        onClick={() => updateAlertConfigurationSetup()}>Next Step
-                </button>
             </div>
         </div>
     )

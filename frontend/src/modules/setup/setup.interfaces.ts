@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {IDatabseSetupInput} from './setup-steps/database-setup/database-setup.interfaces'
-import {IAlertConfig} from "./setup-steps/alert-configuration/alert-configuration.interfaces";
+import {IAlertConfig} from "./setup-steps/database-setup/alert-configuration/alert-configuration.interfaces";
 
 type IAlertConfigSetupProps = {
     advanceStep: () => void,

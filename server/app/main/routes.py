@@ -19,20 +19,6 @@ def version():
     return json.dumps({"version": "v0.0.1", "name": "MICAS PoC"})
 
 
-@main.route('/is_database_downloaded', methods=['GET'])
-def is_database_downloaded():
-    if (request.method == 'GET'):
-        app_location = request.args.get('app_location')
-        app_location = app_location if app_location.endswith('/') else app_location + '/'
-
-        if subprocess.call(['ls', app_location + '.download_in_progress']) == 0:
-            return json.dumps({'status': 200})
-        else:
-            return json.dumps({'status': 404})
-    else:
-        return json.dumps({'status': 400})
-
-
 @main.route('/get_timeline_info', methods=["GET"])
 def get_timeline_info():
     if request.method == 'GET':
@@ -54,12 +40,6 @@ def get_timeline_info():
 
                 except:
                     return json.dumps({'status': 404})
-
-
-@main.route('/get_sankey_data', methods=['GET'])
-def get_sankey_data():
-    #TO BE REMOVED
-    return json.dumps({'status': 400})
 
 
 @main.route('/get_uid', methods=["POST"])

@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {IParams} from "./analysis.interfaces";
 import AnalysisListComponent from "./analysis-list/analysis-list.component";
-import {socket} from "../../app.component";
 import axios from "axios";
 import AnalysisDataComponent from "../analysis/analysis-data/analysis-data.component"
 import {IAnalysisData} from "./analysis-data/analysis-data.interfaces";

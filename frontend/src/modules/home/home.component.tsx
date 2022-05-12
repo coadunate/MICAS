@@ -14,7 +14,7 @@ const micas_config: IMicas = {
         "enable researchers to use their time more efficiently by allowing them " +
         "to focus on more important matters in the meantime, rather than waiting " +
         "around for significant sequences.",
-    version: '0.0.1'
+    version: '0.0.2'
 }
 
 const HomeComponent: FunctionComponent = () => {

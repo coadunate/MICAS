@@ -1,6 +1,6 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IDatabseSetupInput, ILocationConfig} from "../database-setup/database-setup.interfaces";
-import {IAlertConfig} from "../alert-configuration/alert-configuration.interfaces";
+import {IAlertConfig} from "../database-setup/alert-configuration/alert-configuration.interfaces";
 import {IQuery} from "../database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
 import axios from "axios";
 import {socket} from "../../../../app.component";

@@ -4,7 +4,8 @@ import {ILocationConfig} from "./database-setup.interfaces";
 import {IAdditionalSequences} from "./additional-sequences-setup/additional-sequences-setup.interfaces";
 import {IDatabaseSetupProps} from '../../setup.interfaces';
 import LocationsSetupComponent from "./locations-setup/locations-setup.component";
-
+import AlertConfigurationComponent from "./alert-configuration/alert-configuration.component";
+import {IAlertConfig} from "./alert-configuration/alert-configuration.interfaces"
 
 const initial_additional_sequences_config: IAdditionalSequences = {
     queries: []
@@ -15,14 +16,19 @@ const initial_location_config: ILocationConfig = {
     micasLocation: ""
 }
 
+const initial_alert_config: IAlertConfig ={
+    email: ""
+}
+
 const DatabaseSetupComponent:
     FunctionComponent<IDatabaseSetupProps> = ({advanceStep, update}) => {
     const [additionalSequences, setAdditionalSequences] = useState(initial_additional_sequences_config)
     const [locationConfig, setLocationConfig] = useState(initial_location_config);
+    const [alertConfig, setAlertConfig] = useState(initial_alert_config);
 
     const updateDatabaseSetupConfiguration = () => {
 
-        update({queries: additionalSequences, locations: locationConfig})
+        update({queries: additionalSequences, locations: locationConfig, email: alertConfig})
 
         advanceStep();
     }
@@ -30,11 +36,10 @@ const DatabaseSetupComponent:
     return (
         <div
             className="container-fluid vspacer-100 d-flex flex-column h-100">
+            <AlertConfigurationComponent initialConfig={initial_alert_config} updateConfig={setAlertConfig} />    
             <div className="vspacer-50"/>
             <div className="twline"><span>AND / OR</span></div>
-            <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config}
-                                               updateConfig={setAdditionalSequences}
-            />
+            <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config} updateConfig={setAdditionalSequences} />
             <br/>
             <div className="vspacer-50"/>
             <div className="twline"><span>DONT FORGET</span></div>

@@ -3,17 +3,14 @@ import React, {useState} from "react";
 import {ISteps} from "./setup.interfaces";
 
 import "./setup.component.css";
-import DatabaseSetupComponent
-    from "./setup-steps/database-setup/database-setup.component";
-import SummaryComponent from "./setup-steps/summary/summary.component";
 import AlertConfigurationComponent
-    from "./setup-steps/alert-configuration/alert-configuration.component";
+    from "./setup-steps/database-setup/alert-configuration/alert-configuration.component";
 import {
     IDatabseSetupInput
 } from "./setup-steps/database-setup/database-setup.interfaces";
 import {
     IAlertConfig
-} from "./setup-steps/alert-configuration/alert-configuration.interfaces";
+} from "./setup-steps/database-setup/alert-configuration/alert-configuration.interfaces";
 import {
     IAdditionalSequences
 } from "./setup-steps/database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
@@ -27,12 +24,11 @@ const qrs: IAdditionalSequences = {
 const initial_db_setup_input: IDatabseSetupInput = {
     queries  : qrs,
     locations: {minionLocation: "", micasLocation: ""}
-
 };
 
 const initial_alert_config_input : IAlertConfig = {
-    email: "",
-}
+    email: ""
+};
 
 const SetupComponent = () => {
     const [stepNumber, setStepNumber] = useState(0);

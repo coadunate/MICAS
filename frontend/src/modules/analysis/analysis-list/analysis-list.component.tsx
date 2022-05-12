@@ -2,7 +2,7 @@ import React, {FunctionComponent, useEffect, useState} from "react";
 import {ListGroup} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import axios from "axios";
-import {IAlertConfig} from "../../setup/setup-steps/alert-configuration/alert-configuration.interfaces";
+import {IAlertConfig} from "../../setup/setup-steps/database-setup/alert-configuration/alert-configuration.interfaces";
 
 type IAnalysisMetaData = {
     id: string,
