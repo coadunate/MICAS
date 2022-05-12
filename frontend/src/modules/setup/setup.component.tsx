@@ -6,9 +6,6 @@ import "./setup.component.css";
 import AlertConfigurationComponent
     from "./setup-steps/database-setup/alert-configuration/alert-configuration.component";
 import {
-    IDatabseSetupInput
-} from "./setup-steps/database-setup/database-setup.interfaces";
-import {
     IAlertConfig
 } from "./setup-steps/database-setup/alert-configuration/alert-configuration.interfaces";
 import {
@@ -19,11 +16,6 @@ const qrs: IAdditionalSequences = {
     queries: [
         {name: "", file: "", threshold: "", current_value: 0, alert: false}
     ]
-};
-
-const initial_db_setup_input: IDatabseSetupInput = {
-    queries  : qrs,
-    locations: {minionLocation: "", micasLocation: ""}
 };
 
 const initial_alert_config_input : IAlertConfig = {

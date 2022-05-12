@@ -28,7 +28,7 @@ const DatabaseSetupComponent:
 
     const updateDatabaseSetupConfiguration = () => {
 
-        update({queries: additionalSequences, locations: locationConfig, email: alertConfig});
+        update({queries: additionalSequences, locations: locationConfig});
 
         advanceStep();
     }
