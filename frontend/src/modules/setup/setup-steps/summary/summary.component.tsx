@@ -13,8 +13,7 @@ const VALIDATION_STATES = {
 }
 
 type ISummaryComponentProps = {
-    databaseSetupInput: IDatabseSetupInput,
-    alertConfigInput: IAlertConfig
+    databaseSetupInput: IDatabseSetupInput
 }
 
 
@@ -50,7 +49,7 @@ const getUniqueUID = (locations: ILocationConfig) => {
     })
 }
 
-const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput, alertConfigInput}) => {
+const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput}) => {
 
     const [success, setSuccess] = useState("");
     const [error, setError] = useState("");
@@ -98,7 +97,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 app_location: databaseSetupInput.locations.micasLocation,
                 queries: add_databases,
                 projectId: uid,
-                ...alertConfigInput
+                email: databaseSetupInput.alert.email
             };
 
             socket.emit('log', dbInfo, "DEBUG");
@@ -172,7 +171,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 <tbody>
                 <tr>
                     <th>Email</th>
-                    <td>{alertConfigInput.email === "" ? "Not provided" : alertConfigInput.email}</td>
+                    <td>{databaseSetupInput.alert.email === "" ? "Not provided" : databaseSetupInput.alert.email}</td>
                 </tr>
                 </tbody>
             </table>

@@ -11,6 +11,10 @@ import {
 import {
     IAdditionalSequences
 } from "./setup-steps/database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
+import {
+    IDatabseSetupInput
+} from "./setup-steps/database-setup/database-setup.interfaces";
+
 
 const qrs: IAdditionalSequences = {
     queries: [
@@ -18,13 +22,16 @@ const qrs: IAdditionalSequences = {
     ]
 };
 
-const initial_alert_config_input : IAlertConfig = {
-    email: ""
+const initial_db_setup_input: IDatabseSetupInput = {
+    queries  : qrs,
+    locations: {minionLocation: "", micasLocation: ""},
+    alert: {email: ""}
 };
+
 
 const SetupComponent = () => {
     const [stepNumber, setStepNumber] = useState(0);
-    const [alertConfigInput, setAlertConfigInput] = useState(initial_alert_config_input);
+    const [databaseSetupInput, setDatasetSetupInput] = useState(initial_db_setup_input);
 
     const advanceStep = () => {
 
@@ -36,8 +43,12 @@ const SetupComponent = () => {
 
     const steps: ISteps[] = [
         {
-            name: "Alert Configuration",
-            component: <AlertConfigurationComponent advanceStep={advanceStep} update={setAlertConfigInput} />,
+            name: "Database Selection",
+            component: <DatabaseSetupComponent advanceStep={advanceStep} update={setDatasetSetupInput} />,
+        },
+        {
+            name: "Summary",
+            component: <SummaryComponent databaseSetupInput={databaseSetupInput}/>
         }
     ]
 

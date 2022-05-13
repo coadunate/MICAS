@@ -10,7 +10,7 @@ type ILocationConfig = {
 type IDatabseSetupInput = {
     queries : IAdditionalSequences,
     locations: ILocationConfig,
-    email : IAlertConfig
+    alert : IAlertConfig
 }
 
 type IDatabaseSetupConstituent = {

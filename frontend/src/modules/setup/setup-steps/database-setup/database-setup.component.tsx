@@ -36,7 +36,7 @@ const DatabaseSetupComponent:
     return (
         <div
             className="container-fluid vspacer-100 d-flex flex-column h-100">
-            <AlertConfigurationComponent initialConfig={initial_alert_config} updateConfig={setAlertConfig} />    
+            <AlertConfigurationComponent />    
             <div className="vspacer-50"/>
             <div className="twline"><span>AND / OR</span></div>
             <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config} updateConfig={setAdditionalSequences} />
