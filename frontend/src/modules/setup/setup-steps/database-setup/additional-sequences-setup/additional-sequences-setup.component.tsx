@@ -36,52 +36,67 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
             ...prevState,
             queries: queries
         }))
-    }, [queries])
+    }, [queries, updateConfig])
 
     return (
         <>
-            <h4>Additional Sequences</h4>
+            <div className="vspacer-50 container text-center ">
+                <br/>
+                <h4>Additional Sequences</h4>
+            </div>
             <div className="vspacer-50 "/>
             {
                 queries.length === 0 || false ? (
-                    <div className="container text-center ">
+                    <div className="container text-center">
                         No queries found. Add new by clicking the '+' button below.
                     </div>
                 ) : (
                     queries.map((q, i) => {
                         return (
-                            <div key={i} className="container  pb-2">
+                            <div key={i} className="container text-center pb-2">
                                 <div className="row p-0 m-0">
                                     <div className="col-sm-4">
-                                        <input type="text" name="sci_file"
-                                               placeholder="/path/to/file.fasta"
-                                               onChange={handleDataChange(i, "file")}
-                                               className="form-control"/>
+                                        <input 
+                                            name="filePathText"
+                                            type="file" 
+                                            placeholder="/path/to/file.fasta"
+                                            onChange={handleDataChange(i, "file")}
+                                            className="form-control"
+                                            accept=".fasta,.fna,.ffn,.faa,.frn,.fa"
+                                        />
                                     </div>
                                     <div className="col-sm-3">
-                                        <input type="text" onChange={handleDataChange(i, "name")}
-                                               placeholder="Scientific Name (eg. Streptococcus pneumoniae)"
-                                               className="form-control"/>
+                                        <input 
+                                            name="fastaNameText"
+                                            type="text" 
+                                            onChange={handleDataChange(i, "name")}
+                                            placeholder="Scientific Name (eg. Streptococcus pneumoniae)"
+                                            className="form-control"
+                                        />
                                     </div>
                                     <div className="col-sm-2">
-                                        <div className="btn-group-toggle" data-toggle="buttons">
-                                            <label className="">
-                                                <input placeholder="Alert? 1/0"
-                                                       type="number"
-                                                       onChange={handleDataChange(i, "alert")}
-                                                       className="form-control"/>
-                                            </label>
-                                        </div>
+                                        <label className="">
+                                            <input 
+                                                name="alertCheck"
+                                                type="checkbox"
+                                                value="Alert when fould?"
+                                                onChange={handleDataChange(i, "alert")}
+                                                className="form-control"
+                                            />
+                                        </label>
                                     </div>
                                     <div className="col-sm-2">
-                                        <div className="btn-group-toggle" data-toggle="buttons">
-                                            <label className="">
-                                                <input placeholder="Threshold (e.g., 98%)"
-                                                       type="number"
-                                                       onChange={handleDataChange(i, "threshold")}
-                                                       className="form-control"/>
-                                            </label>
-                                        </div>
+                                        
+                                        <label className="">
+                                            <input placeholder="% Threshold"
+                                                type="number"
+                                                onChange={handleDataChange(i, "threshold")}
+                                                className="form-control"
+                                                min="0" 
+                                                max="100"
+                                            />
+                                        </label>
+                                        
                                     </div>
                                     <div className="col-sm-1">
                                         <button type="button"
@@ -90,25 +105,19 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                         >
                                             <i className="fa fa-trash-alt"/>
                                         </button>
-                                    </div>
+                                    </div>   
                                 </div>
                             </div>
                         );
                     })
                 )
             }
-
-            <div className="vspacer-20 "/>
-            <hr/>
-            <div className="vspacer-20 "/>
-            <div className="row ml-auto pr-5">
-                <button
-                    type="button" className="pull-right btn btn-primary"
-                    onClick={handleAddQuery}
-                >
-                    <i className="fa fa-plus"/>
-                </button>
-            </div>
+            <button
+                type="button" className="pull-right btn btn-primary"
+                onClick={handleAddQuery}
+            >
+            <i className="fa fa-plus"/>
+            </button>
         </>
     );
 }

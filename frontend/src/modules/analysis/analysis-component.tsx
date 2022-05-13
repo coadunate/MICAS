@@ -33,7 +33,7 @@ const AnalysisComponent = () => {
             setData(res.data);
             setLoaded(true);
         })();
-    }, []);
+    });
 
     const get_analysis_info = (uid: string) => {
 

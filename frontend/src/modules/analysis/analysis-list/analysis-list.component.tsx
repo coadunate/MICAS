@@ -2,7 +2,6 @@ import React, {FunctionComponent, useEffect, useState} from "react";
 import {ListGroup} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import axios from "axios";
-import {IAlertConfig} from "../../setup/setup-steps/database-setup/alert-configuration/alert-configuration.interfaces";
 
 type IAnalysisMetaData = {
     id: string,
@@ -23,7 +22,7 @@ const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses, update})
 
     const deleteAnalyses = async (id: string) => {
 
-        if (id == undefined){
+        if (id === undefined){
             console.log("ID: ", id, " is undefined")
         } else {
             let uid = new FormData();
@@ -36,7 +35,7 @@ const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses, update})
             })
             console.log(res)
             if (res.data.status === 200) {
-                if (res.data.found == true) {
+                if (res.data.found === true) {
                     update(true)
                 } else {
                     console.log("Cannot find id", id, "for deletion")

@@ -17,41 +17,42 @@ const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({
         })
     }
 
+    const ref = React.useRef<HTMLInputElement>(null);
+
     useEffect(() => {
+        if (ref.current !== null) {
+            ref.current.setAttribute("directory", "");
+            ref.current.setAttribute("webkitdirectory", "");
+            ref.current.setAttribute("multiple", "");
+        }
         updateConfig((prevState: any) => ({
             ...prevState,
             minionLocation: locationConfig.minionLocation,
             micasLocation: locationConfig.micasLocation
         }))
-    }, [locationConfig])
+    }, [locationConfig, updateConfig])
 
     return (
-        <div className="container">
+        <div className="container text-center">
             <h4>Locations</h4>
-            <div className="vspacer-50 "/>
-            <div className="row justify-content-start w-100">
-                <b className=" pt-2">MinION Location</b>
-                <div className="row ml-auto w-75">
-                    <input
-                        className="form-control"
-                        placeholder="/path/to/minion/dropbox"
-                        type="text"
-                        onChange={handleDataChange("minionLocation")}
-                    />
-                </div>
-            </div>
-            <br/>
-            <div className="row justify-content-start w-100">
+            <div className="vspacer-50 container text-center"/>
+                <b className="pt-2">MinION Location</b>
+                <input
+                    name="minionLocationText"
+                    className="form-control"
+                    placeholder="/path/to/minion/dropbox"
+                    type="text"
+                    onChange={handleDataChange("minionLocation")}
+                />
+                <br/>
                 <b className=" pt-2">MICAS Location</b>
-                <div className="row ml-auto w-75">
-                    <input
-                        className="form-control"
-                        placeholder="/path/to/micas/data/storage"
-                        type="text"
-                        onChange={handleDataChange("micasLocation")}
-                    />
-                </div>
-            </div>
+                <input
+                    name="micasLocationText"
+                    className="form-control"
+                    placeholder="/path/to/micas/data/storage"
+                    type="text"
+                    onChange={handleDataChange("micasLocation")}
+                />            
         </div>
     );
 }

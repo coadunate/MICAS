@@ -1,6 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IDatabseSetupInput, ILocationConfig} from "../database-setup/database-setup.interfaces";
-import {IAlertConfig} from "../database-setup/alert-configuration/alert-configuration.interfaces";
 import {IQuery} from "../database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
 import axios from "axios";
 import {socket} from "../../../../app.component";
@@ -83,7 +82,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
 
         })().catch(err=>err);
 
-    }, [started])
+    }, [started, add_databases, databaseSetupInput.locations])
 
 
     const initiateDatabaseCreation = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -140,11 +139,11 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                     {
                         add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
-                                return (
-                                    <td key={idx}>Name: {query.name}</td>
-                                )
+                                return (<td key={idx}>Name: {query.name}</td>)
                             }
-                        })
+                        }
+                        )
+                        
                     }
                     <td/>
                 </tr>

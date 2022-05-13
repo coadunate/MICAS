@@ -38,10 +38,10 @@ const DatabaseSetupComponent:
             className="container-fluid vspacer-100 d-flex flex-column h-100">
             <AlertConfigurationComponent initialConfig={initial_alert_config} updateConfig={setAlertConfig}/>    
             <div className="vspacer-50"/>
-            <div className="twline"><span>AND / OR</span></div>
+            <div className="twline"><span>AND</span></div>
             <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config} updateConfig={setAdditionalSequences} />
             <br/>
-            <div className="vspacer-50"/>sssssss
+            <div className="vspacer-50"/>
             <div className="twline"><span>DONT FORGET</span></div>
             <LocationsSetupComponent initialConfig={initial_location_config} updateConfig={setLocationConfig}/>
             <br/>
