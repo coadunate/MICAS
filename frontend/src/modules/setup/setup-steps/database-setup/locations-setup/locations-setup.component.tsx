@@ -52,7 +52,8 @@ const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({
                     placeholder="/path/to/micas/data/storage"
                     type="text"
                     onChange={handleDataChange("micasLocation")}
-                />            
+                />    
+                <div className="vspacer-50"/>        
         </div>
     );
 }

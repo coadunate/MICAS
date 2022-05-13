@@ -220,33 +220,20 @@ def validate_locations():
     if (request.method == 'POST'):
         minION_location = request.form['minION']
         app_location = request.form['App']
-        queries = request.form['Queries']
-
-        _queries = queries.split(';')[:-1]
-
-        if (len(_queries) > 0):
-            query_output = -1
-            for query in _queries:
-                query_output = subprocess.call(['ls', query])
-        else:
-            query_output = 0
 
         minION_output = subprocess.call(['ls', minION_location])
         app_output = subprocess.call(['ls', app_location])
 
         logger.debug("minION_output = " + str(minION_output))
         logger.debug("app_output = " + str(app_output))
-        logger.debug("query_output = " + str(query_output))
 
-        if (minION_output == 0 and app_output == 0 and query_output == 0):
+        if (minION_output == 0 and app_output == 0):
             return json.dumps({"code": 0, "message": "SUCCESS"})
         else:
             if minION_output == 1:
                 return json.dumps([{"code": 1, "message": f"Invalid minION location (err code {minION_output})"}])
             elif app_output == 1:
                 return json.dumps([{"code": 1, "message": f"Invalid App location (err code {app_output})"}])
-            elif query_output == 1:
-                return json.dumps([{"code": 1, "message": f"Invalid Queries location (err code {query_output})"}])
             else:
                 return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output})"}])
     else:

@@ -104,8 +104,10 @@
     color: #636363;
 }
 
-.mainContent .choice-input {
-    display: inline-block;
+
+label { 
+    margin-left: 1rem;
+    text-align: center;
 }
 
 .module-stepbar .steps li span.step-no {

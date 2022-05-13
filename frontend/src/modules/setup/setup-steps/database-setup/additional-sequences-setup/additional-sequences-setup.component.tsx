@@ -54,9 +54,10 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                     queries.map((q, i) => {
                         return (
                             <div key={i} className="container text-center pb-2">
-                                <div className="row p-0 m-0">
+                                <div className="row p-0 m-0 ">
                                     <div className="col-sm-4">
                                         <input 
+                                            id="filePathText"
                                             name="filePathText"
                                             type="file" 
                                             placeholder="/path/to/file.fasta"
@@ -67,6 +68,7 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                     </div>
                                     <div className="col-sm-3">
                                         <input 
+                                            id="fastaNameText"
                                             name="fastaNameText"
                                             type="text" 
                                             onChange={handleDataChange(i, "name")}
@@ -75,28 +77,27 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                         />
                                     </div>
                                     <div className="col-sm-2">
-                                        <label className="">
                                             <input 
+                                                id="alertCheck"
                                                 name="alertCheck"
                                                 type="checkbox"
-                                                value="Alert when fould?"
                                                 onChange={handleDataChange(i, "alert")}
-                                                className="form-control"
                                             />
-                                        </label>
+                                            
+                                            <label htmlFor="alertCheck">Alert?</label>
                                     </div>
                                     <div className="col-sm-2">
-                                        
-                                        <label className="">
-                                            <input placeholder="% Threshold"
+                                            <input 
+                                                id="thresholdText"
+                                                name="thresholdText"
                                                 type="number"
+                                                placeholder="% Threshold"
                                                 onChange={handleDataChange(i, "threshold")}
                                                 className="form-control"
+                                                
                                                 min="0" 
                                                 max="100"
-                                            />
-                                        </label>
-                                        
+                                            /> 
                                     </div>
                                     <div className="col-sm-1">
                                         <button type="button"

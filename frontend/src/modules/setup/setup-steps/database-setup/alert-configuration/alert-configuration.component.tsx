@@ -14,12 +14,11 @@ const AlertConfigurationComponent:
 
     const [alertConfig, setAlertConfig] = useState(initial_alert_config);
 
-    const handleDataChange = (key: IKeys) => (evt: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {        
-        setAlertConfig((prev) => {
-            return {...prev, [key]: evt.target.value}
-        })
+    const handleDataChange = (key: IKeys) => (evt: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
+        const new_config = {...alertConfig, [key]: evt.target.value}
+        setAlertConfig(new_config);
     }
-
+    
     useEffect(() => {
         updateConfig((prevState: any) => ({
             ...prevState,
@@ -31,6 +30,7 @@ const AlertConfigurationComponent:
         <div className="col-lg-6 container text-center">
             <br/>
             <h4>Email</h4>
+            <div className="vspacer-50 "/>
             <div className="row ml-auto">
                 <input 
                     name="emailText"
