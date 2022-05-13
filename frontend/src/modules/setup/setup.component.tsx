@@ -1,13 +1,9 @@
 import React, {useState} from "react";
 
 import {ISteps} from "./setup.interfaces";
-
+import DatabaseSetupComponent from "./setup-steps/database-setup/database-setup.component";
+import SummaryComponent from "./setup-steps/summary/summary.component";
 import "./setup.component.css";
-import AlertConfigurationComponent
-    from "./setup-steps/database-setup/alert-configuration/alert-configuration.component";
-import {
-    IAlertConfig
-} from "./setup-steps/database-setup/alert-configuration/alert-configuration.interfaces";
 import {
     IAdditionalSequences
 } from "./setup-steps/database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";

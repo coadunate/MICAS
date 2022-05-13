@@ -28,7 +28,7 @@ const DatabaseSetupComponent:
 
     const updateDatabaseSetupConfiguration = () => {
 
-        update({queries: additionalSequences, locations: locationConfig, email: alertConfig});
+        update({queries: additionalSequences, locations: locationConfig, alert: alertConfig});
 
         advanceStep();
     }
@@ -36,12 +36,12 @@ const DatabaseSetupComponent:
     return (
         <div
             className="container-fluid vspacer-100 d-flex flex-column h-100">
-            <AlertConfigurationComponent />    
+            <AlertConfigurationComponent initialConfig={initial_alert_config} updateConfig={setAlertConfig}/>    
             <div className="vspacer-50"/>
             <div className="twline"><span>AND / OR</span></div>
             <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config} updateConfig={setAdditionalSequences} />
             <br/>
-            <div className="vspacer-50"/>
+            <div className="vspacer-50"/>sssssss
             <div className="twline"><span>DONT FORGET</span></div>
             <LocationsSetupComponent initialConfig={initial_location_config} updateConfig={setLocationConfig}/>
             <br/>
