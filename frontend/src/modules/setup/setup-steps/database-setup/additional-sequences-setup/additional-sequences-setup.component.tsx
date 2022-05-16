@@ -59,7 +59,7 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                         <input 
                                             id="filePathText"
                                             name="filePathText"
-                                            type="file" 
+                                            type="text" 
                                             placeholder="/path/to/file.fasta"
                                             onChange={handleDataChange(i, "file")}
                                             className="form-control"
