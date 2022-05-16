@@ -29,13 +29,14 @@ OS_TYPE=""
 ## MAIN SCRIPT ##
 #################
 
-conda create -n -y micas python=3.8
+conda create -y -n micas python=3.8
 conda activate micas
 conda install python3-distutils python3-apt python3-dev curl redis-server gcc libffi-dev nodejs minimap2 lsof
 pip install --upgrade pip
 pip install --default-timeout=100 -r requirements.txt
 cd ./frontend
 npm install
+cd ..
 
 # NOTE: It is expected that install.sh has been run at least once prior to this script
 
