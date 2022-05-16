@@ -10,7 +10,6 @@ from .notification import send_email
 
 logger = logging.getLogger()
 
-
 class FASTQFileHandler(FileSystemEventHandler):
 
     def __init__(self, app_loc):
@@ -18,7 +17,7 @@ class FASTQFileHandler(FileSystemEventHandler):
         self.app_loc = app_loc
         self.num_files_classified = 0
 
-    def on_created(self, event):
+    def on_any_event(self, event):
 
         # if fasta file is created
         if event.src_path.endswith(".fastq") or event.src_path.endswith(".fasta"):

@@ -36,7 +36,11 @@ def run_fastq_watcher(app_loc, minion_loc):
     observer = Observer()
     observer.schedule(event_handler, path=minion_loc, recursive=False)
     observer.start()
-    sleep(1)
+    try:
+        while True:
+            sleep(1)
+    except:
+        observer.stop()
 
 
 @socketio.on('connect', namespace="/analysis")

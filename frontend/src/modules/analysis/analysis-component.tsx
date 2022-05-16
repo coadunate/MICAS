@@ -29,7 +29,6 @@ const AnalysisComponent = () => {
     useEffect(() => {
         (async () => {
             const res = await get_analysis_info(params.id);
-            console.log(res);
             setData(res.data);
             setLoaded(true);
         })();

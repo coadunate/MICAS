@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 @main.route('/version', methods=['GET'])
 def version():
-    return json.dumps({"version": "v0.0.1", "name": "MICAS PoC"})
+    return json.dumps({"version": "v0.0.2", "name": "MICAS PoC"})
 
 
 @main.route('/get_timeline_info', methods=["GET"])
@@ -186,7 +186,7 @@ def analysis():
                     # locations are valid
 
                     # is another user already on that page? If so, bounce this user
-                    if subprocess.call(['ls', app_location + 'analysis_busy']) == 0 and False:
+                    if subprocess.call(['ls', app_location + 'analysis_busy']) == 0:
                         error.append({'message': 'This route is busy. Please try again!'})
                     else:
 

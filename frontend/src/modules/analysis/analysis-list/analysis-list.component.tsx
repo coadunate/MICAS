@@ -33,7 +33,6 @@ const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses, update})
                 data: uid,
                 headers: {"Content-Type": "multipart/form-data"},
             })
-            console.log(res)
             if (res.data.status === 200) {
                 if (res.data.found === true) {
                     update(true)
@@ -99,7 +98,6 @@ const AnalysisListComponent = () => {
     useEffect(() => {
         (async () => {
             const res = await getAllAnalyses();
-            console.log(res);
 
             if (res.data.status === 200) { // if locations are valid
                 setAnalyses(res.data.data);
@@ -116,7 +114,6 @@ const AnalysisListComponent = () => {
     useEffect(() => {
         (async () => {
             const res = await getAllAnalyses();
-            console.log(res);
 
             if (res.data.status === 200) { // if locations are valid
                 setAnalyses(res.data.data);
