@@ -30,8 +30,11 @@ OS_TYPE=""
 #################
 
 conda create -y -n micas python=3.8
+eval "$(conda shell.bash hook)"
 conda activate micas
-conda install python3-distutils python3-apt python3-dev curl redis-server gcc libffi-dev nodejs minimap2 lsof
+conda config --append channels conda-forge 
+conda config --append channels bioconda
+conda install curl redis-server gcc libffi nodejs minimap2 lsof
 pip install --upgrade pip
 pip install --default-timeout=100 -r requirements.txt
 cd ./frontend
