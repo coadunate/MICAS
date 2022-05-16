@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
+import React, {FunctionComponent, useEffect, useState} from "react";
 import {IDatabaseSetupConstituent} from "../database-setup.interfaces";
 import {IAlertConfig} from "./alert-configuration.interfaces";
 
@@ -22,7 +22,7 @@ const AlertConfigurationComponent:
     useEffect(() => {
         updateConfig((prevState: any) => ({
             ...prevState,
-            alert: alertConfig.email
+            email: alertConfig.email
         }))
     },[alertConfig, updateConfig])
 
