@@ -230,9 +230,9 @@ def validate_locations():
         if (minION_output == 0 and app_output == 0):
             return json.dumps({"code": 0, "message": "SUCCESS"})
         else:
-            if minION_output == 1:
+            if minION_output != 0:
                 return json.dumps([{"code": 1, "message": f"Invalid minION location (err code {minION_output})"}])
-            elif app_output == 1:
+            elif app_output != 0:
                 return json.dumps([{"code": 1, "message": f"Invalid App location (err code {app_output})"}])
             else:
                 return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output})"}])

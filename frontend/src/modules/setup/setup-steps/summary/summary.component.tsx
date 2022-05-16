@@ -74,12 +74,6 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 setValidationState(VALIDATION_STATES.NOT_VALID)
             }
 
-            // accumulate the progress
-            socket.on('download_database_status',(data: any) => {
-                setProgress(data)
-                console.log(data)
-            })
-
         })().catch(err=>err);
 
     }, [started, add_databases, databaseSetupInput.locations])
