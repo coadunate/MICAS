@@ -132,15 +132,15 @@ def download_database(dbinfo):
         alert_config_file.write(json.dumps(dbinfo))
 
     # Create database directory.
-    logger.debug("DOWNLOAD_DATABADE: Creating database directory.")
-  
-    os.makedirs(app_location + 'database', mode=755, exist_ok=True)
+    logger.debug("DOWNLOAD_DATABASE: Creating database directory.")
+    os.umask(0)
+    os.makedirs(app_location + 'database', mode=0o777, exist_ok=True)
    
 
     # Create minimap2/runs directory
     logger.debug("DOWNLOAD_DATABASE: Creating minimap2/runs directory.")
-
-    os.makedirs(app_location + 'minimap2/runs', mode=755, exist_ok=True)
+    os.umask(0)
+    os.makedirs(app_location + 'minimap2/runs', mode=0o777, exist_ok=True)
 
     res = int_download_database.apply_async(args=(dbinfo, queries))
     res.get(on_message=on_raw_message, propagate=False)
