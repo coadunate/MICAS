@@ -18,7 +18,7 @@ class FASTQFileHandler(FileSystemEventHandler):
         self.num_files_classified = 0
 
     def on_any_event(self, event):
-
+        print("NEW FILE EVENT")
         # if fasta file is created
         if event.src_path.endswith(".fastq") or event.src_path.endswith(".fasta"):
             logger.debug(
@@ -74,7 +74,6 @@ class FASTQFileHandler(FileSystemEventHandler):
 
                 for query in queries:
                     if query["header"] == match_alert_header:
-                        logger.debug(query)
                         query["current_value"] = percent_match_value
 
                         logger.debug("Threshold: ", query["threshold"])

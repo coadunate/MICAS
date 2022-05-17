@@ -43,14 +43,11 @@ def int_download_database(self, db_data, queries):
             logger.info("Alert info file: " + alertinfo_cfg_file)
             with open(alertinfo_cfg_file, 'r') as alertinfo_fs:
                 alertinfo_cfg_obj = json.load(alertinfo_fs)
-                logger.debug(alertinfo_cfg_obj)
-                logger.info(alertinfo_cfg_obj)
                 queries = alertinfo_cfg_obj["queries"]
                 for _, q in enumerate(queries):
                     if q["file"] == query["file"]:
                         alertinfo_cfg_obj["queries"][i]["header"] = fasta_header
 
-                logger.debug(alertinfo_cfg_obj)
                 logger.info(alertinfo_cfg_obj)
 
             # write the updated object into file

@@ -34,7 +34,7 @@ eval "$(conda shell.bash hook)"
 conda activate micas
 conda config --append channels conda-forge 
 conda config --append channels bioconda
-conda install curl redis-server gcc libffi nodejs minimap2 lsof
+conda install -y curl redis-server gcc libffi nodejs minimap2 lsof
 pip install --upgrade pip
 pip install --default-timeout=100 -r requirements.txt
 cd ./frontend

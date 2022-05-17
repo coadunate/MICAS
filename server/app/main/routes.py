@@ -131,7 +131,6 @@ def get_analysis_info():
 
         # get minion and micas location
         micas_path = ""
-        minion_path = ""
         micas_cache_file = os.getenv("HOME") + '/.micas'
         with open(micas_cache_file, 'r') as cache_fs:
             found = False
@@ -139,10 +138,8 @@ def get_analysis_info():
                 entry = line.split("\t")
                 entry_id = entry[0]
                 entry_micas_path = entry[2].rstrip()
-                entry_minion_path = entry[1].rstrip()
                 if uid == entry_id:
                     micas_path = entry_micas_path
-                    minion_path = entry_minion_path
                     found = True
                     break
 
@@ -226,6 +223,12 @@ def validate_locations():
 
         logger.debug("minION_output = " + str(minION_output))
         logger.debug("app_output = " + str(app_output))
+
+        # create micas location if not excistant
+        if app_output == 2:
+            os.makedirs(app_location, mode=755)
+            app_output = 0
+
 
         if (minION_output == 0 and app_output == 0):
             return json.dumps({"code": 0, "message": "SUCCESS"})

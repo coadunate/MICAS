@@ -61,7 +61,7 @@ def start_fastq_file_listener(data):
     micas_location = data['micas_location'] if data['micas_location'].endswith('/') else data['micas_location'] + '/'
     minion_location = data['minion_location']
     # need visibility of the global thread object
-    logger.debug("Starting FASTQ File Listener")
+    logger.debug("Request for FASTQ File Listener recieved")
     global fileListenerThread
 
     if not fileListenerThread.isAlive():
@@ -100,7 +100,7 @@ def on_raw_message(message):
         minion = message['result']['minion']
         app_location = message['result']['app_location']
         logger.debug(
-            "Database download successful and now the locations are MinION: " + minion + " MICAS: " + app_location
+            "Locations are MinION: " + minion + " MICAS: " + app_location
         )
 
 
@@ -133,11 +133,14 @@ def download_database(dbinfo):
 
     # Create database directory.
     logger.debug("DOWNLOAD_DATABADE: Creating database directory.")
-    os.makedirs(app_location + 'database')
+  
+    os.makedirs(app_location + 'database', mode=755, exist_ok=True)
+   
 
     # Create minimap2/runs directory
     logger.debug("DOWNLOAD_DATABASE: Creating minimap2/runs directory.")
-    os.makedirs(app_location + 'minimap2/runs')
+
+    os.makedirs(app_location + 'minimap2/runs', mode=755, exist_ok=True)
 
     res = int_download_database.apply_async(args=(dbinfo, queries))
     res.get(on_message=on_raw_message, propagate=False)

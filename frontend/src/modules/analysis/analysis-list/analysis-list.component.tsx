@@ -101,7 +101,7 @@ const AnalysisListComponent = () => {
 
             if (res.data.status === 200) { // if locations are valid
                 setAnalyses(res.data.data);
-                console.log(res.data.data);
+                
                 if (res.data.data.length > 0) {
                     setStatus("loaded");
                 } else {
@@ -117,7 +117,6 @@ const AnalysisListComponent = () => {
 
             if (res.data.status === 200) { // if locations are valid
                 setAnalyses(res.data.data);
-                console.log(res.data.data);
                 if (res.data.data.length > 0) {
                     setStatus("loaded");
                 } else {
