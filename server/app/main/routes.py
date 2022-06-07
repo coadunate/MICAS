@@ -7,7 +7,6 @@ import string
 import subprocess
 
 from flask import session, render_template, request
-
 from . import main
 
 

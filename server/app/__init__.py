@@ -5,8 +5,7 @@ from flask_cors import CORS
 
 socketio = SocketIO()
 
-
-def create_app(debug=False):
+def create_app(debug=True):
     """Create an application."""
     app = Flask(__name__)
     CORS(app)
@@ -16,6 +15,6 @@ def create_app(debug=False):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    socketio.init_app(app, cors_allowed_origins="*")
+    socketio.init_app(app, cors_allowed_origins='*')
 
     return app
