@@ -18,7 +18,7 @@ def version():
 @main.route('/get_timeline_info', methods=["GET"])
 def get_timeline_info():
     if request.method == 'GET':
-        micas_location = "~/.micas" # Add to CONFIG
+        micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
         micas_location = micas_location if micas_location.endswith('/') else micas_location + '/'
         if subprocess.call(['ls', micas_location + 'analysis.timeline']) == 0:
             with open(micas_location + 'analysis.timeline', 'r') as analysis_timeline:
@@ -44,13 +44,13 @@ def get_uid():
 
     # get the data
     minION_location = request.form['minION']
-    micas_location = "~/.micas" # Add to CONFIG
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
 
     # generate a random unique id
     uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # check to see if this id already exists
-    micas_cache_file = '~/.micas/.cache' # Add to config file
+    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONGIG
     cache_dict = {"ids": [], "micas_paths": [], "minion_paths": []}
     if os.path.exists(micas_cache_file):
         with open(micas_cache_file) as cache_fs:
@@ -65,7 +65,7 @@ def get_uid():
             uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # save the UI and MICAS to cache file
-    micas_cache_file = '~/.micas/.cache' # Add to config file
+    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
     entry = str(uid) + '\t' + str(minION_location) + '\t' + str(micas_location)
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
@@ -76,7 +76,7 @@ def get_uid():
 @main.route('/get_all_analyses', methods=['GET'])
 def get_all_analyses():
     if request.method == "GET":
-        micas_cache_file = '~/.micas/.cache' # Add to config file
+        micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
         data = []
         with open(micas_cache_file, 'r') as cache_fs:
             for line in cache_fs:
@@ -99,7 +99,7 @@ def delete_analyses():
 
     # Get Post Data
     uid = request.form['uid']
-    micas_cache_file = '~/.micas/.cache' # Add to config file
+    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
     found = False
     with open(micas_cache_file, 'r+') as cache_fs:
         filtered_lines = []
@@ -125,7 +125,7 @@ def get_analysis_info():
 
         # get minion and micas location
         micas_path = ""
-        micas_cache_file = '~/.micas/.cache' # Add to config file
+        micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
         with open(micas_cache_file, 'r') as cache_fs:
             found = False
             for line in cache_fs:
@@ -157,7 +157,7 @@ def get_analysis_info():
 def analysis():
     if (request.method == 'GET'):
 
-        micas_location = "~/.micas" # Add to CONFIG
+        micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
         minion = request.args.get('minion')
 
         session['micas_location'] = micas_location
@@ -210,28 +210,28 @@ def analysis():
 def validate_locations():
     if (request.method == 'POST'):
         minION_location = request.form['minION']
-        micas_location = "~/.micas" # Add to CONFIG
+        micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
 
-        minION_output = subprocess.call(['ls', minION_location])
-        app_output = subprocess.call(['ls', micas_location])
+        minION_output_exists = os.path.exists(minION_location)
+        app_output_exists = os.path.exists(micas_location) 
 
-        logger.debug("minION_output = " + str(minION_output))
-        logger.debug("app_output = " + str(app_output))
+        logger.debug("minION_output = " + str(minION_output_exists))
+        logger.debug("app_output_exists = " + str(app_output_exists))
 
         # create micas location if not excistant
-        if app_output == 2:
-            os.makedirs(micas_location, mode=0o777, exist_ok = True) 
-            os.chmod(micas_location, mode=0o777)
-            app_output = 0
+        if not app_output_exists:
+            os.mkdir(micas_location) 
+            os.chmod(micas_location, mode=0o755)
+            app_output_exists = True
 
-        if (minION_output == 0 and app_output == 0):
+        if (minION_output_exists and app_output_exists):
             return json.dumps({"code": 0, "message": "SUCCESS"})
         else:
-            if minION_output != 0:
-                return json.dumps([{"code": 1, "message": f"Invalid minION location (err code {minION_output})"}])
-            elif app_output != 0:
-                return json.dumps([{"code": 1, "message": f"Invalid MICAS location (err code {app_output})"}])
+            if not minION_output_exists:
+                return json.dumps([{"code": 1, "message": f"Invalid minION location (err code {minION_output_exists})"}])
+            elif not app_output_exists:
+                return json.dumps([{"code": 1, "message": f"Invalid MICAS location (err code {app_output_exists})"}])
             else:
-                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, micas_location: {app_output}, query_output: {query_output})"}])
+                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output_exists: {minION_output_exists}, micas_location: {app_output_exists}, query_output: {query_output})"}])
     else:
         return "N/A"

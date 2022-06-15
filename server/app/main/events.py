@@ -58,7 +58,7 @@ def analysis_disconnected():
 @socketio.on('start_fastq_file_listener')
 def start_fastq_file_listener(data):
 
-    micas_location = data['micas_location'] if data['micas_location'].endswith('/') else data['micas_location'] + '/'
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas/')
     minion_location = data['minion_location']
     # need visibility of the global thread object
     logger.debug("Request for FASTQ File Listener recieved")
@@ -107,7 +107,7 @@ def on_raw_message(message):
 @socketio.on('download_database', namespace="/")
 def download_database(dbinfo):
     # Location for the application data directory
-    micas_location = dbinfo['micas_location'] if dbinfo['micas_location'].endswith('/') else dbinfo['micas_location'] + '/'
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') #Add to CONFIG
 
     queries = dbinfo["queries"]
 

@@ -13,10 +13,10 @@ celery = Celery('tasks', broker='redis://localhost', backend='redis')
 
 @celery.task(bind=True, name='app.main.tasks.int_download_database')
 def int_download_database(self, db_data, queries):
-    micas_location = "~/.micas" # Add to CONFIG
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
     minion = db_data['minion']
     project_id = db_data['projectId']
-
+    print(f"======================> QUERY INFO:\n {queries}")
     # Create variables for database.
     micas_location_database = os.path.join(micas_location, 'database')
 
