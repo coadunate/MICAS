@@ -13,15 +13,15 @@ celery = Celery('tasks', broker='redis://localhost', backend='redis')
 
 @celery.task(bind=True, name='app.main.tasks.int_download_database')
 def int_download_database(self, db_data, queries):
-    app_location = db_data['app_location']
+    micas_location = "~/.micas" # Add to CONFIG
     minion = db_data['minion']
     project_id = db_data['projectId']
 
     # add trailing slashes if they don't exist
-    app_location = app_location if app_location.endswith('/') else app_location + '/'
+    micas_location = micas_location if micas_location.endswith('/') else micas_location + '/'
 
     # Create variables for database.
-    app_location_database = app_location + 'database/'
+    micas_location_database = micas_location + 'database/'
 
     if len(queries) == 0:
         logger.debug("DOWNLOAD DATABASE: No queries provided, skipping.")
@@ -30,7 +30,7 @@ def int_download_database(self, db_data, queries):
             query_file = open(query['file'], 'r')
 
             # Putting all the query sequences in one, input_sequences file.
-            with open(app_location_database + 'input_sequences.fa', 'a+') as input_sequences:
+            with open(micas_location_database + 'input_sequences.fa', 'a+') as input_sequences:
                 input_sequences.write('\n')
 
             # get the fasta header and add it into the alertinfo.cfg file
@@ -38,7 +38,7 @@ def int_download_database(self, db_data, queries):
             fasta_header = os.popen('grep "^>" ' + cmd).read().strip().split(">")[1]
 
             # update the alertinfo object to include fasta_header
-            alertinfo_cfg_file = os.path.join(app_location, 'alertinfo.cfg')
+            alertinfo_cfg_file = os.path.join(micas_location, 'alertinfo.cfg')
             logger.debug("Alert info file: " + alertinfo_cfg_file)
             logger.info("Alert info file: " + alertinfo_cfg_file)
             with open(alertinfo_cfg_file, 'r') as alertinfo_fs:
@@ -54,7 +54,7 @@ def int_download_database(self, db_data, queries):
             json.dump(alertinfo_cfg_obj, open(alertinfo_cfg_file, 'w'))
 
             # copy the contents of query_file into input_sequences
-            with open(query['file'], 'rb') as query_file, open(app_location_database + 'input_sequences.fa',
+            with open(query['file'], 'rb') as query_file, open(micas_location_database + 'input_sequences.fa',
                                                                'ab+') as input_sequences:
                 shutil.copyfileobj(query_file, input_sequences)
             logger.debug("DOWNLOAD_DATABASE: Merged " + query['file'] + " sequence into input_sequences.fa file.")
@@ -77,15 +77,15 @@ def int_download_database(self, db_data, queries):
                       meta={'percent-done': 98, 'message': "Building the index.", 'project_id': project_id})
 
     dbname = \
-        app_location_database + str(now.year) + str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + \
+        micas_location_database + str(now.year) + str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + \
         str(now.second) + '.mmi'
 
-    input_sequences_path = os.path.join(app_location_database, 'input_sequences.fa')
+    input_sequences_path = os.path.join(micas_location_database, 'input_sequences.fa')
     index_cmd = [
         'minimap2 -x map-ont -d ' + dbname + ' ' + input_sequences_path
     ]
 
-    building_index_output = open(app_location_database + 'building_index.txt', 'w+')
+    building_index_output = open(micas_location_database + 'building_index.txt', 'w+')
     try:
         build_idx_cmd_output = subprocess.Popen(
             index_cmd,
@@ -105,9 +105,9 @@ def int_download_database(self, db_data, queries):
                       meta={
                           'percent-done': 100,
                           'message'     : "Database has successfully been downloaded and built.",
-                          'app_location': app_location,
+                          'micas_location': micas_location,
                           'minion'      : minion,
                           'project_id'  : project_id
                       })
 
-    return {"minion": minion, "app_location": app_location}
+    return {"minion": minion, "micas_location": micas_location}

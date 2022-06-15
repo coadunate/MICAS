@@ -1,10 +1,9 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IDatabaseSetupConstituent, ILocationConfig} from "../database-setup.interfaces";
 
-type IKeys = "micasLocation" | "minionLocation"
+type IKeys = "minionLocation"
 const initial_location_config: ILocationConfig = {
-    minionLocation: "",
-    micasLocation: ""
+    minionLocation: ""
 }
 
 const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({updateConfig}) => {
@@ -27,8 +26,7 @@ const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({
         }
         updateConfig((prevState: any) => ({
             ...prevState,
-            minionLocation: locationConfig.minionLocation,
-            micasLocation: locationConfig.micasLocation
+            minionLocation: locationConfig.minionLocation
         }))
     }, [locationConfig, updateConfig])
 
@@ -45,14 +43,6 @@ const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({
                     onChange={handleDataChange("minionLocation")}
                 />
                 <br/>
-                <b className=" pt-2">MICAS Location</b>
-                <input
-                    name="micasLocationText"
-                    className="form-control"
-                    placeholder="/path/to/micas/data/storage"
-                    type="text"
-                    onChange={handleDataChange("micasLocation")}
-                />    
                 <div className="vspacer-50"/>        
         </div>
     );

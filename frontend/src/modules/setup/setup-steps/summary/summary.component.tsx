@@ -24,7 +24,6 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
     })
     let locationData = new FormData();
     locationData.append('minION', locations.minionLocation);
-    locationData.append('App', locations.micasLocation);
     locationData.append('Queries', queryFiles);
 
     return axios({
@@ -38,7 +37,6 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
 const getUniqueUID = (locations: ILocationConfig) => {
     let locationData = new FormData();
     locationData.append('minION', locations.minionLocation);
-    locationData.append('App', locations.micasLocation);
 
     return axios({
         method: "POST",
@@ -87,7 +85,6 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
             socket.emit('log', "Locations are valid", "INFO");
             let dbInfo = {
                 minion: databaseSetupInput.locations.minionLocation,
-                app_location: databaseSetupInput.locations.micasLocation,
                 queries: add_databases,
                 projectId: uid,
                 email: databaseSetupInput.alert.email

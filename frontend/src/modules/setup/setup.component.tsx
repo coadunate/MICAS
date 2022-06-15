@@ -20,7 +20,7 @@ const qrs: IAdditionalSequences = {
 
 const initial_db_setup_input: IDatabseSetupInput = {
     queries  : qrs,
-    locations: {minionLocation: "", micasLocation: ""},
+    locations: {minionLocation: ""},
     alert: {email: ""}
 };
 

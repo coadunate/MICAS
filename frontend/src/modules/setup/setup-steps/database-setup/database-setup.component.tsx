@@ -12,8 +12,7 @@ const initial_additional_sequences_config: IAdditionalSequences = {
 }
 
 const initial_location_config: ILocationConfig = {
-    minionLocation: "",
-    micasLocation: ""
+    minionLocation: ""
 }
 
 const initial_alert_config: IAlertConfig ={

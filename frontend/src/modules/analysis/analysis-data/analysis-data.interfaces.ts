@@ -5,7 +5,6 @@ type IAnalysisData = {
     "status": number,
     "data": {
         "minion": string,
-        "app_location": string,
         "queries": IQuery[],
         "projectId": string,
         "email": string

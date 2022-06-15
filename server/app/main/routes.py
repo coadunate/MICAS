@@ -9,23 +9,19 @@ import subprocess
 from flask import session, render_template, request
 from . import main
 
-
 logger = logging.getLogger()
-
 
 @main.route('/version', methods=['GET'])
 def version():
     return json.dumps({"version": "v0.0.2", "name": "MICAS PoC"})
 
-
 @main.route('/get_timeline_info', methods=["GET"])
 def get_timeline_info():
     if request.method == 'GET':
-        app_location = request.args.get('app_location')
-        app_location = app_location if app_location.endswith('/') else app_location + '/'
-
-        if subprocess.call(['ls', app_location + 'analysis.timeline']) == 0:
-            with open(app_location + 'analysis.timeline', 'r') as analysis_timeline:
+        micas_location = "~/.micas" # Add to CONFIG
+        micas_location = micas_location if micas_location.endswith('/') else micas_location + '/'
+        if subprocess.call(['ls', micas_location + 'analysis.timeline']) == 0:
+            with open(micas_location + 'analysis.timeline', 'r') as analysis_timeline:
                 try:
                     line = analysis_timeline.readline()
                     (num_total_reads, num_classified_reads) = line.split("\t")
@@ -48,7 +44,7 @@ def get_uid():
 
     # get the data
     minION_location = request.form['minION']
-    app_location = request.form['App']
+    micas_location = "~/.micas" # Add to CONFIG
 
     # generate a random unique id
     uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
@@ -70,7 +66,7 @@ def get_uid():
 
     # save the UI and MICAS to cache file
     micas_cache_file = os.getenv('HOME') + '/.micas'
-    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(app_location)
+    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(micas_location)
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
 
@@ -80,7 +76,7 @@ def get_uid():
 @main.route('/get_all_analyses', methods=['GET'])
 def get_all_analyses():
     if request.method == "GET":
-        micas_cache_file = os.getenv("HOME") + '/.micas'
+        micas_cache_file = '~/.micas'
         data = []
         with open(micas_cache_file, 'r') as cache_fs:
             for line in cache_fs:
@@ -96,7 +92,6 @@ def get_all_analyses():
             'data'  : data
         })
 
-
 @main.route('/delete_analyses', methods=['POST'])
 def delete_analyses():
     if request.method == "GET":
@@ -104,7 +99,7 @@ def delete_analyses():
 
     # Get Post Data
     uid = request.form['uid']
-    micas_cache_file = os.getenv("HOME") + '/.micas'
+    micas_cache_file = '~/.micas'
     found = False
     with open(micas_cache_file, 'r+') as cache_fs:
         filtered_lines = []
@@ -130,7 +125,7 @@ def get_analysis_info():
 
         # get minion and micas location
         micas_path = ""
-        micas_cache_file = os.getenv("HOME") + '/.micas'
+        micas_cache_file = '~/.micas'
         with open(micas_cache_file, 'r') as cache_fs:
             found = False
             for line in cache_fs:
@@ -162,33 +157,33 @@ def get_analysis_info():
 def analysis():
     if (request.method == 'GET'):
 
-        app_location = request.args.get('app_location')
+        micas_location = "~/.micas" # Add to CONFIG
         minion = request.args.get('minion')
 
-        session['app_location'] = app_location
+        session['micas_location'] = micas_location
         session['minion'] = minion
 
         error = []
 
         # Location for the applicaiton data directory
-        app_location = app_location if app_location.endswith('/') else app_location + '/'
+        micas_location = micas_location if micas_location.endswith('/') else micas_location + '/'
 
-        # check if app_location is valid
-        if subprocess.call(['ls', app_location]) == 0:
-            # if app_location exists
-            if subprocess.call(['ls', app_location + 'alertinfo.cfg']) == 0:
+        # check if micas_location is valid
+        if subprocess.call(['ls', micas_location]) == 0:
+            # if micas_location exists
+            if subprocess.call(['ls', micas_location + 'alertinfo.cfg']) == 0:
                 # if minion location exists
                 if subprocess.call(['ls', minion]) == 0:
                     # locations are valid
 
                     # is another user already on that page? If so, bounce this user
-                    if subprocess.call(['ls', app_location + 'analysis_busy']) == 0:
+                    if subprocess.call(['ls', micas_location + 'analysis_busy']) == 0:
                         error.append({'message': 'This route is busy. Please try again!'})
                     else:
 
                         analysis_started_date = None
-                        if subprocess.call(['ls', app_location + 'analysis_started']) == 0:
-                            with open(app_location + 'analysis_started', 'r') as f:
+                        if subprocess.call(['ls', micas_location + 'analysis_started']) == 0:
+                            with open(micas_location + 'analysis_started', 'r') as f:
                                 analysis_started_date = f.readline()
                         else:
                             import datetime, time
@@ -197,11 +192,11 @@ def analysis():
                             analysis_started_date = for_js
                             logger.debug("D: " + str(d))
                             logger.debug("FOR_JS: " + str(for_js))
-                            with open(app_location + 'analysis_started', 'w') as f:
+                            with open(micas_location + 'analysis_started', 'w') as f:
                                 f.write(str(analysis_started_date))
 
-                        subprocess.call(['touch', app_location + 'analysis_busy'])
-                        return render_template('analysis.html', app_loc=app_location, minion_loc=minion,
+                        subprocess.call(['touch', micas_location + 'analysis_busy'])
+                        return render_template('analysis.html', app_loc=micas_location, minion_loc=minion,
                                                start_time=analysis_started_date)
                 else:
                     error.append({'message': 'MinION location is not valid.'})
@@ -215,19 +210,18 @@ def analysis():
 def validate_locations():
     if (request.method == 'POST'):
         minION_location = request.form['minION']
-        app_location = request.form['App']
+        micas_location = "~/.micas" # Add to CONFIG
 
         minION_output = subprocess.call(['ls', minION_location])
-        app_output = subprocess.call(['ls', app_location])
+        app_output = subprocess.call(['ls', micas_location])
 
         logger.debug("minION_output = " + str(minION_output))
         logger.debug("app_output = " + str(app_output))
 
         # create micas location if not excistant
         if app_output == 2:
-            os.makedirs(app_location, mode=755)
+            os.makedirs(micas_location, mode=755)
             app_output = 0
-
 
         if (minION_output == 0 and app_output == 0):
             return json.dumps({"code": 0, "message": "SUCCESS"})

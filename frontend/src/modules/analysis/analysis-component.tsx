@@ -10,7 +10,6 @@ const initial_analysis_data_state: IAnalysisData = {
     "status": 404,
     "data"  : {
         "minion"      : "",
-        "app_location": "",
         "queries"     : [],
         "projectId"   : "",
         "email"       : ""

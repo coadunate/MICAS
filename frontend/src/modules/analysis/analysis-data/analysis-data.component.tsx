@@ -9,7 +9,6 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) =>
 
     const handleStartFileListener = () => {
         socket.emit("start_fastq_file_listener", {
-            micas_location : analysis_data.app_location,
             minion_location: analysis_data.minion
         });
     };
@@ -42,10 +41,6 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) =>
                     <tr>
                         <th>MinION Path</th>
                         <td>{analysis_data.minion}</td>
-                    </tr>
-                    <tr>
-                        <th>MICAS Path</th>
-                        <td>{analysis_data.app_location}</td>
                     </tr>
                     <tr>
                         <th className={"text-center"} colSpan={2}>Actions</th>

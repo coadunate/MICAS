@@ -51,7 +51,7 @@ def analysis_connected():
 @socketio.on('disconnect', namespace="/analysis")
 def analysis_disconnected():
     # delete the analysis_busy file
-    subprocess.call(['rm', session.get('app_location') + 'analysis_busy'])
+    subprocess.call(['rm', session.get('micas_location') + 'analysis_busy'])
     logger.debug("DISCONNECTED FROM ANALYSIS")
 
 
@@ -86,10 +86,10 @@ def on_raw_message(message):
 
         if percent_done == 100:
             minion = message['result']['minion']
-            app_location = message['result']['app_location']
+            micas_location = message['result']['micas_location']
 
             logger.debug("Starting the MinION Listener")
-            # start_fastq_file_listener(app_location, minion)
+            # start_fastq_file_listener(micas_location, minion)
 
         nsp = "/" + project_id
         logger.debug("NSP: " + nsp)
@@ -98,23 +98,23 @@ def on_raw_message(message):
 
     if status == "SUCCESS":
         minion = message['result']['minion']
-        app_location = message['result']['app_location']
+        micas_location = message['result']['micas_location']
         logger.debug(
-            "Locations are MinION: " + minion + " MICAS: " + app_location
+            "Locations are MinION: " + minion + " MICAS: " + micas_location
         )
 
 
 @socketio.on('download_database', namespace="/")
 def download_database(dbinfo):
     # Location for the application data directory
-    app_location = dbinfo['app_location'] if dbinfo['app_location'].endswith('/') else dbinfo['app_location'] + '/'
+    micas_location = dbinfo['micas_location'] if dbinfo['micas_location'].endswith('/') else dbinfo['micas_location'] + '/'
 
     queries = dbinfo["queries"]
 
     # Firstly, we need to remove any existing files that might exist inside
     # our app data folder, as it is supposed to be empty to begin with.
-    for file in os.listdir(app_location):
-        file_path = os.path.join(app_location, file)
+    for file in os.listdir(micas_location):
+        file_path = os.path.join(micas_location, file)
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
@@ -126,21 +126,21 @@ def download_database(dbinfo):
             logger.error(e)
 
     # Create an file to indicate that the download is in progress
-    download_in_progress = open(app_location + '.download_in_progress', 'a')
+    download_in_progress = open(micas_location + '.download_in_progress', 'a')
 
-    with open(app_location + 'alertinfo.cfg', 'w+') as alert_config_file:
+    with open(micas_location + 'alertinfo.cfg', 'w+') as alert_config_file:
         alert_config_file.write(json.dumps(dbinfo))
 
     # Create database directory.
     logger.debug("DOWNLOAD_DATABASE: Creating database directory.")
     os.umask(0)
-    os.makedirs(app_location + 'database', mode=0o777, exist_ok=True)
+    os.makedirs(micas_location + 'database', mode=0o777, exist_ok=True)
    
 
     # Create minimap2/runs directory
     logger.debug("DOWNLOAD_DATABASE: Creating minimap2/runs directory.")
     os.umask(0)
-    os.makedirs(app_location + 'minimap2/runs', mode=0o777, exist_ok=True)
+    os.makedirs(micas_location + 'minimap2/runs', mode=0o777, exist_ok=True)
 
     res = int_download_database.apply_async(args=(dbinfo, queries))
     res.get(on_message=on_raw_message, propagate=False)

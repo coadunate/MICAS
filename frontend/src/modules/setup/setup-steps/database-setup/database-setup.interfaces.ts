@@ -3,8 +3,7 @@ import {IAlertConfig} from "./alert-configuration/alert-configuration.interfaces
 import React from "react";
 
 type ILocationConfig = {
-    minionLocation: string,
-    micasLocation: string
+    minionLocation: string
 }
 
 type IDatabseSetupInput = {
