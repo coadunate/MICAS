@@ -50,7 +50,7 @@ mkdir -p Files-MICAS/minion_data
 STEP=$(($STEP+1))
 
 debug "Step $STEP: Starting redis-server..."
-redis-server &
+redis-server &1> redis.log 
 STEP=$(($STEP+1))
 
 debug "Step $STEP: Starting celery..."

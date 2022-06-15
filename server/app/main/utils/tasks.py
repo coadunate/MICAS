@@ -17,11 +17,8 @@ def int_download_database(self, db_data, queries):
     minion = db_data['minion']
     project_id = db_data['projectId']
 
-    # add trailing slashes if they don't exist
-    micas_location = micas_location if micas_location.endswith('/') else micas_location + '/'
-
     # Create variables for database.
-    micas_location_database = micas_location + 'database/'
+    micas_location_database = os.path.join(micas_location, 'database')
 
     if len(queries) == 0:
         logger.debug("DOWNLOAD DATABASE: No queries provided, skipping.")

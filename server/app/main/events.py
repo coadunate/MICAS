@@ -111,19 +111,19 @@ def download_database(dbinfo):
 
     queries = dbinfo["queries"]
 
-    # Firstly, we need to remove any existing files that might exist inside
-    # our app data folder, as it is supposed to be empty to begin with.
-    for file in os.listdir(micas_location):
-        file_path = os.path.join(micas_location, file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-                logger.debug("DOWNLOAD_DATABASE: Deleting " + file + " file.")
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-                logger.debug("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
-        except Exception as e:
-            logger.error(e)
+    # # Firstly, we need to remove any existing files that might exist inside
+    # # our app data folder, as it is supposed to be empty to begin with.
+    # for file in os.listdir(micas_location):
+    #     file_path = os.path.join(micas_location, file)
+    #     try:
+    #         if os.path.isfile(file_path):
+    #             os.unlink(file_path)
+    #             logger.debug("DOWNLOAD_DATABASE: Deleting " + file + " file.")
+    #         elif os.path.isdir(file_path):
+    #             shutil.rmtree(file_path)
+    #             logger.debug("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
+    #     except Exception as e:
+    #         logger.error(e)
 
     # Create an file to indicate that the download is in progress
     download_in_progress = open(micas_location + '.download_in_progress', 'a')
@@ -134,7 +134,7 @@ def download_database(dbinfo):
     # Create database directory.
     logger.debug("DOWNLOAD_DATABASE: Creating database directory.")
     os.umask(0)
-    os.makedirs(micas_location + 'database', mode=0o777, exist_ok=True)
+    os.makedirs(os.path.join(micas_location, 'database'), mode=0o777, exist_ok=True)
    
 
     # Create minimap2/runs directory

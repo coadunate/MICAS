@@ -50,7 +50,7 @@ def get_uid():
     uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # check to see if this id already exists
-    micas_cache_file = os.getenv('HOME') + "/.micas"
+    micas_cache_file = '~/.micas/.cache' # Add to config file
     cache_dict = {"ids": [], "micas_paths": [], "minion_paths": []}
     if os.path.exists(micas_cache_file):
         with open(micas_cache_file) as cache_fs:
@@ -65,7 +65,7 @@ def get_uid():
             uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # save the UI and MICAS to cache file
-    micas_cache_file = os.getenv('HOME') + '/.micas'
+    micas_cache_file = '~/.micas/.cache' # Add to config file
     entry = str(uid) + '\t' + str(minION_location) + '\t' + str(micas_location)
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
@@ -76,7 +76,7 @@ def get_uid():
 @main.route('/get_all_analyses', methods=['GET'])
 def get_all_analyses():
     if request.method == "GET":
-        micas_cache_file = '~/.micas'
+        micas_cache_file = '~/.micas/.cache' # Add to config file
         data = []
         with open(micas_cache_file, 'r') as cache_fs:
             for line in cache_fs:
@@ -99,7 +99,7 @@ def delete_analyses():
 
     # Get Post Data
     uid = request.form['uid']
-    micas_cache_file = '~/.micas'
+    micas_cache_file = '~/.micas/.cache' # Add to config file
     found = False
     with open(micas_cache_file, 'r+') as cache_fs:
         filtered_lines = []
@@ -125,7 +125,7 @@ def get_analysis_info():
 
         # get minion and micas location
         micas_path = ""
-        micas_cache_file = '~/.micas'
+        micas_cache_file = '~/.micas/.cache' # Add to config file
         with open(micas_cache_file, 'r') as cache_fs:
             found = False
             for line in cache_fs:
@@ -220,7 +220,8 @@ def validate_locations():
 
         # create micas location if not excistant
         if app_output == 2:
-            os.makedirs(micas_location, mode=755)
+            os.makedirs(micas_location, mode=0o777, exist_ok = True) 
+            os.chmod(micas_location, mode=0o777)
             app_output = 0
 
         if (minION_output == 0 and app_output == 0):
@@ -229,8 +230,8 @@ def validate_locations():
             if minION_output != 0:
                 return json.dumps([{"code": 1, "message": f"Invalid minION location (err code {minION_output})"}])
             elif app_output != 0:
-                return json.dumps([{"code": 1, "message": f"Invalid App location (err code {app_output})"}])
+                return json.dumps([{"code": 1, "message": f"Invalid MICAS location (err code {app_output})"}])
             else:
-                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, app_output: {app_output}, query_output: {query_output})"}])
+                return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output: {minION_output}, micas_location: {app_output}, query_output: {query_output})"}])
     else:
         return "N/A"
