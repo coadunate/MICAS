@@ -17,13 +17,16 @@ class FASTQFileHandler(FileSystemEventHandler):
         self.app_loc = app_loc
         self.num_files_classified = 0
 
+    # This should be covered ny on_any_event but isn't for some reason
+    def on_moved(self, event):
+        self.on_any_event(event)
+
     def on_any_event(self, event):
-        print("NEW FILE EVENT")
         # if fasta file is created
         if event.src_path.endswith(".fastq") or event.src_path.endswith(".fasta"):
             logger.debug(
-                'event type: ' + str(event.event_type) + 'path: ' + str(
-                    event.src_path) + 'num files classified: ' + str(self.num_files_classified))
+                '\nNEW FILE EVENT: \nEvent Type: ' + str(event.event_type) + '\npath: ' + str(
+                    event.src_path) + '\nnum files classified: ' + str(self.num_files_classified) + "\n") #TODO Clean this up (Looks gross in log file)
 
             # paths for minimap2 out file and minimap2 report file
             minimap2_output = self.app_loc + 'minimap2/runs/' + os.path.basename(event.src_path) + '.out.paf'
@@ -44,20 +47,20 @@ class FASTQFileHandler(FileSystemEventHandler):
                 index_file = indices[0]
 
             cmd = 'minimap2 ' + index_file + ' ' + event.src_path + ' -o ' + minimap2_output
-            logger.debug(cmd, "DEBUG")
+            logger.debug(cmd)
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-            (output, err) = proc.communicate()
             proc.wait()
-            logger.debug(f"COMMAND OUTPUT: {str(output)}")
 
             # if running minimap2 was successful
-            if os.path.getsize(minimap2_output) <= 0:
+            if os.path.exists(minimap2_output) <= 0:
+                logger.error(f"An error has occured in the minimap2 alignment of {index_file}")
                 return
             else:
 
                 # see which alert sequence this new data matches to and update its percent match value
                 # get the name of the header of alert sequence it matches to
+                #TODO Remove use of awk
                 minimap2_output_line = os.popen('awk "{print $1}" ' + minimap2_output).read().strip().split("\t")
                 match_alert_header = minimap2_output_line[5]
 
@@ -69,19 +72,22 @@ class FASTQFileHandler(FileSystemEventHandler):
                 # Add the new calculated value to the alert threshold
                 alertinfo_cfg_file = os.path.join(self.app_loc, 'alertinfo.cfg')
                 alertinfo_cfg_data = json.load(open(alertinfo_cfg_file))
-                logger.debug(alertinfo_cfg_data)
                 queries = alertinfo_cfg_data["queries"]
-
+                logger.debug(f"Minimap2 Alignment Info For {event.src_path}:\nheader: {match_alert_header}\nmatchs: {num_match}\ntotal lenght: {tot_len}\n% match: {percent_match_value}")
+               
                 for query in queries:
-                    if query["header"] == match_alert_header:
+                    # Needs subsring logical match as the query header tends to be longer than the match alert header (which is the ascension number)
+                    if match_alert_header in query["header"] :
                         query["current_value"] = percent_match_value
-
-                        logger.debug("Threshold: ", query["threshold"])
-                        logger.debug("PercentMatchValue: ", percent_match_value)
+                        threshold = query["threshold"]
+                        logger.debug(f"Threshold: {threshold}")
+                        logger.debug(f"PercentMatchValue: {percent_match_value}")
                         logger.debug(query)
 
                         # get ready to send an alert if needed
-                        if float(query["threshold"]) <= float(percent_match_value):
+                        if num_match >= int(query["threshold"]): #TODO remove overload
+                        # if float(query["threshold"]) <= float(percent_match_value):
+
                             # send out an email if the percent match exceeds the threshold
                             send_email(query, alertinfo_cfg_data["email"])
 
@@ -94,7 +100,8 @@ class FASTQFileHandler(FileSystemEventHandler):
 
                     open(final_output, "a+").writelines([l for l in open(minimap2_output).readlines()])
 
-                    subprocess.call(['rm', minimap2_output])
+                    # Deletes the minimap2 temp file runs
+                    # subprocess.call(['rm', minimap2_output])
 
                 # if final output files do not exist, move the already
                 # generated output files to the appropriate location,
@@ -107,6 +114,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                     )
 
                 # increase the # of files it has classified
+
                 self.num_files_classified += 1
 
                 # Get the number of files that are in MinION reads directory

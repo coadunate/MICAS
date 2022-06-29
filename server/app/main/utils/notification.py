@@ -6,7 +6,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-email_config_path = os.path.join(os.path.dirname(os.path.abspath('~/')), 'server/app/config/email_config.json')
+email_config_path = 'server/app/email_config.json'
 
 logger = logging.getLogger()
 
@@ -18,7 +18,6 @@ try:
 except:
     logger.warning("Email configuration not set")
 
-
 def send_email(query, email_address):
     """
     Send email about query alerts to specified email
@@ -28,32 +27,28 @@ def send_email(query, email_address):
 
     query_name = query["name"]
     query_value = query["current_value"]
+    query_threshold = query["threshold"]
 
     # Email message
     SUBJECT = "MICAS -- [ALERT] " + str(query_name) + " was detected in your sample!"
-    body = "Hi,\n\nMICAS has recently detected " + str(query_value) + "% of " + str(query_name) + "in your sample. It " \
-                                                                                                "probably needs your " \
-                                                                                                "attention.\n\n" \
-                                                                                                "Thanks," \
-                                                                                                "\nYour friends at " \
-                                                                                                "MICAS"
+    body = f"Greetings,\n\nMICAS has detected the presence of {str(query_name)} at a frequency (out of the total reads) of " \
+         + f"{float(query_value):.4f}. The threshold for {str(query_name)} was set to {float(query_threshold):.2f}.\n\nThanks,\nYour friends at MICAS"
 
     try:
         msg = MIMEMultipart()
         msg['From'] = email_data['from_email']
         msg['To'] = email_address
         msg['Subject'] = SUBJECT
-
+        logger.debug(f"MESSAGE: \n{body}\nFrom: {msg['From']}\nTo: {msg['To']}\nPassword: {email_data['password']}")
         msg.attach(MIMEText(body, 'plain'))
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP(host=email_data['email_server'], port=587)
         server.starttls()
         server.login(email_data['from_email'], email_data['password'])
         text = msg.as_string()
-        server.sendmail(email_data['from_email'], email_address, text)
+        server.sendmail(email_data['from_email'], msg['To'], text)
         server.quit()
-        logger.debug("Email sent to '" + email_address + "' successfully!")
+        logger.debug(f"Email sent to '{msg['To']}' successfully regarding the presence of {str(query_name)} at {str(query_value)}!")
     except Exception as error:
-        logger.error("An error occurred! The email configuration mustn't have been set \
-        properly")
+        logger.error("An error occurred in sending an email! Check configuration file.")
         logger.error(error)

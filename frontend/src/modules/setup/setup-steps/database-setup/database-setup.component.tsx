@@ -42,6 +42,9 @@ const DatabaseSetupComponent:
             <br/>
             <div className="vspacer-50"/>
             <div className="twline"><span>DONT FORGET</span></div>
+            /*
+                Verify path for ending in "/fastq_pass/"
+            */
             <LocationsSetupComponent initialConfig={initial_location_config} updateConfig={setLocationConfig}/>
             <br/>
             <div className="container text-center">

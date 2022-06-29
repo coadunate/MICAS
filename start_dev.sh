@@ -41,14 +41,6 @@ cd ./frontend
 npm install
 cd ..
 
-# NOTE: It is expected that install.sh has been run at least once prior to this script
-
-debug "Step $STEP: Creating micas file structure..."
-mkdir Files-MICAS
-mkdir -p Files-MICAS/micas_data
-mkdir -p Files-MICAS/minion_data
-STEP=$(($STEP+1))
-
 debug "Step $STEP: Starting redis-server..."
 redis-server &1> redis.log 
 STEP=$(($STEP+1))

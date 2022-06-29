@@ -13,12 +13,13 @@ celery = Celery('tasks', broker='redis://localhost', backend='redis')
 
 @celery.task(bind=True, name='app.main.tasks.int_download_database')
 def int_download_database(self, db_data, queries):
+    logger.debug("WORLD\n\n\n")
     micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
     minion = db_data['minion']
     project_id = db_data['projectId']
-    print(f"======================> QUERY INFO:\n {queries}")
+    logger.debug(f"QUERY INFO:\n {queries}")
     # Create variables for database.
-    micas_location_database = os.path.join(micas_location, 'database')
+    micas_location_database = os.path.join(micas_location, 'database/')
 
     if len(queries) == 0:
         logger.debug("DOWNLOAD DATABASE: No queries provided, skipping.")
@@ -81,8 +82,8 @@ def int_download_database(self, db_data, queries):
     index_cmd = [
         'minimap2 -x map-ont -d ' + dbname + ' ' + input_sequences_path
     ]
-
-    building_index_output = open(micas_location_database + 'building_index.txt', 'w+')
+    logger.debug("the minimap2 indexing command was [",index_cmd,"]")
+    building_index_output = open(os.path.join(micas_location_database, 'building_index.txt'), 'w+')
     try:
         build_idx_cmd_output = subprocess.Popen(
             index_cmd,
