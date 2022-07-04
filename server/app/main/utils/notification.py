@@ -9,14 +9,13 @@ A abstract dataclass which allows the integration of custom notification systems
 """
 @dataclass
 class Notification(ABC):
-    connection_address_string: str
 
     @abstractmethod
     def test_connection(self, msg):
         pass
 
     @abstractmethod
-    def send_notification(self):
+    def send_notification(self, msg):
         pass
 
 

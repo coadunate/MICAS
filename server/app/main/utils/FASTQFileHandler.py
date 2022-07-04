@@ -6,7 +6,7 @@ import sys
 
 from watchdog.events import FileSystemEventHandler
 
-from .notification import send_email
+from .LinuxNotification import LinuxNotification
 
 logger = logging.getLogger()
 
@@ -16,6 +16,7 @@ class FASTQFileHandler(FileSystemEventHandler):
         logger.debug("FASTQ FILE HANDLER INITIATED")
         self.app_loc = app_loc
         self.num_files_classified = 0
+        LinuxNotification().test_connection()
 
     # This should be covered ny on_any_event but isn't for some reason
     def on_moved(self, event):
@@ -89,7 +90,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                         # if float(query["threshold"]) <= float(percent_match_value):
 
                             # send out an email if the percent match exceeds the threshold
-                            send_email(query, alertinfo_cfg_data["email"])
+                            LinuxNotification().test_connection()
 
                 json.dump(alertinfo_cfg_data, open(alertinfo_cfg_file, 'w'))
 
