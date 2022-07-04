@@ -29,7 +29,7 @@ const ListRenderer: FunctionComponent<IListRendererProps> = ({analyses, update})
             uid.append('uid', id);
             const res = await axios({
                 method: 'POST',
-                url: 'http://localhost:5000/delete_analyses',
+                url: 'http://localhost:5007/delete_analyses',
                 data: uid,
                 headers: {"Content-Type": "multipart/form-data"},
             })
@@ -91,7 +91,7 @@ const AnalysisListComponent = () => {
     const getAllAnalyses = () => {
         return axios({
             method: "GET",
-            url   : "http://localhost:5000/get_all_analyses"
+            url   : "http://localhost:5007/get_all_analyses"
         });
     };
 

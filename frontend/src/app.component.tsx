@@ -4,7 +4,7 @@ import './app.component.css'
 import RoutesComponent from "./modules/routes/routes.component";
 
 export const io = require('socket.io-client');
-export const socket = io.connect('http://localhost:5000/', { transports: ['polling']})
+export const socket = io.connect('http://localhost:5007/', { transports: ['polling']})
 
 socket.on('connect', function() {
     socket.send('message', 'User has connected!');

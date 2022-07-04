@@ -15,7 +15,7 @@ class LinuxNotification(Notification):
         raise ValueError("Could not find device {!r}".format(device))
     
     
-    connection_address = __get_device("MN26243").connect()
+    connection_address = __get_device("MN19220").connect()
 
     def test_connection(self, msg="This is a linux test connection"):
         self.send_notification(msg)
@@ -23,7 +23,11 @@ class LinuxNotification(Notification):
 
     def send_notification(self, msg):
         #Sends OS notification
-        subprocess.Popen(['notify-send', msg])
+        try:
+            subprocess.Popen(['notify-send', msg])
+        except:
+            print("Error in linux notification: are you running MICAS on linux?")
+        
         self.connection_address.log.send_user_message(severity=2, user_message=msg)
         print(self.connection_address.device.get_device_state())
         pass
