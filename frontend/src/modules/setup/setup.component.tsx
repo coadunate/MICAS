@@ -39,7 +39,7 @@ const SetupComponent = () => {
 
     const steps: ISteps[] = [
         {
-            name: "Database Selection",
+            name: "Create Database",
             component: <DatabaseSetupComponent advanceStep={advanceStep} update={setDatasetSetupInput} />,
         },
         {
@@ -52,7 +52,7 @@ const SetupComponent = () => {
         <div className="container-fluid d-flex flex-column ">
             <div className="vspacer-50 "/>
             <div className="container text-center ">
-                <h3 className="font-weight-bold">New MICAS Setup</h3>
+                <h3>MICAS Setup</h3>
             </div>
             <div className="vspacer-20" />
             <div className="module-stepbar d-flex ">

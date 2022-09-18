@@ -1,7 +1,7 @@
-import {Chart} from "react-google-charts";
 import React, {FunctionComponent} from "react";
 import {IAnalysisDataProps} from "./analysis-data.interfaces";
 import {socket} from "../../../app.component";
+import ChartComponent from "./chart/chart.component";
 
 const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) => {
 
@@ -63,22 +63,7 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) =>
                 <div className="vspacer-50"/>
                 <div className="twline"><span>other information</span></div>
                 <h3>Sequences Match Visualization</h3>
-                <Chart
-                    height={"300px"}
-                    chartType="BarChart"
-                    loader={<div>Loading Chart</div>}
-                    data={queries_data}
-                    options={{
-                        chartArea: {width: "50%"},
-                        hAxis    : {
-                            title   : "Match Ratio",
-                            minValue: 0
-                        },
-                        vAxis    : {
-                            title: "Alert Sequences"
-                        }
-                    }}
-                />
+                <ChartComponent queries_data={queries_data} />
             </div>
         </div>
     );

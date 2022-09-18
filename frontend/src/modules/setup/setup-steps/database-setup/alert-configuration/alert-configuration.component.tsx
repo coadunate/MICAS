@@ -27,10 +27,11 @@ const AlertConfigurationComponent:
     },[alertConfig, updateConfig])
 
     return (
-        <div className="col-lg-6 container text-center">
+        <div className="col-lg-5 m-0 container">
             <br/>
+            <p className="lead"></p>
             <h4>Email</h4>
-            <div className="vspacer-50 "/>
+            <div className="vspacer-50"/>
             <div className="row ml-auto">
                 <input 
                     name="emailText"

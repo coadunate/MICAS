@@ -42,7 +42,6 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
         <>
             <div className="vspacer-50 container text-center ">
                 <br/>
-                <h4>Additional Sequences</h4>
             </div>
             <div className="vspacer-50 "/>
             {
@@ -60,7 +59,7 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                             id="filePathText"
                                             name="filePathText"
                                             type="text" 
-                                            placeholder="/path/to/file.fasta"
+                                            placeholder="Sequence file /path/to/file.fasta"
                                             onChange={handleDataChange(i, "file")}
                                             className="form-control"
                                             accept=".fasta,.fna,.ffn,.faa,.frn,.fa"
@@ -72,7 +71,7 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                                             name="fastaNameText"
                                             type="text" 
                                             onChange={handleDataChange(i, "name")}
-                                            placeholder="Scientific Name (eg. Streptococcus pneumoniae)"
+                                            placeholder="Sequence Identifier"
                                             className="form-control"
                                         />
                                     </div>
@@ -113,12 +112,15 @@ const AdditionalSequencesSetupComponent  : FunctionComponent<IDatabaseSetupConst
                     })
                 )
             }
-            <button
-                type="button" className="pull-right btn btn-primary"
-                onClick={handleAddQuery}
-            >
-            <i className="fa fa-plus"/>
-            </button>
+            <div className="row col-lg-1 align-self-end mr-2">
+                <button
+                    type="button" className="pull-right btn btn-primary"
+                    onClick={handleAddQuery}
+                >
+                <i className="fa fa-plus"/>
+                </button>
+            </div>
+            
         </>
     );
 }

@@ -36,3 +36,4 @@ Werkzeug==1.0.1
 zipp==3.1.0
 flask_cors==3.0.10
 watchdog==2.1.6
+minknow_api==5.0.0.1
