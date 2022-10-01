@@ -40,17 +40,15 @@ def get_timeline_info():
 @main.route('/get_uid', methods=["POST"])
 def get_uid():
     if request.method == "GET":
-        return "Unexpected request method. Expected a GET request."
+        return "Unexpected request method. Expected a POST request."
 
     # get the data
     minION_location = request.form['minION']
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
-
     # generate a random unique id
     uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # check to see if this id already exists
-    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONGIG
+    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
     cache_dict = {"ids": [], "micas_paths": [], "minion_paths": []}
     if os.path.exists(micas_cache_file):
         with open(micas_cache_file) as cache_fs:
@@ -64,12 +62,18 @@ def get_uid():
         while uid in cache_dict["ids"]:
             uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
+
+    # create micas directory for the uid
+    uid_dir = os.path.join(os.path.expanduser('~'), '.micas/' + uid) # Add to CONFIG
+    # if not os.path.exists(uid_dir):
+    #     os.makedirs(uid_dir)
+
     # save the UI and MICAS to cache file
-    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
-    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(micas_location)
+    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(uid_dir)
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
 
+    
     return json.dumps({'uid': uid})
 
 
@@ -112,6 +116,12 @@ def delete_analyses():
         cache_fs.seek(0)
         cache_fs.write("".join(filtered_lines))
         cache_fs.truncate()
+
+    # delete the micas directory for the uid
+    uid_dir = os.path.join(os.path.expanduser('~'), '.micas/' + uid) # Add to CONFIG
+    if os.path.exists(uid_dir):
+        subprocess.call(['rm', '-rf', uid_dir])
+    
     return json.dumps({
         'status': 200,
         'found' : found
@@ -151,60 +161,6 @@ def get_analysis_info():
 
     else:
         return "Unexpected request method. Expected a GET request."
-
-
-@main.route('/analysis', methods=['GET'])
-def analysis():
-    if (request.method == 'GET'):
-
-        micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
-        minion = request.args.get('minion')
-
-        session['micas_location'] = micas_location
-        session['minion'] = minion
-
-        error = []
-
-        # Location for the applicaiton data directory
-        micas_location = micas_location if micas_location.endswith('/') else micas_location + '/'
-
-        # check if micas_location is valid
-        if subprocess.call(['ls', micas_location]) == 0:
-            # if micas_location exists
-            if subprocess.call(['ls', micas_location + 'alertinfo.cfg']) == 0:
-                # if minion location exists
-                if subprocess.call(['ls', minion]) == 0:
-                    # locations are valid
-
-                    # is another user already on that page? If so, bounce this user
-                    if subprocess.call(['ls', micas_location + 'analysis_busy']) == 0:
-                        error.append({'message': 'This route is busy. Please try again!'})
-                    else:
-
-                        analysis_started_date = None
-                        if subprocess.call(['ls', micas_location + 'analysis_started']) == 0:
-                            with open(micas_location + 'analysis_started', 'r') as f:
-                                analysis_started_date = f.readline()
-                        else:
-                            import datetime, time
-                            d = datetime.datetime.utcnow()
-                            for_js = int(time.mktime(d.timetuple())) * 1000
-                            analysis_started_date = for_js
-                            logger.debug("D: " + str(d))
-                            logger.debug("FOR_JS: " + str(for_js))
-                            with open(micas_location + 'analysis_started', 'w') as f:
-                                f.write(str(analysis_started_date))
-
-                        subprocess.call(['touch', micas_location + 'analysis_busy'])
-                        return render_template('analysis.html', app_loc=micas_location, minion_loc=minion,
-                                               start_time=analysis_started_date)
-                else:
-                    error.append({'message': 'MinION location is not valid.'})
-            else:
-                error.append({'message': 'Alert configuration file is not found.'})
-        else:
-            error.append({'message': 'App location was not found'})
-    return json.dumps(error)
 
 @main.route('/validate_locations', methods=['POST', 'GET'])
 def validate_locations():
