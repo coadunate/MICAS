@@ -37,7 +37,7 @@ const AnalysisComponent = () => {
 
         return axios({
             method: "GET",
-            url   : `http://localhost:5000/get_analysis_info?uid=${uid}`
+            url   : `http://localhost:5007/get_analysis_info?uid=${uid}`
         });
     };
 

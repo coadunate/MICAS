@@ -3,7 +3,7 @@ import {IMicas} from "./home.interfaces";
 import {gotoLoc} from "../../utils/utils";
 
 const micas_config: IMicas = {
-    title: "Welcome to Micas",
+    title: "Welcome to MICAS",
     tagline: "A software by <i>Coadunate</i> lab",
     description: "MinION Classification & Alerting System is a web application " +
         "meant to be run simultaneously with the MinION DNA sequencer. This app " +
@@ -21,8 +21,8 @@ const HomeComponent: FunctionComponent = () => {
     return (
         <div className="container-fluid text-center">
             <div className="vspacer-20"/>
-            <h1 className="font-weight-bold">{micas_config.title} -
-                v{micas_config.version}</h1>
+            <h3 className="font-weight-bold">{micas_config.title} -
+                v{micas_config.version}</h3>
             <p className="text-muted"
                dangerouslySetInnerHTML={{__html: micas_config.tagline}}/>
             <div className="vspacer-50"/>

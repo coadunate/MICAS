@@ -31,19 +31,21 @@ const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({
     }, [locationConfig, updateConfig])
 
     return (
-        <div className="container text-center">
-            <h4>Locations</h4>
-            <div className="vspacer-50 container text-center"/>
-                <b className="pt-2">MinION Location</b>
-                <input
+        <div className="col-lg-5 m-0 container">
+            <br/>
+            <p className="lead"></p>
+            <h4>MinION Location</h4>
+            <div className="vspacer-50"/>
+            <div className="row ml-auto">
+                <input 
                     name="minionLocationText"
-                    className="form-control"
-                    placeholder="/path/to/minion/dropbox"
+                    className="form-control" 
+                    placeholder="/path/to/minion/dropbox" 
                     type="text"
                     onChange={handleDataChange("minionLocation")}
                 />
-                <br/>
-                <div className="vspacer-50"/>        
+            </div>
+            <br/>
         </div>
     );
 }

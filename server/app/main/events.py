@@ -57,8 +57,7 @@ def analysis_disconnected():
 
 @socketio.on('start_fastq_file_listener')
 def start_fastq_file_listener(data):
-
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/')
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas/' + data['projectId'] + '/')
     minion_location = data['minion_location']
     # need visibility of the global thread object
     logger.debug("Request for FASTQ File Listener recieved")
@@ -106,26 +105,25 @@ def on_raw_message(message):
 
 @socketio.on('download_database', namespace="/")
 def download_database(dbinfo):
+
+    project_id = dbinfo["projectId"]
+
     # Location for the application data directory
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') #Add to CONFIG
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas/' + project_id + '/') #Add to CONFIG
+
+    # create micas_location directory if it doesn't exist
+    if not os.path.exists(micas_location):
+        print("Creating directory: " + micas_location)
+        os.makedirs(micas_location)
+    else:
+       # delete the directory and recreate it
+        shutil.rmtree(micas_location)
+        print("I AM CREATING " + micas_location + " DIRECTORY FROM download_database")
+        os.makedirs(micas_location)
 
     queries = dbinfo["queries"]
 
-    # # Firstly, we need to remove any existing files that might exist inside
-    # # our app data folder, as it is supposed to be empty to begin with.
-    # for file in os.listdir(micas_location):
-    #     file_path = os.path.join(micas_location, file)
-    #     try:
-    #         if os.path.isfile(file_path):
-    #             os.unlink(file_path)
-    #             logger.debug("DOWNLOAD_DATABASE: Deleting " + file + " file.")
-    #         elif os.path.isdir(file_path):
-    #             shutil.rmtree(file_path)
-    #             logger.debug("DOWNLOAD_DATABASE: Deleting " + file + " directory.")
-    #     except Exception as e:
-    #         logger.error(e)
-
-    # Create an file to indicate that the download is in progress
+    # Create a file to indicate that the download is in progress
     download_in_progress = open(micas_location + '.download_in_progress', 'a')
 
     with open(micas_location + 'alertinfo.cfg', 'w+') as alert_config_file:
@@ -142,7 +140,8 @@ def download_database(dbinfo):
     os.umask(0)
     os.makedirs(micas_location + 'minimap2/runs', mode=0o777, exist_ok=True)
 
-    res = int_download_database.apply_async(args=(dbinfo, queries))
+    logger.debug("\n\n\nHELLO")
+    res = int_download_database.apply_async(args=[dbinfo, micas_location, queries])
     res.get(on_message=on_raw_message, propagate=False)
 
 
