@@ -56,6 +56,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                 # see which alert sequence this new data matches to and update its percent match value
                 # get the name of the header of alert sequence it matches to
                 #TODO Remove use of awk
+                #TODO Remove use of awk
                 minimap2_output_line = os.popen('awk "{print $1}" ' + minimap2_output).read().strip().split("\t")
                 match_alert_header = minimap2_output_line[5]
 
@@ -102,6 +103,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                     subprocess.call(['mv', minimap2_output, final_output])                
 
                 # increase the # of files it has classified
+
                 self.num_files_classified += 1
 
                 # Get the number of files that are in MinION reads directory

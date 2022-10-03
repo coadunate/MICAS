@@ -40,17 +40,15 @@ def get_timeline_info():
 @main.route('/get_uid', methods=["POST"])
 def get_uid():
     if request.method == "GET":
-        return "Unexpected request method. Expected a GET request."
+        return "Unexpected request method. Expected a POST request."
 
     # get the data
     minION_location = request.form['minION']
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
-
     # generate a random unique id
     uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
     # check to see if this id already exists
-    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONGIG
+    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
     cache_dict = {"ids": [], "micas_paths": [], "minion_paths": []}
     if os.path.exists(micas_cache_file):
         with open(micas_cache_file) as cache_fs:
@@ -64,12 +62,18 @@ def get_uid():
         while uid in cache_dict["ids"]:
             uid = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(5))
 
+
+    # create micas directory for the uid
+    uid_dir = os.path.join(os.path.expanduser('~'), '.micas/' + uid) # Add to CONFIG
+    # if not os.path.exists(uid_dir):
+    #     os.makedirs(uid_dir)
+
     # save the UI and MICAS to cache file
-    micas_cache_file = os.path.join(os.path.expanduser('~'), '.micas/.cache') # Add to CONFIG
-    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(micas_location)
+    entry = str(uid) + '\t' + str(minION_location) + '\t' + str(uid_dir)
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
 
+    
     return json.dumps({'uid': uid})
 
 
@@ -112,6 +116,12 @@ def delete_analyses():
         cache_fs.seek(0)
         cache_fs.write("".join(filtered_lines))
         cache_fs.truncate()
+
+    # delete the micas directory for the uid
+    uid_dir = os.path.join(os.path.expanduser('~'), '.micas/' + uid) # Add to CONFIG
+    if os.path.exists(uid_dir):
+        subprocess.call(['rm', '-rf', uid_dir])
+    
     return json.dumps({
         'status': 200,
         'found' : found

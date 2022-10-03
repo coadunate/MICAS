@@ -9,7 +9,8 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({data}) =>
 
     const handleStartFileListener = () => {
         socket.emit("start_fastq_file_listener", {
-            minion_location: analysis_data.minion
+            minion_location: analysis_data.minion,
+            projectId: analysis_data.projectId
         });
     };
 

@@ -15,7 +15,7 @@ tell application "iTerm"
     
     -- START UP REDIS & CELERY
     tell current session of current window
-        write text "cd /Users/shorovatin/Documents/MICAS/server/app/main/utils"
+        write text "cd /Users/tayabsoomro/Documents/Projects/MICAS/server/app/main/utils"
         delay 1
         write text "conda activate micas"
         delay 1
@@ -31,7 +31,7 @@ tell application "iTerm"
     
     -- START UP FLASK BACKEND
     tell current session of current window
-        write text "cd /Users/shorovatin/Documents/MICAS"
+        write text "cd /Users/tayabsoomro/Documents/Projects/MICAS"
         delay 1
             write text "conda activate micas"
         delay 1
@@ -44,7 +44,7 @@ tell application "iTerm"
     
     -- START UP FLASK BACKEND
     tell current session of current window
-        write text "cd /Users/shorovatin/Documents/MICAS"
+        write text "cd /Users/tayabsoomro/Documents/Projects/MICAS"
         delay 1
     end tell
     
@@ -54,7 +54,7 @@ tell application "iTerm"
     
     -- START UP FRONT END
     tell current session of current window
-        write text "cd /Users/shorovatin/Documents/MICAS/frontend"
+        write text "cd /Users/tayabsoomro/Documents/Projects/MICAS/frontend"
         delay 1
         write text "npm install"
         delay 1

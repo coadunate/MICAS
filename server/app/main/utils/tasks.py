@@ -12,8 +12,8 @@ logger = logging.getLogger()
 celery = Celery('tasks', broker='redis://localhost', backend='redis')
 
 @celery.task(bind=True, name='app.main.tasks.int_download_database')
-def int_download_database(self, db_data, queries):
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/') # Add to CONFIG
+def int_download_database(self, db_data, micas_location, queries):
+    logger.debug("WORLD\n\n\n")
     minion = db_data['minion']
     project_id = db_data['projectId']
     # Create variables for database.
