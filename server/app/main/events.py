@@ -132,7 +132,6 @@ def download_database(dbinfo):
     os.umask(0)
     os.makedirs(micas_location + 'minimap2/runs', mode=0o777, exist_ok=True)
 
-    logger.debug("\n\n\nHELLO")
     res = int_download_database.apply_async(args=[dbinfo, micas_location, queries])
     res.get(on_message=on_raw_message, propagate=False)
 
