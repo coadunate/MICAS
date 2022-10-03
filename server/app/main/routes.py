@@ -107,7 +107,7 @@ def delete_analyses():
             if uid not in line:
                 filtered_lines.append(line)
             else:
-                logger.debug(f"Removed id {uid} from cache")
+                logger.debug(f"Debug: Removed id {uid} from cache")
                 found = True
         cache_fs.seek(0)
         cache_fs.write("".join(filtered_lines))
@@ -190,8 +190,6 @@ def analysis():
                             d = datetime.datetime.utcnow()
                             for_js = int(time.mktime(d.timetuple())) * 1000
                             analysis_started_date = for_js
-                            logger.debug("D: " + str(d))
-                            logger.debug("FOR_JS: " + str(for_js))
                             with open(micas_location + 'analysis_started', 'w') as f:
                                 f.write(str(analysis_started_date))
 

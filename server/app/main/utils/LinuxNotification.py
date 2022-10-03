@@ -1,11 +1,10 @@
 
 import subprocess
 from dataclasses import dataclass
-from .notification import Notification
 from minknow_api.manager import Manager
 
 @dataclass
-class LinuxNotification(Notification):
+class LinuxNotification():
     
     def __get_device(device, host="127.0.0.1", port=None):
         manager = Manager(host=host, port=port)
