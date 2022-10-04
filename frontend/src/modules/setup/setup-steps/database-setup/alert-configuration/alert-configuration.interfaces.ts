@@ -1,5 +1,5 @@
 type IAlertConfig = {
-    email: string
+    device: string
 }
 
 export type {

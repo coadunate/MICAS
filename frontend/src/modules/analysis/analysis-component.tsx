@@ -12,7 +12,7 @@ const initial_analysis_data_state: IAnalysisData = {
         "minion"      : "",
         "queries"     : [],
         "projectId"   : "",
-        "email"       : ""
+        "device"       : ""
     }
 };
 

@@ -8,7 +8,7 @@ from watchdog.events import FileSystemEventHandler
 
 # from .LinuxNotification import LinuxNotification
 
-logger = logging.getLogger()
+logger = logging.getLogger('micas')
 
 class FASTQFileHandler(FileSystemEventHandler):
 

@@ -20,7 +20,7 @@ import json
 # for Logger
 import logging
 
-logger = logging.getLogger()
+logger = logging.getLogger('micas')
 
 fileListenerThread = Thread()
 thread_stop_event = Event()

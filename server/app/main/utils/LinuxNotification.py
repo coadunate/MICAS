@@ -2,19 +2,23 @@
 import subprocess
 from dataclasses import dataclass
 from minknow_api.manager import Manager
+import logging
+logger = logging.getLogger('micas')
 
 @dataclass
 class LinuxNotification():
-    
-    def __get_device(device, host="127.0.0.1", port=None):
+    device_name: str
+
+    def __index_devices(self, host="127.0.0.1", port=None):
         manager = Manager(host=host, port=port)
-        for position in manager.flow_cell_positions():
-            if position.name == device:
-                return position
-        raise ValueError("Could not find device {!r}".format(device))
-    
-    
-    connection_address = __get_device("MN19220").connect()
+        return (position for position in manager.flow_cell_positions())
+        
+
+    def __get_device(self, device_name, host="127.0.0.1", port=None):
+        for device in self.__index_devices(host, port):
+            if device == device_name:
+                return device
+        logger.error(f"Error: Could not find device {device}")    
 
     def test_connection(self, msg="This is a linux test connection"):
         self.send_notification(msg)
@@ -22,11 +26,12 @@ class LinuxNotification():
 
     def send_notification(self, msg):
         #Sends OS notification
+        connection_address = self.__get_device(device_name).connect()
         try:
             subprocess.Popen(['notify-send', msg])
         except:
-            print("Error in linux notification: are you running MICAS on linux?")
+            logging.error("Error: unable to send linux notification, are you running MICAS on linux?")
         
-        self.connection_address.log.send_user_message(severity=2, user_message=msg)
-        print(self.connection_address.device.get_device_state())
+        connection_address.log.send_user_message(severity=2, user_message=msg)
+        logger.debug(self.connection_address.device.get_device_state())
         pass

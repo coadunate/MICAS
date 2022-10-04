@@ -3,10 +3,10 @@ import {IDatabaseSetupConstituent} from "../database-setup.interfaces";
 import {IAlertConfig} from "./alert-configuration.interfaces";
 
 const initial_alert_config: IAlertConfig = {
-    email: ""
+    device : ""
 }
 
-type IKeys = "email";
+type IKeys = "device";
 
 
 const AlertConfigurationComponent:
@@ -22,24 +22,24 @@ const AlertConfigurationComponent:
     useEffect(() => {
         updateConfig((prevState: any) => ({
             ...prevState,
-            email: alertConfig.email
+            device: alertConfig.device
         }))
     },[alertConfig, updateConfig])
+    const Devices = ["Mk1b-A", "Mk1b-B"]
+    const DeviceSelect = Devices => <select name="deviceSelect" onChange={handleDataChange("device")}>{
+        Devices.map( (x) => 
+            <option>{x}</option> )
+    }</select>;
 
+    
     return (
         <div className="col-lg-5 m-0 container">
             <br/>
             <p className="lead"></p>
-            <h4>Email</h4>
+            <h4>Device Selection</h4>
             <div className="vspacer-50"/>
             <div className="row ml-auto">
-                <input 
-                    name="emailText"
-                    className="form-control" 
-                    placeholder="Email" 
-                    type="email"
-                    onChange={handleDataChange("email")}
-                />
+                 
             </div>
             <br/>
         </div>

@@ -9,7 +9,7 @@ import subprocess
 from flask import session, render_template, request
 from . import main
 
-logger = logging.getLogger()
+logger = logging.getLogger('micas')
 
 @main.route('/version', methods=['GET'])
 def version():

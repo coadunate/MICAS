@@ -7,7 +7,7 @@ type IAnalysisData = {
         "minion": string,
         "queries": IQuery[],
         "projectId": string,
-        "email": string
+        "device": string
     }
 }
 

@@ -6,8 +6,8 @@ import json, sys
 
 import logging
 
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-logger = logging.getLogger()
+logging.getLogger('micas').addHandler(logging.StreamHandler(sys.stdout))
+logger = logging.getLogger('micas')
 
 celery = Celery('tasks', broker='redis://localhost', backend='redis')
 
