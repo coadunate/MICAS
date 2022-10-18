@@ -17,7 +17,7 @@
 MinION Classification & Alerting System is a web application meant to be run
 simultaneously with the MinION DNA sequencer. This app provides an alerting
 system through which a scientist performing DNA sequencing runs could be
-notified through their email or text message. The alerts could be set to respond
+notified minknow style notifications or via a log file. The alerts could be set to respond
  to any particular sequences of interest arising in their sample. Our team
  believes that this will enable researchers to use their time more efficiently
  by allowing them to focus on more important matters in the meantime, rather
@@ -123,11 +123,8 @@ or may not be included as alerts.
 	
 **2. Alerting**  
 Once the database selection process has been complete, you can configure your 
-alerting information. You have an option to provide your phone number or email
-address as the means for MICAS to convey alerts. Email is the default mode
-of communication and hence is required during alert set up. There is also
-a possibility to add more alering sequences in this component, which will
-be monitored during the MinION run.
+alerting information. The primary notification system is the via notification through logs, indicated by the micas location, and via the UI on minknow GUI.
+There is also a possibility to add more alering sequences in this component, which will be monitored during the MinION run.
 
 **3. Configuration**  
 Finally, in the confiuration section, you have to choose the directory to which

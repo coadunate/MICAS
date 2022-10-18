@@ -136,4 +136,3 @@ static/node_modules/
 dump.rdb
 frontend/node_modules/
 /frontend/node_modules/
-*email_config.json

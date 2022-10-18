@@ -41,7 +41,6 @@ const AnalysisComponent = () => {
         });
     };
 
-
     return params.id ? (
         loaded ? (
             data.status === 200 ? (

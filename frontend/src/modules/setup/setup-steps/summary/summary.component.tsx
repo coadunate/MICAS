@@ -87,7 +87,7 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 minion: databaseSetupInput.locations.minionLocation,
                 queries: add_databases,
                 projectId: uid,
-                email: databaseSetupInput.alert.email
+                device: databaseSetupInput.device.device
             };
 
             socket.emit('log', dbInfo, "DEBUG");
@@ -160,8 +160,8 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 </thead>
                 <tbody>
                 <tr>
-                    <th>Email</th>
-                    <td>{databaseSetupInput.alert.email === "" ? "Not provided" : databaseSetupInput.alert.email}</td>
+                    <th>Sequencing Device</th>
+                    <td>{databaseSetupInput.device.device=== "" ? "Not provided" : databaseSetupInput.device.device}</td>
                 </tr>
                 </tbody>
             </table>

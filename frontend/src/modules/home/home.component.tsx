@@ -8,7 +8,7 @@ const micas_config: IMicas = {
     description: "MinION Classification & Alerting System is a web application " +
         "meant to be run simultaneously with the MinION DNA sequencer. This app " +
         "provides an alerting system through which a scientist performing DNA " +
-        "sequencing runs could be notified through their email or text message. " +
+        "sequencing runs could be notified through a log file or gui based message. " +
         "The alerts could be set to respond to any particular sequences of " +
         "interest arising in their sample. Our team believes that this will " +
         "enable researchers to use their time more efficiently by allowing them " +

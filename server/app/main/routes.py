@@ -8,6 +8,7 @@ import subprocess
 
 from flask import session, render_template, request
 from . import main
+from .utils import LinuxNotification
 
 logger = logging.getLogger('micas')
 
@@ -243,3 +244,11 @@ def validate_locations():
                 return json.dumps([{"code": 1, "message": f"Unknown location error (minION_output_exists: {minION_output_exists}, micas_location: {app_output_exists}, query_output: {query_output})"}])
     else:
         return "N/A"
+
+@main.route('/index_devices', methods=['GET'])
+def index_devices():
+    if (request.method == 'GET'):
+        devices = LinuxNotification.index_devices()
+        if len(devices) <= 0:
+            devices = "--"
+        return json.dumps([devices])

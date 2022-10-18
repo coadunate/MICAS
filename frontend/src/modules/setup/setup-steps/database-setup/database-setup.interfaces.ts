@@ -9,7 +9,7 @@ type ILocationConfig = {
 type IDatabseSetupInput = {
     queries : IAdditionalSequences,
     locations: ILocationConfig,
-    alert : IAlertConfig
+    device : IAlertConfig
 }
 
 type IDatabaseSetupConstituent = {

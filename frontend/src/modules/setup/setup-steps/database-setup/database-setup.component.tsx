@@ -16,7 +16,7 @@ const initial_location_config: ILocationConfig = {
 }
 
 const initial_alert_config: IAlertConfig ={
-    email: ""
+    device: ""
 }
 
 const DatabaseSetupComponent:
@@ -27,7 +27,7 @@ const DatabaseSetupComponent:
 
     const updateDatabaseSetupConfiguration = () => {
 
-        update({queries: additionalSequences, locations: locationConfig, alert: alertConfig});
+        update({queries: additionalSequences, locations: locationConfig, device: alertConfig});
 
         advanceStep();
     }
