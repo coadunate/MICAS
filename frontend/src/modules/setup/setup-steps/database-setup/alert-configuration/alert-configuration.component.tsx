@@ -27,7 +27,7 @@ const AlertConfigurationComponent:
             setLoaded(true);
         })();
     }, []);
-    
+    //TODO Does not re-index devices on page reload. (ie if an mk1b is unplugged the dropdown does not update)
     const get_devices = () => {
         return axios({
             method: 'GET',
