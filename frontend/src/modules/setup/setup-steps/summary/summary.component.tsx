@@ -161,7 +161,8 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 <tbody>
                 <tr>
                     <th>Sequencing Device</th>
-                    <td>{databaseSetupInput.device.device=== "" ? "Not provided" : databaseSetupInput.device.device}</td>
+                    {console.log(databaseSetupInput)}
+                    <td>{databaseSetupInput.device.device === "" ? "Not provided" : databaseSetupInput.device.device}</td>
                 </tr>
                 </tbody>
             </table>

@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 from watchdog.events import FileSystemEventHandler
+from .LinuxNotification import LinuxNotification
 
 # from .LinuxNotification import LinuxNotification
 
@@ -69,6 +70,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                 alertinfo_cfg_file = os.path.join(self.app_loc, 'alertinfo.cfg')
                 alertinfo_cfg_data = json.load(open(alertinfo_cfg_file))
                 queries = alertinfo_cfg_data["queries"]
+                device = alertinfo_cfg_data["device"]
                 logger.debug(f"Debug: Minimap2 Alignment ({event.src_path}), Header: {match_alert_header}, Matchs: {num_match}, Total Length: {tot_len}, % Match: {percent_match_value}")
                
                 for query in queries:
@@ -79,6 +81,8 @@ class FASTQFileHandler(FileSystemEventHandler):
                         if float(query["threshold"]) <= float(percent_match_value):
                             alert_str = f"Alert: The named taxa {query['name']} was detected to be at a concentration of {float(percent_match_value):.4f} for all sequence seen. This is above the set threshold of {float(query['threshold']):.4f}"
                             logger.critical(alert_str)
+                            if len(device) > 0:
+                                LinuxNotification(device).send_notification(alert_str)
                             
                             
 

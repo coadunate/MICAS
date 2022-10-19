@@ -7,63 +7,50 @@ const initial_alert_config: IAlertConfig = {
     device : ""
 }
 
-type IKeys = "device";
-
-
 const AlertConfigurationComponent:
     FunctionComponent<IDatabaseSetupConstituent> = ({updateConfig}) => {
-
-    const [alertConfig, setAlertConfig] = useState(initial_alert_config);
-
-    const handleDataChange = (key: IKeys) => (evt: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
-        const new_config = {...alertConfig, [key]: evt.target.value}
-        setAlertConfig(new_config);
-    }
+    const [devices, setDevices] = useState([]);
+    const [loaded, setLoaded] = useState(false);
+    const [selectedDevice, setSelectedDevice] = useState("");
     
     useEffect(() => {
         updateConfig((prevState: any) => ({
             ...prevState,
-            device: alertConfig.device
+            device: selectedDevice
         }))
-    },[alertConfig, updateConfig])
-    //const Devices = axios.get(`http://localhost:5007/index_devices`)
+    },[selectedDevice, updateConfig])
 
-    const Devices = axios({
-        method: 'GET',
-        url: 'http://localhost:5007/index_devices'
-    }).then((response) => {
-        const value = response.data
-      })
-      
-    // const Devices = (Device: Array<String>) => {
-    //     return axios({
-    //         method: "GET",
-    //         url   : 
-    //     });
-    // };
-    console.log("/nDEVICES>>>>>>>>>>>>>>>>>>>")
-    console.log(Devices)
+    useEffect(() => {
+        (async () => {
+            const res = await get_devices();
+            setDevices(res.data);
+            setLoaded(true);
+        })();
+    }, []);
     
-    let [Device, setDevice] = useState("⬇️ Select a Device ⬇️");
-
-    let handleDeviceChange = (e: React.ChangeEvent<any>) => {
-        setDevice(e.target.value)
-    }
+    const get_devices = () => {
+        return axios({
+            method: 'GET',
+            url: 'http://localhost:5007/index_devices'
+        });
+    };
     
-    return (
+    return loaded ? (
         <div className="col-lg-5 m-0 container">
             <br/>
             <p className="lead"></p>
             <h4>Device Selection</h4>
             <div className="vspacer-50"/>
             <div className="row ml-auto">
-            <select onChange={handleDeviceChange}> 
+            <select onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedDevice(e.target.value)} value={selectedDevice}> 
                 <option value="⬇️ Select a Device ⬇️"> -- Select a Device -- </option>
-                {/* {Devices.map((Device: Array<String>) => <option value={Device}>{Device.value}</option>)} */}
+                {devices.map((Device: string) => <option value={Device}>{Device}</option>)}
             </select>     
             </div>
             <br/>
         </div>
+    ) : (
+        <div>Searching For Devices...</div>
     )
 }
 

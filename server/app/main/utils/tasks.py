@@ -16,6 +16,7 @@ def int_download_database(self, db_data, micas_location, queries):
     logger.debug("WORLD\n\n\n")
     minion = db_data['minion']
     project_id = db_data['projectId']
+    device = db_data['device']
     # Create variables for database.
     micas_location_database = os.path.join(micas_location, 'database/')
 
@@ -43,6 +44,7 @@ def int_download_database(self, db_data, micas_location, queries):
                     if q["file"] == query["file"]:
                         alertinfo_cfg_obj["queries"][i]["header"] = fasta_header
 
+            alertinfo_cfg_obj['device'] = device
             # write the updated object into file
             json.dump(alertinfo_cfg_obj, open(alertinfo_cfg_file, 'w'))
 
@@ -99,7 +101,8 @@ def int_download_database(self, db_data, micas_location, queries):
                           'message'     : "Database has successfully been downloaded and built.",
                           'micas_location': micas_location,
                           'minion'      : minion,
+                          'device'      : device,
                           'project_id'  : project_id
                       })
 
-    return {"minion": minion, "micas_location": micas_location}
+    return {"minion": minion, "micas_location": micas_location, "device": device}

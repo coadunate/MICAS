@@ -250,5 +250,5 @@ def index_devices():
     if (request.method == 'GET'):
         devices = LinuxNotification.index_devices()
         if len(devices) <= 0:
-            devices = "--"
-        return json.dumps([devices])
+            devices = []
+        return json.dumps(devices)
