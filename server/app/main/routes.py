@@ -252,6 +252,9 @@ def index_devices():
         indexed_devices = LinuxNotification.index_devices()
         if len(indexed_devices) > 0:
             for device in indexed_devices:
-                devices.append(device.name)
+                if device.state != "STATE_HARDWARE_REMOVED" \
+                    or device.state != "STATE_HARDWARE_ERROR" \
+                    or device.state != "STATE_SOFTWARE_ERROR":
+                    devices.append(device.name)
 
         return json.dumps(devices)
