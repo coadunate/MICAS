@@ -248,7 +248,10 @@ def validate_locations():
 @main.route('/index_devices', methods=['GET'])
 def index_devices():
     if (request.method == 'GET'):
-        devices = LinuxNotification.index_devices()
-        if len(devices) <= 0:
-            devices = []
+        devices = []
+        indexed_devices = LinuxNotification.index_devices()
+        if len(indexed_devices) > 0:
+            for device in indexed_devices:
+                devices.append(device.name)
+
         return json.dumps(devices)
