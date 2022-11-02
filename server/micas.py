@@ -6,10 +6,7 @@ from app import create_app, socketio
 import logging
 import logging.config
 from os import path
-logging.basicConfig(
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.DEBUG,
-    datefmt='%Y-%m-%d %H:%M:%S')
+logging.config.fileConfig("./server/logging.ini")
 log = logging.getLogger('micas')
 
 app = create_app(debug=True)
