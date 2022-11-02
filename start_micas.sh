@@ -16,6 +16,24 @@ print_and_run_cmd() {
     ${1}
 }
 
+start_redis () {
+    cd ~/Documents/MICAS/server/app/main/utils
+    activate_conda_env
+    redis-server &
+}
+
+start_flask () {
+    cd ~/Documents/MICAS/
+    activate_conda_env
+    python server/micas.py &
+}
+
+start_node () {
+    cd ~/Documents/MICAS/frontend
+    npm install
+    npm run start &
+}
+
 # print a debug message
 debug() {
   if [ "$DEBUG" -eq 1 ]; then
@@ -79,81 +97,8 @@ fi
 ## 3.0 START MICAS ##
 
 # create micas start script using osascript
-cat <<EOF > micas_mac_setup.scpt
-tell application "iTerm"
-    activate
-    
-    -- create a new window
-    tell application "System Events" to keystroke "n" using command down
-    delay 1
-    
-    -- split the window vertically
-    tell application "System Events" to keystroke "d" using command down
-    delay 1
-    
-    -- go to the first part of the split
-    tell application "System Events" to keystroke "[" using command down
-    delay 1
-    
-    -- START UP REDIS & CELERY
-    tell current session of current window
-        write text "cd $(pwd)/server/app/main/utils"
-        delay 1
-        write text "conda activate micas"
-        delay 1
-        write text "redis-server &"
-        delay 1
-        write text "celery -A tasks worker --loglevel=INFO"
-        delay 1
-    end tell
-    
-    -- create a horizontal split
-    tell application "System Events" to keystroke "D" using command down
-    delay 1
-    
-    -- START UP FLASK BACKEND
-    tell current session of current window
-        write text "cd $(pwd)"
-        delay 1
-            write text "conda activate micas"
-        delay 1
-        write text "python server/micas.py"
-    end tell
-    
-    -- go to the right split
-    tell application "System Events" to keystroke "]" using command down
-    delay 1
-    
-    -- START UP FLASK BACKEND
-    tell current session of current window
-        write text "cd $(pwd)"
-        delay 1
-    end tell
-    
-    -- create a horizontal split
-    tell application "System Events" to keystroke "D" using command down
-    delay 1
-    
-    -- START UP FRONT END
-    tell current session of current window
-        write text "cd $(pwd)/frontend"
-        delay 1
-        write text "npm install"
-        delay 1
-        write text "npm run start"
-        delay 1
-    end tell
-    
-end tell
-EOF
 
-if [ "$OS_TYPE" == "Mac" ]; then
-    # run the script
-    osascript micas_mac_setup.scpt
-else
-    echo "MICAS start script is only supported on Mac operating system"
-fi
-
-
-
-
+start_redis
+start_flask
+start_node
+wait
