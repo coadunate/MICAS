@@ -8,8 +8,7 @@ logger = logging.getLogger('micas')
 
 @dataclass
 class LinuxNotification():
-    device_name: str = ""
-
+    
     def index_devices(host="127.0.0.1", port=None):
         device_index = []
         try:
@@ -20,26 +19,27 @@ class LinuxNotification():
         return device_index
         
 
-    def get_device(self, device_name, host="127.0.0.1", port=None):
-        for device in self.__index_devices(host, port):
-            if device == device_name:
+    def get_device(device_name, host="127.0.0.1", port=None):
+        for device in LinuxNotification.index_devices(host, port):
+            if device.name == device_name:
+                print(type(device))
                 return device
         logger.error(f"Error: Could not find device {device}")    
 
-    def test_connection(self, msg="This is a linux test connection"):
-        self.send_notification(msg)
+    def test_connection( device_name, msg="This is a linux test connection"):
+        LinuxNotification.send_notification(msg)
         pass
 
-    def send_notification(self, msg):
+    def send_notification(device_name, msg):
         #Sends OS notification
-        connection_address = self.__get_device(self.device_name).connect()
+
+        connection_address = LinuxNotification.get_device(device_name).connect()
         try:
             subprocess.Popen(['notify-send', msg])
         except:
             logging.error("Error: unable to send linux notification, are you running MICAS on linux?")
         
         connection_address.log.send_user_message(severity=2, user_message=msg)
-        logger.debug(self.connection_address.device.get_device_state())
+        logger.debug(connection_address.device.get_device_state())
         pass
 
-print(LinuxNotification().index_devices())
