@@ -11,6 +11,7 @@ from time import sleep
 # for run_fastq_watcher
 from .utils.FASTQFileHandler import FASTQFileHandler
 from .utils.tasks import int_download_database
+from .utils import LinuxNotification
 
 # for run_fasq_watcher
 from watchdog.observers import Observer
@@ -97,8 +98,8 @@ def on_raw_message(message):
 
 @socketio.on('download_database', namespace="/")
 def download_database(dbinfo):
-
     project_id = dbinfo["projectId"]
+    device = dbinfo["device"]
 
     # Location for the application data directory
     micas_location = os.path.join(os.path.expanduser('~'), '.micas/' + project_id + '/') #Add to CONFIG
@@ -121,11 +122,15 @@ def download_database(dbinfo):
     with open(micas_location + 'alertinfo.cfg', 'w+') as alert_config_file:
         alert_config_file.write(json.dumps(dbinfo))
 
+    # Emit Message to Minknow
+    alert_str = f"You can find the MICAS alert page for {str(project_id)} at http://localhost:3000/analysis/{str(project_id)}"
+    LinuxNotification.send_notification(device, alert_str, severity=1)
+    
     # Create database directory.
     logger.debug("Debug: Creating database directory.")
     os.umask(0)
     os.makedirs(os.path.join(micas_location, 'database'), mode=0o777, exist_ok=True)
-   
+    
 
     # Create minimap2/runs directory
     logger.debug("Debug: Creating minimap2/runs directory.")
@@ -134,6 +139,10 @@ def download_database(dbinfo):
 
     res = int_download_database.apply_async(args=[dbinfo, micas_location, queries])
     res.get(on_message=on_raw_message, propagate=False)
+    
+    
+    
+   
 
 
 # LOGGER HOOKS

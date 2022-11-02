@@ -30,7 +30,7 @@ class LinuxNotification():
         LinuxNotification.send_notification(msg)
         pass
 
-    def send_notification(device_name, msg):
+    def send_notification(device_name, msg, severity=2):
         #Sends OS notification
 
         connection_address = LinuxNotification.get_device(device_name).connect()
@@ -39,7 +39,7 @@ class LinuxNotification():
         except:
             logging.error("Error: unable to send linux notification, are you running MICAS on linux?")
         
-        connection_address.log.send_user_message(severity=2, user_message=msg)
+        connection_address.log.send_user_message(severity=severity, user_message=msg)
         logger.debug(connection_address.device.get_device_state())
         pass
 

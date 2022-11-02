@@ -74,7 +74,6 @@ def get_uid():
     with open(micas_cache_file, 'a+') as cache_fs:
         cache_fs.write(entry + "\n")
 
-    
     return json.dumps({'uid': uid})
 
 
@@ -256,5 +255,8 @@ def index_devices():
                     or device.state != "STATE_HARDWARE_ERROR" \
                     or device.state != "STATE_SOFTWARE_ERROR":
                     devices.append(device.name)
+                    LinuxNotification.send_notification(device.name, "Device discovered by MICAS", severity=1)
+        
+        
 
         return json.dumps(devices)
