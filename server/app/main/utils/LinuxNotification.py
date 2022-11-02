@@ -42,3 +42,4 @@ class LinuxNotification():
         logger.debug(self.connection_address.device.get_device_state())
         pass
 
+print(LinuxNotification().index_devices())
