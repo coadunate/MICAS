@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export MICAS_PATH=/path/to/MICAS
+
 ## 0.0 HELPFUL FUNCTIONS ##
 find_in_conda_env() {
     conda env list | grep "${0}" 2>/dev/null
@@ -17,19 +19,25 @@ print_and_run_cmd() {
 }
 
 start_redis () {
-    cd ~/Documents/MICAS/server/app/main/utils
+    cd ${MICAS_PATH}/server/app/main/utils
     activate_conda_env
     redis-server &
 }
 
+start_celery () {
+    cd ${MICAS_PATH}/server/app/main/utils
+    activate_conda_env
+    celery -A tasks worker --loglevel=INFO &
+}
+
 start_flask () {
-    cd ~/Documents/MICAS/
+    cd ${MICAS_PATH}
     activate_conda_env
     python server/micas.py &
 }
 
 start_node () {
-    cd ~/Documents/MICAS/frontend
+    cd ${MICAS_PATH}/frontend
     npm install
     npm run start &
 }
@@ -100,5 +108,6 @@ fi
 
 start_redis
 start_flask
+start_celery
 start_node
 wait
