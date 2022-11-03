@@ -82,7 +82,7 @@ class FASTQFileHandler(FileSystemEventHandler):
                             alert_str = f"Alert: The named taxa {query['name']} was detected to be at a concentration of {float(percent_match_value):.4f} for all sequence seen. This is above the set threshold of {float(query['threshold']):.4f}"
                             logger.critical(alert_str)
                             if len(device) > 0:
-                                LinuxNotification(device).send_notification(alert_str)
+                                LinuxNotification.send_notification(device,alert_str)
                             
                             
 
