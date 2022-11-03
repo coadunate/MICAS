@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export MICAS_PATH=/path/to/MICAS
+# assuming that this script is run after cd'ing into the MICAS folder
+# otherwise change this to be the fully qualified path to the MICAS folder
+# export MICAS_PATH=/path/to/MICAS
+export MICAS_PATH=`pwd`
 
 ## 0.0 HELPFUL FUNCTIONS ##
 find_in_conda_env() {
@@ -92,14 +95,15 @@ else
     debug "micas environment is not installed, installing..."
     
     # create a new conda environment
-    create_conda_env_cmd="conda create -y -q -n micas python=3.8"
+#    create_conda_env_cmd="conda create -y -q -n micas python=3.8"
+    create_conda_env_cmd="conda env create -f ${MICAS_PATH}/micas_env_mk1b.yml"
     print_and_run_cmd "$create_conda_env_cmd"
 
     # activate the newly created conda environment
     activate_conda_env
 
     # install server dependencies
-    python -m pip install -r requirements.txt
+#    python -m pip install -r requirements.txt
 fi
 
 ## 3.0 START MICAS ##
