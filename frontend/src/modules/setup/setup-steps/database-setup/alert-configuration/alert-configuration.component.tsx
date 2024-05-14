@@ -40,10 +40,9 @@ const AlertConfigurationComponent:
             <br/>
             <p className="lead"></p>
             <h4>Device Selection</h4>
-            <div className="vspacer-50"/>
             <div className="row ml-auto">
             <select onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedDevice(e.target.value)} value={selectedDevice}> 
-                <option value="⬇️ Select a Device ⬇️"> -- Select a Device -- </option>
+                <option value="Select a Device">Select a Device</option>
                 {devices.map((Device: string) => <option value={Device}>{Device}</option>)}
             </select>     
             </div>

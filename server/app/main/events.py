@@ -1,38 +1,32 @@
-from flask import url_for, session
-from flask_socketio import emit, send
-from .. import socketio
-
+import os
+import shutil
+import subprocess
+import json
+import logging
 from threading import Thread, Event
-
-# for download_database
-import os, shutil, subprocess
 from time import sleep
 
-# for run_fastq_watcher
+from flask import session
+from flask_socketio import emit
+from watchdog.observers import Observer
+
+from .. import socketio
 from .utils.FASTQFileHandler import FASTQFileHandler
 from .utils.tasks import int_download_database
 from .utils import LinuxNotification
 
-# for run_fasq_watcher
-from watchdog.observers import Observer
-
-import json
-
-# for Logger
-import logging
-
+# Setup logger
 logger = logging.getLogger('micas')
 
 fileListenerThread = Thread()
 thread_stop_event = Event()
-
 REDIRECTION_EXECUTED = False
-
 
 # HELPER FUNCTIONS
 
 def run_fastq_watcher(app_loc, minion_loc):
-    logger.debug(f"Debug: Starting fastq watcher on {app_loc}")
+    """Starts the FASTQ watcher."""
+    logger.debug(f"Starting FASTQ watcher on {app_loc}")
     event_handler = FASTQFileHandler(app_loc)
     observer = Observer()
     observer.schedule(event_handler, path=minion_loc, recursive=False)
@@ -40,121 +34,96 @@ def run_fastq_watcher(app_loc, minion_loc):
     try:
         while True:
             sleep(1)
-    except:
+    except Exception as e:
+        logger.error(f"Error in FASTQ watcher: {e}")
         observer.stop()
-
-
-@socketio.on('connect', namespace="/analysis")
-def analysis_connected():
-    logger.debug("Debug: Unused analysis connection made.")
-
-
-@socketio.on('disconnect', namespace="/analysis")
-def analysis_disconnected():
-    # delete the analysis_busy file
-    subprocess.call(['rm', session.get('micas_location') + 'analysis_busy'])
-    logger.debug("Debug: Disconnect from analysis connection.")
-
-
-@socketio.on('start_fastq_file_listener')
-def start_fastq_file_listener(data):
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/' + data['projectId'] + '/')
-    minion_location = data['minion_location']
-    # need visibility of the global thread object
-    logger.debug("Debug: Request for FASTQ File Listener recieved.")
-    global fileListenerThread
-
-    if not fileListenerThread.isAlive():
-        logger.debug("Debug: Starting the FASTQ file listener thread.")
-        fileListenerThread = Thread(target=run_fastq_watcher(micas_location, minion_location))
-        fileListenerThread.daemon = True
-        fileListenerThread.start()
+    observer.join()
 
 def on_raw_message(message):
+    """Handles raw messages for progress updates."""
     status = message['status']
     if status == "PROGRESS":
-
         percent_done = message['result']['percent-done']
         status_message = message['result']['message']
-        project_id = message['result']['project_id']
-
-        emit(
-            'download_database_status',
-            {'percent_done': percent_done, 'status_message': status_message}
-        )
+        emit('download_database_status', {'percent_done': percent_done, 'status_message': status_message})
 
         if percent_done == 100:
             minion = message['result']['minion']
             micas_location = message['result']['micas_location']
-
-            logger.debug("Debug: Starting the MinION Listener")
+            logger.debug("Starting the MinION Listener")
             # start_fastq_file_listener(micas_location, minion)
 
-    if status == "SUCCESS":
+    elif status == "SUCCESS":
         minion = message['result']['minion']
         micas_location = message['result']['micas_location']
-        logger.debug(f"Debug: MinION Location: {minion}, MICAS Location: {micas_location}")
+        logger.debug(f"MinION Location: {minion}, MICAS Location: {micas_location}")
+
+
+@socketio.on('connect', namespace="/analysis")
+def analysis_connected():
+    """Handles new connections to the analysis namespace."""
+    logger.debug("Unused analysis connection made.")
+
+@socketio.on('disconnect', namespace="/analysis")
+def analysis_disconnected():
+    """Handles disconnections from the analysis namespace."""
+    micas_location = session.get('micas_location')
+    if micas_location:
+        subprocess.call(['rm', os.path.join(micas_location, 'analysis_busy')])
+    logger.debug("Disconnected from analysis connection.")
+
+@socketio.on('start_fastq_file_listener')
+def start_fastq_file_listener(data):
+    """Starts the FASTQ file listener."""
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas', data['projectId'])
+    minion_location = data['minion_location']
+
+    logger.debug("Request for FASTQ File Listener received.")
+    global fileListenerThread
+
+    if not fileListenerThread.is_alive():
+        logger.debug("Starting the FASTQ file listener thread.")
+        fileListenerThread = Thread(target=run_fastq_watcher, args=(micas_location, minion_location))
+        fileListenerThread.daemon = True
+        fileListenerThread.start()
 
 
 @socketio.on('download_database', namespace="/")
 def download_database(dbinfo):
+    """Handles the database download process."""
     project_id = dbinfo["projectId"]
     device = dbinfo["device"]
 
     # Location for the application data directory
-    micas_location = os.path.join(os.path.expanduser('~'), '.micas/' + project_id + '/') #Add to CONFIG
+    micas_location = os.path.join(os.path.expanduser('~'), '.micas', project_id)
 
-    # create micas_location directory if it doesn't exist
-    if not os.path.exists(micas_location):
-        print("Creating directory: " + micas_location)
-        os.makedirs(micas_location)
-    else:
-       # delete the directory and recreate it
+    # Create or recreate the micas_location directory
+    if os.path.exists(micas_location):
         shutil.rmtree(micas_location)
-        print("I AM CREATING " + micas_location + " DIRECTORY FROM download_database")
-        os.makedirs(micas_location)
+        logger.debug(f"Recreating directory: {micas_location}")
+    os.makedirs(micas_location, mode=0o777, exist_ok=True)
 
     queries = dbinfo["queries"]
 
     # Create a file to indicate that the download is in progress
-    download_in_progress = open(micas_location + '.download_in_progress', 'a')
+    with open(os.path.join(micas_location, '.download_in_progress'), 'a') as download_in_progress:
+        pass
 
-    with open(micas_location + 'alertinfo.cfg', 'w+') as alert_config_file:
-        alert_config_file.write(json.dumps(dbinfo))
+    with open(os.path.join(micas_location, 'alertinfo.cfg'), 'w+') as alert_config_file:
+        json.dump(dbinfo, alert_config_file)
 
-    # Emit Message to Minknow
-    alert_str = f"You can find the MICAS alert page for {str(project_id)} at http://localhost:3000/analysis/{str(project_id)}"
+    # Emit notification to MinKNOW
+    alert_str = f"You can find the MICAS alert page for {project_id} at http://localhost:3000/analysis/{project_id}"
     LinuxNotification.send_notification(device, alert_str, severity=1)
-    
-    # Create database directory.
-    logger.debug("Debug: Creating database directory.")
-    os.umask(0)
+
+    # Create database directory
+    logger.debug("Creating database directory.")
     os.makedirs(os.path.join(micas_location, 'database'), mode=0o777, exist_ok=True)
-    
 
     # Create minimap2/runs directory
-    logger.debug("Debug: Creating minimap2/runs directory.")
-    os.umask(0)
-    os.makedirs(micas_location + 'minimap2/runs', mode=0o777, exist_ok=True)
+    logger.debug("Creating minimap2/runs directory.")
+    os.makedirs(os.path.join(micas_location, 'minimap2/runs'), mode=0o777, exist_ok=True)
 
+    # Start the database download task
     res = int_download_database.apply_async(args=[dbinfo, micas_location, queries])
     res.get(on_message=on_raw_message, propagate=False)
-    
-    
-    
-   
-
-
-# LOGGER HOOKS
-@socketio.on('log')
-def log(msg, lvl):
-    if str(lvl).upper() == "INFO":
-        logger.info(msg)
-    elif str(lvl).upper() == "DEBUG":
-        logger.debug(msg)
-    elif str(lvl).upper() == "WARNING":
-        logger.warning(msg)
-    elif str(lvl).upper() == "ERROR":
-        logger.error(msg)
-    elif str(lvl).upper() == "CRITICAL":
-        logger.critical(msg)

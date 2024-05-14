@@ -1,45 +1,49 @@
-import React, {FunctionComponent} from 'react';
-import {IMicas} from "./home.interfaces";
-import {gotoLoc} from "../../utils/utils";
+import React, { FunctionComponent } from 'react';
+import { IMicas } from "./home.interfaces";
+import { gotoLoc } from "../../utils/utils";
 
 const micas_config: IMicas = {
     title: "Welcome to MICAS",
-    tagline: "A software by <i>Coadunate</i> lab",
-    description: "MinION Classification & Alerting System is a web application " +
-        "meant to be run simultaneously with the MinION DNA sequencer. This app " +
-        "provides an alerting system through which a scientist performing DNA " +
-        "sequencing runs could be notified through a log file or gui based message. " +
-        "The alerts could be set to respond to any particular sequences of " +
-        "interest arising in their sample. Our team believes that this will " +
-        "enable researchers to use their time more efficiently by allowing them " +
-        "to focus on more important matters in the meantime, rather than waiting " +
-        "around for significant sequences.",
+    tagline: "MinION Classification & Alerting System",
+    description: "MinION Classification & Alerting System (MICAS) is a web application " +
+        "designed to operate in conjunction with the MinION DNA sequencer. This application " +
+        "provides a sophisticated alerting system that notifies scientists during DNA sequencing runs " +
+        "through log files or GUI-based messages. Alerts can be configured to respond to specific " +
+        "sequences of interest detected in samples, allowing researchers to focus on other critical tasks " +
+        "without constantly monitoring the sequencing process.",
     version: '0.0.2'
-}
+};
 
 const HomeComponent: FunctionComponent = () => {
     return (
-        <div className="container-fluid text-center">
-            <div className="vspacer-20"/>
-            <h3 className="font-weight-bold">{micas_config.title} -
-                v{micas_config.version}</h3>
-            <p className="text-muted"
-               dangerouslySetInnerHTML={{__html: micas_config.tagline}}/>
-            <div className="vspacer-50"/>
-            <div className="col-lg-5 mx-auto">
-                <p className="lead">
-                    {micas_config.description}
-                </p>
+        <div className="container-fluid text-center py-5">
+            <div className="my-5">
+                <h1 className="display-4 font-weight-bold">
+                    {micas_config.title} - v{micas_config.version}
+                </h1>
             </div>
-            <div className="vspacer-100"/>
-            <div
-                className="container d-flex flex-column col-lg-2">
-                <button onClick={() => gotoLoc('/setup')}
-                        className="btn btn-info mb-2">Setup
-                </button>
-                <button onClick={() => gotoLoc('/analysis')}
-                        className="btn btn-info mb-2">Analysis
-                </button>
+            <div className="my-5">
+                <div className="col-lg-8 mx-auto">
+                    <p className="lead">
+                        {micas_config.description}
+                    </p>
+                </div>
+            </div>
+            <div className="my-5">
+                <div className="d-flex justify-content-center align-items-center">
+                    <div className="text-center mx-3">
+                        <button onClick={() => gotoLoc('/setup')}
+                                className="btn btn-info btn-lg mb-2">Setup
+                        </button>
+                        <p className="text-muted">Click here to setup your analysis environment.</p>
+                    </div>
+                    <div className="text-center mx-3">
+                        <button onClick={() => gotoLoc('/analysis')}
+                                className="btn btn-info btn-lg mb-2">Analysis
+                        </button>
+                        <p className="text-muted">Click here to view and manage your analyses.</p>
+                    </div>
+                </div>
             </div>
         </div>
     );

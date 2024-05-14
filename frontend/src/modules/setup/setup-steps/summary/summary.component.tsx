@@ -1,8 +1,10 @@
-import React, {FunctionComponent, useEffect, useState} from 'react';
-import {IDatabseSetupInput, ILocationConfig} from "../database-setup/database-setup.interfaces";
-import {IQuery} from "../database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
+import React, { FunctionComponent, useEffect, useState } from 'react';
+import { IDatabseSetupInput, ILocationConfig } from "../database-setup/database-setup.interfaces";
+import { IQuery } from "../database-setup/additional-sequences-setup/additional-sequences-setup.interfaces";
 import axios from "axios";
-import {socket} from "../../../../app.component";
+import { socket } from "../../../../app.component";
+
+import './summary.component.css';
 
 const VALIDATION_STATES = {
     NOT_STARTED: 0,
@@ -14,7 +16,6 @@ const VALIDATION_STATES = {
 type ISummaryComponentProps = {
     databaseSetupInput: IDatabseSetupInput
 }
-
 
 const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
     let queryFiles = ""
@@ -30,7 +31,7 @@ const validateLocations = (queries: IQuery[], locations: ILocationConfig) => {
         method: 'POST',
         url: 'http://localhost:5007/validate_locations',
         data: locationData,
-        headers: {"Content-Type": "multipart/form-data"},
+        headers: { "Content-Type": "multipart/form-data" },
     })
 }
 
@@ -42,12 +43,11 @@ const getUniqueUID = (locations: ILocationConfig) => {
         method: "POST",
         url: 'http://localhost:5007/get_uid',
         data: locationData,
-        headers: {'Content-Type': 'multipart/form-data'}
+        headers: { 'Content-Type': 'multipart/form-data' }
     })
 }
 
-const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSetupInput}) => {
-
+const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({ databaseSetupInput }) => {
     const [success, setSuccess] = useState("");
     const [error, setError] = useState("");
     const [validationState, setValidationState] = useState(VALIDATION_STATES.NOT_STARTED);
@@ -55,14 +55,13 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
     const [uid, setUID] = useState("");
     const [, setProgress] = useState("");
 
-    // additional databases
-    const num_additional_databases = databaseSetupInput.queries.queries.length
-    const add_databases = databaseSetupInput.queries.queries
+    const num_additional_databases = databaseSetupInput.queries.queries.length;
+    const add_databases = databaseSetupInput.queries.queries;
 
     useEffect(() => {
         (async () => {
             const res = await validateLocations(add_databases, databaseSetupInput.locations)
-            const v_code = res.data.code
+            const v_code = res.data.code;
 
             if (v_code === 0) { // if locations are valid
                 const res_uid = await getUniqueUID(databaseSetupInput.locations)
@@ -72,10 +71,9 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
                 setValidationState(VALIDATION_STATES.NOT_VALID)
             }
 
-        })().catch(err=>err);
+        })().catch(err => err);
 
     }, [started, add_databases, databaseSetupInput.locations])
-
 
     const initiateDatabaseCreation = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
@@ -98,78 +96,64 @@ const SummaryComponent: FunctionComponent<ISummaryComponentProps> = ({databaseSe
             let _url = 'http://' + window.location.hostname + ":" + window.location.port + '/analysis/' + uid;
             setSuccess("Creating database... You can view the analysis <a href='" + _url + "'>here</a>")
 
-
-
         } else {
             setError("Locations are not valid")
         }
     }
 
-
     return (
-        <div className="container text-center">
-            <div className="vspacer-20"/>
-            {
-                success !== "" ? <div className="alert alert-success text-left"
-                                      dangerouslySetInnerHTML={{__html: "SUCCESS -- " + success}}/> : ""
-            }
-            {
-                error !== "" ? <div className="alert alert-danger text-left">ERROR –– {error}</div> : ""
-            }
-            Here is the information you provided:
-            <br/><br/>
-            <table className="table">
-                <thead>
-                <tr>
-                    <th scope="col" colSpan={3}>Database Selection</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th rowSpan={num_additional_databases}>Additional Sequences</th>
-                    {
-                        add_databases.length > 0 && add_databases.map((query, idx) => {
+        <div className="container summary-container">
+            <div className="alert-container">
+                {success && <div className="alert alert-success" dangerouslySetInnerHTML={{ __html: "SUCCESS -- " + success }} />}
+                {error && <div className="alert alert-danger">ERROR –– {error}</div>}
+            </div>
+            <h3>Summary of Configuration</h3>
+            <div className="summary-table-container">
+                <table className="table table-bordered">
+                    <thead className="thead-dark">
+                        <tr>
+                            <th colSpan={3}>Database Selection</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th rowSpan={num_additional_databases}>Additional Sequences</th>
+                            {add_databases.length > 0 && add_databases.map((query, idx) => {
+                                if (idx === 0) {
+                                    return (<td key={idx}>Name: {query.name}</td>)
+                                }
+                            })}
+                            <td />
+                        </tr>
+                        {add_databases.length > 0 && add_databases.map((query, idx) => {
                             if (idx === 0) {
-                                return (<td key={idx}>Name: {query.name}</td>)
+                                return;
+                            } else {
+                                return (
+                                    <tr key={idx}>
+                                        <td />
+                                        <td>Name: {query.name}</td>
+                                    </tr>
+                                )
                             }
-                        }
-                        )
-                        
-                    }
-                    <td/>
-                </tr>
-                {
-                    add_databases.length > 0 && add_databases.map((query, idx) => {
-                        if (idx === 0) {
-                            return;
-                        } else {
-                            return (
-                                <tr key={idx}>
-                                    <td/>
-                                    <td>Name: {query.name}</td>
-                                </tr>
-                            )
-                        }
-                    })
-                }
-                </tbody>
-                <thead>
-                <tr>
-                    <th colSpan={3}>Alert Configuration</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th>Sequencing Device</th>
-                    {console.log(databaseSetupInput)}
-                    <td>{databaseSetupInput.device.device === "" ? "Not provided" : databaseSetupInput.device.device}</td>
-                </tr>
-                </tbody>
-            </table>
-            <hr/>
-            <div className="vspacer-20"/>
-            <button className="btn btn-info" disabled={started} onClick={(e) => initiateDatabaseCreation(e)}>Initiate Database Creation
-                Process
+                        })}
+                    </tbody>
+                    <thead className="thead-dark">
+                        <tr>
+                            <th colSpan={3}>Alert Configuration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Sequencing Device</th>
+                            <td colSpan={2}>{databaseSetupInput.device.device === "" ? "Not provided" : databaseSetupInput.device.device}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <button className="btn btn-primary" disabled={started} onClick={(e) => initiateDatabaseCreation(e)}>
+                Initiate Database Creation Process
             </button>
         </div>
     );

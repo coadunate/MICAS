@@ -26,12 +26,14 @@ const AnalysisComponent = () => {
     params = useParams();
 
     useEffect(() => {
-        (async () => {
-            const res = await get_analysis_info(params.id);
-            setData(res.data);
-            setLoaded(true);
-        })();
-    });
+        if(params.id) {
+            (async () => {
+                const res = await get_analysis_info(params.id);
+                setData(res.data);
+                setLoaded(true);
+            })();
+        }
+    },[params.id]);
 
     const get_analysis_info = (uid: string) => {
 

@@ -35,7 +35,6 @@ const LocationsSetupComponent: FunctionComponent<IDatabaseSetupConstituent> = ({
             <br/>
             <p className="lead"></p>
             <h4>MinION Location</h4>
-            <div className="vspacer-50"/>
             <div className="row ml-auto">
                 <input 
                     name="minionLocationText"

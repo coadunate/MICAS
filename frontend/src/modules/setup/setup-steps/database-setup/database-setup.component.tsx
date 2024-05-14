@@ -34,16 +34,14 @@ const DatabaseSetupComponent:
 
     return (
         <div
-            className="container-fluid vspacer-100 d-flex p-0 flex-column h-100" style={{borderTop: "1px solid #CCC"}}>
+            className="container-fluid vspacer-100 d-flex p-0 flex-column h-100">
             <div className="row justify-content-around">
                 <AlertConfigurationComponent initialConfig={initial_alert_config} updateConfig={setAlertConfig}/>    
                 <LocationsSetupComponent initialConfig={initial_location_config} updateConfig={setLocationConfig}/>
             </div>
-            <div className="vspacer-50"/>
             <div className="twline"><span>ALERT SEQUENCES</span></div>
             <AdditionalSequencesSetupComponent initialConfig={initial_additional_sequences_config} updateConfig={setAdditionalSequences} />
             <br/>
-            <div className="vspacer-50"/>
             <hr />
             <br/>
             <div className="container text-center">

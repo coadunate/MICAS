@@ -10,7 +10,7 @@ const ChartComponent : FunctionComponent<IChartData> = ({queries_data}) => {
 
     console.log(JSON.stringify(queries_data));
     return (
-        <div>
+        <div className="container">
             <Chart
                     height={"300px"}
                     chartType="BarChart"

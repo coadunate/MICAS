@@ -1,0 +1,68 @@
+/input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Custom switch styling */
+.custom-control-label::before, .custom-control-label::after {
+    top: 0.25rem;
+    width: 2.25rem;
+    height: 1.25rem;
+}
+
+.custom-control-label::before {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+}
+
+.custom-control-input:checked~.custom-control-label::before {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.custom-control-input:focus~.custom-control-label::before {
+    box-shadow: none;
+}
+
+.custom-control-input:checked~.custom-control-label::after {
+    transform: translateX(1rem);
+}
+
+/* Card styling for query items */
+.card {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert-enabled {
+    border-left: 5px solid #cb4431;
+}
+
+.alert-enabled .badge {
+    background-color: #cb4431;
+    color: white;
+}
