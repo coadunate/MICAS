@@ -26,24 +26,28 @@ class FASTQFileHandler(FileSystemEventHandler):
             logger.debug(f'Debug: File Event ({str(event.event_type)}), Path: {str(event.src_path)}')
 
             # paths for minimap2 out file and minimap2 report file
-            minimap2_output = self.app_loc + 'minimap2/runs/' + os.path.basename(event.src_path) + '.out.paf'
+            minimap2_output = self.app_loc + '/minimap2/runs/' + os.path.basename(event.src_path) + '.out.paf'
 
             # paths for final output file and final report file
-            final_output = self.app_loc + 'minimap2/final.out.paf'
+            final_output = self.app_loc + '/minimap2/final.out.paf'
 
             # figuring out the index name
-            import glob
-            files = glob.glob(self.app_loc + 'database/*')
-            indices = [x for x in files if x.endswith('mmi')]
-            index_file = ""
 
-            if len(indices) < 1:
+            from pathlib import Path
+            import sys
+
+            app_loc = Path(self.app_loc)  # Assuming self.app_loc is defined elsewhere
+            database_path = app_loc / 'database'
+
+            mmi_files = list(database_path.glob('*.mmi'))
+
+            if not mmi_files:
                 logger.error("Error: Database not found! No MMI files found at database location")
                 sys.exit(1)
             else:
-                index_file = indices[0]
+                index_file = mmi_files[0]
 
-            cmd = 'minimap2 ' + index_file + ' ' + event.src_path + ' -o ' + minimap2_output
+            cmd = 'minimap2 ' + str(index_file) + ' ' + event.src_path + ' -o ' + minimap2_output
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
             proc.wait()

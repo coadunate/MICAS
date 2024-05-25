@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect } from "react";
 import { IAnalysisDataProps } from "./analysis-data.interfaces";
 import { socket } from "../../../app.component";
 import ChartComponent from "./chart/chart.component";
@@ -19,9 +19,10 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({ data }) 
     for (let i = 1; i <= analysis_data.queries.length; i++) {
         let name = analysis_data.queries[i - 1].name;
         let thresh = analysis_data.queries[i - 1].threshold;
+        console.log(thresh)
         let curr_val = analysis_data.queries[i - 1].current_value;
         // @ts-ignore
-        queries_data[i] = [name, curr_val, parseInt(thresh)];
+        queries_data[i] = [name, curr_val, parseFloat(thresh)];
     }
 
     return (
