@@ -108,9 +108,9 @@ def download_database(dbinfo):
     with open(os.path.join(micas_location, 'alertinfo.cfg'), 'w+') as alert_config_file:
         json.dump(dbinfo, alert_config_file)
 
-    # # Emit notification to MinKNOW
-    # alert_str = f"You can find the MICAS alert page for {project_id} at http://localhost:3000/analysis/{project_id}"
-    # LinuxNotification.send_notification(device, alert_str, severity=1)
+    # Emit notification to MinKNOW
+    alert_str = f"You can find the MICAS alert page for {project_id} at http://localhost:3000/analysis/{project_id}"
+    LinuxNotification.send_notification(device, alert_str, severity=1)
 
     # Create database directory
     logger.debug("Creating database directory.")
@@ -193,7 +193,3 @@ def download_database(dbinfo):
     logger.debug("Debug: Database has successfully been downloaded and built.")
 
     return {"minion": minion, "micas_location": micas_location, "device": device}
-
-    # # Start the database download task
-    # res = int_download_database.apply_async(args=[dbinfo, micas_location, queries])
-    # res.get(on_message=on_raw_message, propagate=False)

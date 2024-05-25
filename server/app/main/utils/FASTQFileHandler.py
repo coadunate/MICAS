@@ -35,6 +35,7 @@ class FASTQFileHandler(FileSystemEventHandler):
 
             from pathlib import Path
             import sys
+            import datetime
 
             app_loc = Path(self.app_loc)  # Assuming self.app_loc is defined elsewhere
             database_path = app_loc / 'database'
@@ -83,7 +84,19 @@ class FASTQFileHandler(FileSystemEventHandler):
                         query["current_value"] = percent_match_value
                         # get ready to send an alert if needed
                         if float(query["threshold"]) <= float(percent_match_value):
-                            alert_str = f"Alert: The named taxa {query['name']} was detected to be at a concentration of {float(percent_match_value):.4f} for all sequence seen. This is above the set threshold of {float(query['threshold']):.4f}"
+                            date_time = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+                            file_date_time = date_time.replace(" ", "_").replace(":", "_").replace("-", "_")
+                            alert_data = {
+                                "alert": {
+                                    "name": query["name"],
+                                    "concentration": float(percent_match_value),
+                                    "threshold": float(query["threshold"]),
+                                    "date": file_date_time
+                                }
+                            }
+                            alert_str = json.dumps(alert_data)
+                            with open(os.path.join(app_loc, query['name'] + "_" + file_date_time + ".json" ), 'a') as file:
+                                file.write(alert_str + '\n')
                             logger.critical(alert_str)
                             if len(device) > 0:
                                 LinuxNotification.send_notification(device,alert_str)
