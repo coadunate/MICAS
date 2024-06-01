@@ -24,7 +24,7 @@ REDIRECTION_EXECUTED = False
 
 # HELPER FUNCTIONS
 
-def run_fastq_watcher(app_loc, minion_loc):
+def run_fastq_watcher(app_loc, minion_loc, stop_event):
     """Starts the FASTQ watcher."""
     logger.debug(f"Starting FASTQ watcher on {app_loc}")
     event_handler = FASTQFileHandler(app_loc)
@@ -32,12 +32,14 @@ def run_fastq_watcher(app_loc, minion_loc):
     observer.schedule(event_handler, path=minion_loc, recursive=False)
     observer.start()
     try:
-        while True:
+        while not stop_event.is_set():
             sleep(1)
     except Exception as e:
         logger.error(f"Error in FASTQ watcher: {e}")
+    finally:
         observer.stop()
-    observer.join()
+        observer.join()
+
 
 def on_raw_message(message):
     """Handles raw messages for progress updates."""
@@ -79,14 +81,35 @@ def start_fastq_file_listener(data):
     minion_location = data['minion_location']
 
     logger.debug("Request for FASTQ File Listener received.")
-    global fileListenerThread
+    global fileListenerThread, thread_stop_event
 
-    if not fileListenerThread.is_alive():
+    if fileListenerThread is None or not fileListenerThread.is_alive():
         logger.debug("Starting the FASTQ file listener thread.")
-        fileListenerThread = Thread(target=run_fastq_watcher, args=(micas_location, minion_location))
+        thread_stop_event.clear()
+        fileListenerThread = Thread(target=run_fastq_watcher, args=(micas_location, minion_location, thread_stop_event))
         fileListenerThread.daemon = True
         fileListenerThread.start()
+    return {"status": fileListenerThread.is_alive()}
 
+@socketio.on('stop_fastq_file_listener')
+def stop_fastq_file_listener(data):
+    """Stops the FASTQ file listener."""
+    logger.debug("Stopping the FASTQ file listener.")
+    global fileListenerThread, thread_stop_event
+
+    if fileListenerThread and fileListenerThread.is_alive():
+        thread_stop_event.set()
+        fileListenerThread.join()
+    return {"status": fileListenerThread.is_alive()}
+
+
+@socketio.on('check_file_listener_status')
+def check_file_listener_status(data):
+    """Checks the status of the FASTQ file listener."""
+    logger.debug("Getting status")
+    global fileListenerThread
+
+    return {"status": fileListenerThread.is_alive() if fileListenerThread else False}
 
 @socketio.on('download_database', namespace="/")
 def download_database(dbinfo):

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { IAnalysisDataProps } from "./analysis-data.interfaces";
 import { socket } from "../../../app.component";
 import ChartComponent from "./chart/chart.component";
@@ -8,11 +8,40 @@ import "./analysis-data.component.css";
 const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({ data }) => {
     const analysis_data = data.data;
 
-    const handleStartFileListener = () => {
-        socket.emit("start_fastq_file_listener", {
+    const [isRunning, setIsRunning] = useState(false);
+
+    useEffect(() => {
+        checkStatus();
+    
+        const intervalId = setInterval(() => {
+          checkStatus();
+        }, 120000); // 2 minutes
+    
+        return () => clearInterval(intervalId); 
+      }, []);
+
+    const checkStatus = () => {
+        socket.emit("check_file_listener_status", {
             minion_location: analysis_data.minion,
             projectId: analysis_data.projectId
-        });
+        }, (data: any) => {setIsRunning(data.status)});
+    }
+
+    const handleToggleFileListener = () => {
+
+        if (isRunning) {
+            socket.emit("stop_fastq_file_listener", {
+                minion_location: analysis_data.minion,
+                projectId: analysis_data.projectId
+            }, (data: any) => {console.log(`Stopping: ${JSON.stringify(data)}`); setIsRunning(data.status)});
+            return;
+        } else {
+            socket.emit("start_fastq_file_listener", {
+                minion_location: analysis_data.minion,
+                projectId: analysis_data.projectId
+            }, (data: any) => {console.log(`Starting: ${JSON.stringify(data)}`); setIsRunning(data.status)});
+        }
+
     };
 
     let queries_data = [["Name", "Ratio", "Threshold"]];
@@ -50,8 +79,8 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({ data }) 
                 <div className="vspacer-20" />
                 <div className="section-title"><span>Actions</span></div>
                 <div className="action-buttons d-flex justify-content-center">
-                    <button className="btn btn-primary mr-3" onClick={handleStartFileListener}>
-                        <i className="fas fa-play"></i> Start File Listener
+                <button className="btn btn-primary mr-3" onClick={handleToggleFileListener}>
+                        <i className={`fas ${isRunning ? 'fa-toggle-off' : 'fa-toggle-on'}`}></i> Toggle File Listener
                     </button>
                     <button className="btn btn-danger">
                         <i className="fas fa-trash-alt"></i> Remove Analysis
@@ -68,6 +97,10 @@ const AnalysisDataComponent: FunctionComponent<IAnalysisDataProps> = ({ data }) 
                         <tr>
                             <th>MinION Path</th>
                             <td>{analysis_data.minion}</td>
+                        </tr>
+                        <tr>
+                            <th>Watcher Status</th>
+                            <td>{isRunning ? <strong className="text-success">ON</strong> : <strong className="text-danger">OFF</strong>}</td>
                         </tr>
                     </tbody>
                 </table>
